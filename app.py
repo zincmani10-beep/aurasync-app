@@ -2,12 +2,19 @@
 """AuraSync | Luxury Ambient Intelligence - single-file Streamlit app.
 Run with:  streamlit run app.py   (Streamlit >= 1.37 recommended)
 Install:   pip install streamlit pandas requests deep-translator openai   (deep-translator = every language on every page)
+
+Secrets (.streamlit/secrets.toml, or the Secrets box on Streamlit Community Cloud):
+  NVIDIA_API_KEY   AI companion (NVIDIA NIM)
+  AURASYNC_TOKEN   protects the ?mode=...&token=... links and the "Voice Automation Links" panel (required for both)
+  APP_URL, VOICEMONKEY_TOKEN, IOT_WEBHOOK_URL, ...   cloud IoT triggers, see the "Cloud automation" section below
 """
 import ast
 import calendar
 import concurrent.futures
 import hashlib
+import hmac
 import html
+import ipaddress
 import json
 import math
 import os
@@ -18,6 +25,7 @@ import sys
 import threading
 import time
 import types
+import urllib.parse
 from datetime import date, datetime, timedelta, timezone
 from datetime import time as dtime
 
@@ -373,6 +381,58 @@ T = {
     "chat_done_calm": ("Done. Soft light and calm sound are on. Breathe out slowly with me.", "முடிந்தது. மென்மையான ஒளி மற்றும் அமைதியான ஒலி இயக்கப்பட்டுள்ளன. என்னுடன் மெதுவாக மூச்சை வெளியேற்றுங்கள்.", "완료. 부드러운 조명과 차분한 소리가 켜졌습니다. 천천히 숨을 내쉬세요.", "เรียบร้อย ไฟนุ่มและเสียงสงบเปิดแล้ว หายใจออกช้า ๆ กับฉัน", "Hecho. Luz suave y sonido relajante activos. Respira lento conmigo."),
     "chat_declined": ("Okay, no pressure. I'm still here.", "சரி, அழுத்தம் இல்லை. நான் இன்னும் இங்கே இருக்கிறேன்.", "알겠습니다. 부담 갖지 마세요. 저는 여기 있습니다.", "โอเค ไม่กดดัน ฉันยังอยู่ตรงนี้", "Vale, sin presión. Sigo aquí."),
 }
+
+# Voice automation / cloud IoT / microphone strings: (English, Tamil). Other languages are translated live by tr().
+AUTO_T = {
+    "auto_links_title": ("Voice Automation Links", "குரல் தானியக்க இணைப்புகள்"),
+    "auto_locked": ("Enter your AuraSync token to reveal your private links.", "உங்கள் தனிப்பட்ட இணைப்புகளைக் காண AuraSync டோக்கனை உள்ளிடவும்."),
+    "auto_token": ("AuraSync token", "AuraSync டோக்கன்"),
+    "auto_unlock": ("Unlock", "திற"),
+    "auto_lock": ("Lock", "பூட்டு"),
+    "auto_bad_token": ("That token is not correct.", "அந்த டோக்கன் சரியல்ல."),
+    "auto_wait": ("Too many attempts. Please wait a minute.", "அதிக முயற்சிகள். ஒரு நிமிடம் காத்திருக்கவும்."),
+    "auto_no_secret": ("Add AURASYNC_TOKEN to .streamlit/secrets.toml (or the Secrets box on Streamlit Cloud) to switch on the link webhook and these shortcut links.",
+                       "இணைப்பு வெப்ஹூக்கையும் இந்த ஷார்ட்கட் இணைப்புகளையும் இயக்க .streamlit/secrets.toml (அல்லது Streamlit Cloud Secrets) இல் AURASYNC_TOKEN ஐச் சேர்க்கவும்."),
+    "auto_base": ("Your app address (https://your-app.streamlit.app)", "உங்கள் ஆப் முகவரி (https://your-app.streamlit.app)"),
+    "auto_ios": ("iPhone · Siri Shortcuts", "ஐபோன் · Siri Shortcuts"),
+    "auto_android": ("Android · Google Assistant", "ஆண்ட்ராய்டு · Google Assistant"),
+    "auto_ios_help": ("Shortcuts app → + New Shortcut → add “Open URLs” and paste a link below → Add to Siri and record your phrase. “Open URLs” opens AuraSync, applies the mood, sends your cloud triggers and syncs the app. For lights only (app stays closed) use a Direct cloud trigger with “Get Contents of URL” and Method GET.", ""),
+    "auto_android_help": ("HTTP Shortcuts app → + → choose “Browser Shortcut” and paste a link below (opens AuraSync and applies the mood). For lights only, create a Regular shortcut with Method GET and paste a Direct cloud trigger. Add it to your home screen, or say “Hey Google, open <shortcut name>”. Steps can differ a little between app versions.", ""),
+    "auto_why": ("Why two kinds of link? Streamlit only runs your app when a browser opens it, so a plain GET fetch of the app address does nothing. App links need “open”; Direct cloud triggers work with a plain GET.", ""),
+    "auto_say": ("Say", "சொல்லுங்கள்"),
+    "auto_direct": ("Direct cloud triggers (work without opening the app)", "நேரடி கிளவுட் தூண்டுதல்கள் (ஆப்பைத் திறக்காமல் வேலை செய்யும்)"),
+    "auto_direct_none": ("No cloud trigger is configured yet. Add VOICEMONKEY_TOKEN or IOT_WEBHOOK_URL to your secrets.", "கிளவுட் தூண்டுதல் இன்னும் அமைக்கப்படவில்லை. VOICEMONKEY_TOKEN அல்லது IOT_WEBHOOK_URL ஐ secrets இல் சேர்க்கவும்."),
+    "auto_test": ("Send test trigger", "சோதனை தூண்டுதலை அனுப்பு"),
+    "auto_test_mode": ("Mode to test", "சோதிக்க வேண்டிய முறை"),
+    "auto_iot_title": ("Cloud IoT settings (this session only)", "கிளவுட் IoT அமைப்புகள் (இந்த அமர்வுக்கு மட்டும்)"),
+    "auto_iot_hint": ("Saved permanently in Secrets. Values typed here are kept for this session only. Alexa: Voice Monkey. WiZ has no public cloud API, so use an Alexa routine, Home Assistant Cloud or IFTTT webhook that controls your WiZ lights.", ""),
+    "auto_tpl": ("Webhook URL ({mode} is replaced)", "வெப்ஹூக் URL ({mode} மாற்றப்படும்)"),
+    "auto_vm": ("Voice Monkey token", "Voice Monkey டோக்கன்"),
+    "auto_apply": ("Apply", "செயல்படுத்து"),
+    "auto_clear": ("Clear", "அழி"),
+    "auto_applied": ("Cloud settings applied for this session.", "இந்த அமர்வுக்கு கிளவுட் அமைப்புகள் பயன்படுத்தப்பட்டன."),
+    "auto_ok_hook": ("Mode applied from your link: {m}", "உங்கள் இணைப்பிலிருந்து முறை பயன்படுத்தப்பட்டது: {m}"),
+    "auto_bad_mode": ("That link has an unknown mode.", "அந்த இணைப்பில் தெரியாத முறை உள்ளது."),
+    "auto_denied": ("A link was blocked: wrong or missing token.", "ஒரு இணைப்பு தடுக்கப்பட்டது: டோக்கன் தவறு அல்லது இல்லை."),
+    "iot_sent": ("☁️ Cloud triggers sent: {ok} of {n}", "☁️ கிளவுட் தூண்டுதல்கள் அனுப்பப்பட்டன: {n} இல் {ok}"),
+    "iot_blocked": ("blocked (needs a public https address)", "தடுக்கப்பட்டது (பொது https முகவரி தேவை)"),
+    "mic_title": ("Tap the mic and speak", "மைக்கைத் தட்டிப் பேசுங்கள்"),
+    "mic_hint": ("Try: “Turn to reading mode”, “Activate Zen”, “Focus mode”", "முயலுங்கள்: “reading mode”, “Zen”, “Focus mode”"),
+    "mic_listening": ("Listening…", "கேட்கிறேன்…"),
+    "mic_heard": ("Heard", "கேட்டது"),
+    "mic_sent": ("Sent to AuraSync ✓", "AuraSync க்கு அனுப்பப்பட்டது ✓"),
+    "mic_denied": ("Microphone permission was denied. Allow it in your browser settings, or type the command below.", "மைக்ரோஃபோன் அனுமதி மறுக்கப்பட்டது. உலாவி அமைப்புகளில் அனுமதியுங்கள் அல்லது கீழே தட்டச்சு செய்யுங்கள்."),
+    "mic_unsupported": ("This browser has no voice recognition. Type the command below.", "இந்த உலாவியில் குரல் அறிதல் இல்லை. கீழே தட்டச்சு செய்யுங்கள்."),
+    "mic_nospeech": ("I didn't hear anything. Tap the mic and try again.", "எதுவும் கேட்கவில்லை. மைக்கைத் தட்டி மீண்டும் முயலுங்கள்."),
+    "mic_network": ("The voice service could not be reached. Check your connection or type the command.", "குரல் சேவையை அடைய முடியவில்லை. இணைப்பைச் சரிபார்க்கவும் அல்லது தட்டச்சு செய்யவும்."),
+    "mic_nomic": ("No microphone was found.", "மைக்ரோஃபோன் கிடைக்கவில்லை."),
+    "mic_nobridge": ("Couldn't reach the app. Type the command below.", "ஆப்பை அடைய முடியவில்லை. கீழே தட்டச்சு செய்யுங்கள்."),
+    "mic_error": ("Voice recognition had a problem. Please try again.", "குரல் அறிதலில் சிக்கல். மீண்டும் முயலுங்கள்."),
+    "mic_unknown": ("I heard “{x}”, but it is not a mood I know. Try “reading”, “zen” or “focus”.", "“{x}” என்று கேட்டேன், ஆனால் அது எனக்குத் தெரிந்த முறை அல்ல. “reading”, “zen” அல்லது “focus” என்று முயலுங்கள்."),
+}
+for _k, _v in AUTO_T.items():
+    T[_k] = tuple(x for x in _v if x) if _v[-1] == "" else _v
+
 for _k, _v in T.items():
     if not isinstance(_v, tuple):
         T[_k] = (_v,)
@@ -584,6 +644,16 @@ MODE_NAMES = {
     },
 }
 
+MODE_NAMES["Reading"] = {
+    "English": "Reading", "Tamil (தமிழ்)": "வாசிப்பு", "Korean (한국어)": "독서", "Thai (Thai)": "อ่านหนังสือ",
+    "Spanish (Español)": "Lectura", "Hindi (हिन्दी)": "पढ़ना", "Arabic (العربية)": "القراءة", "Japanese (日本語)": "読書",
+    "Chinese (中文)": "阅读", "French (Français)": "Lecture", "German (Deutsch)": "Lesen", "Italian (Italiano)": "Lettura",
+    "Portuguese (Português)": "Leitura", "Russian (Русский)": "Чтение", "Turkish (Türkçe)": "Okuma",
+    "Dutch (Nederlands)": "Lezen", "Polish (Polski)": "Czytanie", "Swedish (Svenska)": "Läsning",
+    "Greek (Ελληνικά)": "Ανάγνωση", "Indonesian (Bahasa Indonesia)": "Membaca", "Vietnamese (Tiếng Việt)": "Đọc Sách",
+    "Malay (Bahasa Melayu)": "Membaca", "Filipino (Tagalog)": "Pagbabasa"
+}
+
 LIGHT_WORDS = {
     "Daylight White": {
         "English": "Daylight White", "Tamil (தமிழ்)": "பகல் வெள்ளை", "Korean (한국어)": "주광색 백색",
@@ -718,6 +788,9 @@ if not hasattr(_REG, "lock"):
     _REG.mt_ok = None
     _REG.wrapped = False
     _REG.impl = {}
+for _n, _d in (("auth_fail", {}),):   # new attributes are added one by one, so a long-running server never lacks them
+    if not hasattr(_REG, _n):
+        setattr(_REG, _n, _d)
 
 
 def lang_code():
@@ -1191,6 +1264,8 @@ input::placeholder, textarea::placeholder { color: @MUTE@ !important; -webkit-te
 .bub.typing span:nth-child(2) { animation-delay: 0.2s; }
 .bub.typing span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+.st-key-aura_voice_bridge { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; opacity: 0 !important; }
+div[data-testid="stTextInput"]:has(input[placeholder="◈7731◈"]) { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; opacity: 0 !important; }
 </style>
 """
 
@@ -1381,6 +1456,8 @@ DEFAULT_MODES = {
                         "extras": ["purifier", "mattress"]},
     "Cinema Night": {"bulb": "#3B1F6B", "bright": 15, "fan": 2, "ac": 23, "curtain": 0, "genre": "Classical",
                      "extras": ["speaker"]},
+    "Reading": {"bulb": "#FFE2B8", "bright": 72, "fan": 1, "ac": 24, "curtain": 60, "genre": "Classical",
+                "extras": ["lamp", "speaker"]},
     "Neutral Family Ambience": {"bulb": "#FFE6C7", "bright": 55, "fan": 2, "ac": 24, "curtain": 50, "genre": "Ambient Space",
                                 "extras": ["speaker"]},
 }
@@ -3475,7 +3552,13 @@ def zen_go(kind):
     ss = st.session_state
     room = ss.presence["room"]
     if kind == "away":
-        return set_away_mode() if ss.conn["mode"] == "home" else go_home_mode()
+        leaving = ss.conn["mode"] == "home"
+        if leaving:
+            set_away_mode()
+        else:
+            go_home_mode()
+        dispatch_cloud("away" if leaving else "home", "app")
+        return
     mode = {"relax": "Relax Evening", "focus": "Focus", "sleep": WIND_MODE}[kind]
     if mode not in ss.modes:
         return
@@ -3484,6 +3567,7 @@ def zen_go(kind):
     if kind == "sleep":
         ss.fade_tok += 1
     ss.flash = "✨ " + tr_mode(mode)
+    dispatch_cloud(kind, "app")
 
 
 def page_dashboard_zen():
@@ -3700,6 +3784,8 @@ def run_voice(text):
             msg = voice_do(kind)
             if msg:
                 log("🎙️ Voice: “" + text.strip() + "” → " + kind)
+                if kind in KIND_TO_ID:
+                    dispatch_cloud(KIND_TO_ID[kind], "voice")
                 return msg
     return t("voice_unknown")
 
@@ -3718,6 +3804,7 @@ def cb_voice_preset(text):
 def render_voice_bar():
     ss = st.session_state
     st.markdown("**" + t("voice_title") + "**")
+    render_voice_mic()
     cols = st.columns(3)
     for col, (k, text) in zip(cols, (("tired", "I'm tired"), ("work", "Starting work"), ("movie", "Family movie time"))):
         col.button(t("voice_" + k), key="voice_p_" + k, on_click=cb_voice_preset, args=(text,))
@@ -5378,6 +5465,588 @@ def page_system():
 
 
 # ----------------------------------------------------------------------------
+# Cloud automation
+#   1. ?mode=...&token=... link webhook (Siri / Google / any browser) -> applies the mood, soundtrack and cloud triggers
+#   2. Cloud IoT dispatcher (Voice Monkey for Alexa, or any https webhook: IFTTT, Home Assistant Cloud, ...)
+#   3. "Voice Automation Links" panel that generates ready-to-copy shortcut links
+#   4. Cross-platform in-app microphone (Web Speech API)
+# Nothing here touches the audio engine, so the lock-screen Media Session keeps playing untouched.
+#
+# Secrets (.streamlit/secrets.toml, or the Secrets box on Streamlit Cloud). All optional except AURASYNC_TOKEN:
+#   AURASYNC_TOKEN       = "long-random-string"            # protects ?mode= links and the links panel
+#   APP_URL              = "https://your-app.streamlit.app"
+#   VOICEMONKEY_TOKEN    = "..."                            # Alexa via Voice Monkey (device ids: aurasync-reading, ...)
+#   VOICEMONKEY_API      = "https://api-v2.voicemonkey.io/trigger"
+#   IOT_WEBHOOK_URL      = "https://example.com/hook/aurasync_{mode}"   # one URL for every mode ({mode} is replaced)
+#   IOT_WEBHOOK_METHOD   = "GET"                            # or "POST" (JSON body: mode, room, source)
+#   [IOT_WEBHOOKS]                                          # per-mode URL (string or list) overrides the template
+#   reading = "https://..."
+#   [VOICEMONKEY_MONKEYS]                                   # per-mode Voice Monkey device ids
+#   reading = "my-reading-monkey"
+# ----------------------------------------------------------------------------
+AUTO_MODES = (
+    # id, icon, spoken-word pattern (English plus common Tamil spellings), how it is applied, target
+    ("home", "🏠", r"\b(?:i'?m|i am) home\b|\bback home\b|\barrived\b|\bhome mode\b|வீட்டுக்கு வந்தேன்", "voice", "home"),
+    ("away", "🚗", r"\bleaving\b|\bgoing out\b|\bheading out\b|\baway\b|\bbye\b|வெளியே போகிறேன்", "voice", "away"),
+    ("reading", "📖", r"\bread(?:ing)?\b|\bbooks?\b|ரீடிங்|வாசிப்பு|படிப்பு|पढ़", "mode", "Reading"),
+    ("zen", "🌿", r"\bzen\b|\bgarden\b|ஜென்|ज़ेन|젠", "mode", "Zen Garden"),
+    ("meditation", "🧘", r"\bmeditat\w*|\bdhyan\w*|தியான|ध्यान", "mode", "Deep Meditation"),
+    ("focus", "💼", r"\bfocus\w*|\bstudy\b|\bconcentrat\w*|\bwork(?:ing)?\b|ஃபோகஸ்|ஃபோக்கஸ்|கவனம்", "voice", "work"),
+    ("movie", "🎬", r"\bmovies?\b|\bcinema\b|\bfilm\b|சினிமா|திரைப்பட", "voice", "movie"),
+    ("relax", "🛋️", r"\brelax\w*|\bunwind\b|\bchill\b|\bcalm\b|ரிலாக்ஸ்|ஓய்வு", "voice", "relax"),
+    ("energize", "⚡", r"\benerg\w*|\bworkout\b|\bwake ?up\b|உற்சாக", "mode", "Energize"),
+    ("sleep", "🌙", r"\bsleep\w*|\bbed ?time\b|\bgood ?night\b|\btired\b|தூங்|உறக்க", "voice", "sleep"),
+)
+AUTO_IDS = tuple(m[0] for m in AUTO_MODES)
+AUTO_VOICE_MODE = {"sleep": WIND_MODE, "work": "Focus", "movie": CINEMA_MODE, "relax": "Relax Evening"}
+KIND_TO_ID = {"sleep": "sleep", "work": "focus", "movie": "movie", "relax": "relax", "away": "away", "home": "home"}
+IOT_WAIT = 6.0          # seconds the app waits for cloud triggers before carrying on
+MIC_BRIDGE_KEY = "aura_voice_bridge"
+MIC_PH = "◈7731◈"
+SR_LANGS = {"English": "en-US", "Tamil (தமிழ்)": "ta-IN", "Korean (한국어)": "ko-KR", "Thai (Thai)": "th-TH",
+            "Spanish (Español)": "es-ES", "Hindi (हिन्दी)": "hi-IN", "Arabic (العربية)": "ar-SA",
+            "Japanese (日本語)": "ja-JP", "Chinese (中文)": "zh-CN", "French (Français)": "fr-FR",
+            "German (Deutsch)": "de-DE", "Italian (Italiano)": "it-IT", "Portuguese (Português)": "pt-BR",
+            "Russian (Русский)": "ru-RU", "Turkish (Türkçe)": "tr-TR", "Dutch (Nederlands)": "nl-NL",
+            "Polish (Polski)": "pl-PL", "Swedish (Svenska)": "sv-SE", "Greek (Ελληνικά)": "el-GR",
+            "Indonesian (Bahasa Indonesia)": "id-ID", "Vietnamese (Tiếng Việt)": "vi-VN",
+            "Malay (Bahasa Melayu)": "ms-MY", "Filipino (Tagalog)": "fil-PH"}
+
+
+def tt(key, **kw):
+    """t() plus live translation for languages without a hand-written string (used for text inside HTML / JS)."""
+    out = t(key, **kw)
+    eng = T[key][0]
+    for k, v in kw.items():
+        eng = eng.replace("{" + k + "}", str(v))
+    return tr(out) if (out == eng and lang_code()) else out
+
+
+def _secret(name, default=None):
+    """st.secrets first, then an environment variable. Never raises when there is no secrets file."""
+    try:
+        v = st.secrets.get(name, None)
+    except Exception:
+        v = None
+    if v is None:
+        v = os.environ.get(name)
+    return default if v is None or v == "" else v
+
+
+def _as_dict(v):
+    if v is None or isinstance(v, (str, bytes)):
+        return {}
+    try:
+        return {str(k): v[k] for k in v}
+    except Exception:
+        return {}
+
+
+def _as_list(v):
+    if isinstance(v, str):
+        return [v] if v.strip() else []
+    try:
+        return [x for x in v if isinstance(x, str) and x.strip()]
+    except TypeError:
+        return []
+
+
+# ---- token check with a per-client lock-out (constant-time compare)
+def _client_key():
+    try:
+        xf = st.context.headers.get("X-Forwarded-For") or ""
+        return (xf.split(",")[0].strip() or "?")[:64]
+    except Exception:
+        return "?"
+
+
+def check_token(candidate):
+    """Returns 'ok', 'bad', 'locked' or 'unset'."""
+    secret = _secret("AURASYNC_TOKEN")
+    if not secret:
+        return "unset"
+    key, now = _client_key(), time.time()
+    with _REG.lock:
+        recent = [x for x in _REG.auth_fail.get(key, []) if now - x < 120]
+        if len(_REG.auth_fail) > 500:
+            _REG.auth_fail.clear()
+        _REG.auth_fail[key] = recent
+        if len(recent) >= 6:
+            return "locked"
+    ok = hmac.compare_digest(str(candidate or "").encode("utf-8"), str(secret).encode("utf-8"))
+    if not ok:
+        with _REG.lock:
+            _REG.auth_fail.setdefault(key, []).append(now)
+        return "bad"
+    return "ok"
+
+
+# ---- 1. mode recognition shared by links, microphone and the typed command bar
+def parse_auto_mode(text):
+    low = re.sub(r"[‘’]", "'", str(text or "")).lower()
+    low = re.sub(r"[_\-+]+", " ", low).strip()[:200]
+    if not low:
+        return None
+    if low in AUTO_IDS:
+        return low
+    for mid, _icon, rx, _kind, _arg in AUTO_MODES:
+        if re.search(rx, low):
+            return mid
+    return None
+
+
+def run_auto_mode(mid, source="app"):
+    """Apply a mood exactly like the Zen buttons do (devices + soundtrack), then fire the cloud triggers."""
+    ss = st.session_state
+    spec = next((m for m in AUTO_MODES if m[0] == mid), None)
+    if not spec:
+        return ""
+    _id, icon, _rx, kind, arg = spec
+    ensure_modes()
+    if kind == "voice":
+        msg = voice_do(arg)
+        shown = AUTO_VOICE_MODE.get(arg)
+    else:
+        if arg not in ss.modes:
+            return ""
+        clear_room_override(ss.presence["room"])
+        apply_mode(arg)
+        msg, shown = icon + " " + tr_mode(arg), arg
+    log("🔗 " + {"link": "Link", "voice": "Voice", "test": "Test"}.get(source, "App") + " → " + mid)
+    if shown and not ss.flash:
+        ss.flash = icon + " " + tr_mode(shown)
+    dispatch_cloud(mid, source)
+    return msg
+
+
+# ---- 2. cloud IoT dispatcher
+def iot_targets(mid):
+    """[(label, url, method)] for one mode. The URLs hold secrets, so they are never logged or shown unlocked."""
+    over = st.session_state.get("iot_over") or {}
+    method = str(_secret("IOT_WEBHOOK_METHOD", "GET")).upper()
+    method = method if method in ("GET", "POST") else "GET"
+    out = []
+    explicit = _as_list(_as_dict(_secret("IOT_WEBHOOKS")).get(mid))
+    for u in explicit:
+        out.append(("Webhook", u.strip(), method))
+    tpl = str(over.get("tpl") or _secret("IOT_WEBHOOK_URL", "") or "").strip()
+    if tpl and not explicit:
+        out.append(("Webhook", tpl.replace("{mode}", urllib.parse.quote(mid, safe="")), method))
+    token = str(over.get("vm_token") or _secret("VOICEMONKEY_TOKEN", "") or "").strip()
+    if token:
+        device = str(_as_dict(_secret("VOICEMONKEY_MONKEYS")).get(mid) or ("aurasync-" + mid))
+        api = str(_secret("VOICEMONKEY_API", "https://api-v2.voicemonkey.io/trigger")).strip()
+        url = api + ("&" if "?" in api else "?") + urllib.parse.urlencode({"token": token, "device": device})
+        out.append(("Voice Monkey", url, "GET"))
+    return out
+
+
+def _safe_url(url):
+    """https only, and never a private / loopback / link-local address (the server must not be a way into a network)."""
+    try:
+        u = urllib.parse.urlsplit(url)
+        if u.scheme != "https" or not u.hostname:
+            return False
+        for info in socket.getaddrinfo(u.hostname, u.port or 443, proto=socket.IPPROTO_TCP):
+            ip = ipaddress.ip_address(info[4][0].split("%")[0])
+            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast or ip.is_unspecified:
+                return False
+        return True
+    except Exception:
+        return False
+
+
+def _fire_one(label, url, method, payload):
+    """One trigger with a short timeout and one retry for network errors / 5xx. Returns (label, ok, info)."""
+    if not _safe_url(url):
+        return (label, False, "blocked")
+    info = "error"
+    for _attempt in (1, 2):
+        try:
+            if method == "POST":
+                r = requests.post(url, json=payload, timeout=(3.05, 5), allow_redirects=False,
+                                  headers={"User-Agent": "AuraSync/1.0"})
+            else:
+                r = requests.get(url, timeout=(3.05, 5), allow_redirects=False, headers={"User-Agent": "AuraSync/1.0"})
+            if r.status_code < 400:
+                return (label, True, "HTTP " + str(r.status_code))
+            info = "HTTP " + str(r.status_code)
+            if r.status_code < 500:
+                break
+        except requests.Timeout:
+            info = "timeout"
+        except Exception as e:                      # the exception text can contain the URL, so only the type is kept
+            info = type(e).__name__
+    return (label, False, info)
+
+
+def dispatch_cloud(mid, source="app"):
+    """Fire every cloud trigger configured for this mode, in parallel. Safe to call when nothing is configured."""
+    ss = st.session_state
+    now = time.time()
+    last = ss.get("iot_last_fire")
+    if source != "test" and last and last[0] == mid and now - last[1] < 2.5:
+        return []                                    # double tap / double rerun: send once
+    targets = iot_targets(mid)
+    if not targets:
+        return []
+    ss.iot_last_fire = (mid, now)
+    payload = {"app": "AuraSync", "mode": mid, "room": ss.presence["room"], "source": source}
+    ex = concurrent.futures.ThreadPoolExecutor(max_workers=min(4, len(targets)))
+    futs = {ex.submit(_fire_one, lbl, url, meth, payload): lbl for lbl, url, meth in targets}
+    done, pending = concurrent.futures.wait(futs, timeout=IOT_WAIT)
+    ex.shutdown(wait=False, cancel_futures=True)
+    results = []
+    for f in done:
+        try:
+            results.append(f.result())
+        except Exception as e:
+            results.append((futs[f], False, type(e).__name__))
+    results += [(futs[f], False, "timeout") for f in pending]
+    for lbl, ok, info in results:
+        log("☁️ " + lbl + " · " + mid + " → " + ("sent (" + info + ")" if ok else "failed (" + info + ")"))
+    sent = sum(1 for r in results if r[1])
+    ss.iot_results = [(lbl, ok, info) for lbl, ok, info in results]
+    note = t("iot_sent", ok=sent, n=len(results))
+    ss.flash = (ss.flash + "  ·  " if ss.flash else "") + note
+    return results
+
+
+# ---- 3. ?mode=...&token=... link webhook
+def _qp_pop(*names):
+    """Read and remove the given query parameters. Only our own keys are removed (embed options etc. stay)."""
+    out = {}
+    for n in names:
+        try:
+            if n in st.query_params:
+                out[n] = st.query_params.get(n)
+                del st.query_params[n]
+        except Exception:
+            pass
+    return out
+
+
+def handle_query_params():
+    """Apply a ?mode= link once, remove the secret from the address bar, never loop."""
+    if not hasattr(st, "query_params"):
+        return
+    ss = st.session_state
+    got = _qp_pop("mode", "token")
+    if not got:
+        return
+    mode_raw = str(got.get("mode") or "").strip()[:60]
+    tok = str(got.get("token") or "")[:300]
+    if not mode_raw:
+        return
+    sig = hashlib.sha256((mode_raw + "|" + tok).encode("utf-8")).hexdigest()
+    done = ss.get("qp_done") or []
+    if sig in done:                                   # a rerun that still saw the old URL
+        return
+    ss.qp_done = (done + [sig])[-20:]
+    state = check_token(tok)
+    if state != "ok":
+        log("⚠ Link blocked (" + state + ")")
+        ss.flash = t({"unset": "auto_no_secret", "locked": "auto_wait"}.get(state, "auto_denied"))
+        return
+    mid = parse_auto_mode(mode_raw)
+    if not mid:
+        ss.flash = t("auto_bad_mode")
+        return
+    ss.flash = ""
+    ss.hook_msg = run_auto_mode(mid, "link")
+
+
+# ---- 4. microphone: Web Speech API in the browser, command handed back to Streamlit through a hidden field
+def handle_spoken(alts):
+    """Try each recognition alternative: mood first, then the older voice intents (lights off, warmer ...)."""
+    for a in alts:
+        mid = parse_auto_mode(a)
+        if mid:
+            return run_auto_mode(mid, "voice") or t("voice_unknown")
+    best = alts[0] if alts else ""
+    msg = run_voice(best)
+    return t("mic_unknown", x=best[:60]) if msg == t("voice_unknown") else msg
+
+
+def cb_voice_bridge():
+    ss = st.session_state
+    raw = str(ss.get(MIC_BRIDGE_KEY) or "")
+    ss[MIC_BRIDGE_KEY] = ""
+    nonce, alts = "", []
+    try:
+        data = json.loads(raw)
+        nonce = str(data.get("n", ""))[:40]
+        alts = [str(a).strip()[:200] for a in (data.get("a") or [])[:3] if str(a).strip()]
+    except Exception:
+        alts = [raw.strip()[:200]] if raw.strip() else []
+    if not alts or (nonce and nonce == ss.get("mic_nonce")):
+        return
+    ss.mic_nonce = nonce
+    ss.mic_last = handle_spoken(alts)
+
+
+MIC_HTML = """
+<style>
+  html, body { margin: 0; background: transparent; }
+  #w { display: flex; align-items: center; gap: 14px; padding: 10px 14px; box-sizing: border-box; border-radius: 18px;
+       border: 1px solid __ACC__; background: __BG__; font-family: Inter, Arial, sans-serif; color: __ACC__; }
+  #mic { position: relative; width: 54px; height: 54px; flex: none; border-radius: 50%; border: 1px solid __ACC__;
+         background: __BTN__; color: __ACC__; cursor: pointer; display: flex; align-items: center; justify-content: center;
+         padding: 0; -webkit-tap-highlight-color: transparent; transition: background .2s, color .2s; }
+  #mic svg { width: 24px; height: 24px; fill: currentColor; }
+  #mic:hover, #mic.on { background: __ACC__; color: __BTN__; }
+  #mic.on::after { content: ""; position: absolute; top: -6px; left: -6px; right: -6px; bottom: -6px; border-radius: 50%;
+                   border: 2px solid __ACC__; animation: ring 1.2s ease-out infinite; }
+  #mic.off { opacity: .45; }
+  @keyframes ring { 0% { transform: scale(.85); opacity: .9; } 100% { transform: scale(1.3); opacity: 0; } }
+  #tx { flex: 1; min-width: 0; }
+  #t1 { font-size: 14px; font-weight: 600; line-height: 1.25; }
+  #t2 { font-size: 12px; color: __SUB__; line-height: 1.3; margin-top: 2px; overflow-wrap: anywhere; }
+  #w.err #t1 { color: #ff8a80; }
+  #lg { flex: none; border: 1px solid __ACC__; background: transparent; color: __ACC__; border-radius: 12px; padding: 3px 9px;
+        font-size: 11px; cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) { #mic.on::after { animation: none; } }
+</style>
+<div id="w">
+  <button id="mic" type="button" aria-pressed="false" aria-label="Voice">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+  </button>
+  <div id="tx"><div id="t1"></div><div id="t2"></div></div>
+  <button id="lg" type="button"></button>
+</div>
+<script>
+(function () {
+  var CFG = __CFG__, S = CFG.s;
+  var P = null;
+  try { P = window.parent; void P.document.body; } catch (e) { P = null; }
+  var SRc = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  var SRp = null;
+  try { SRp = (P && (P.SpeechRecognition || P.webkitSpeechRecognition)) || null; } catch (e) { SRp = null; }
+  var $ = function (id) { return document.getElementById(id); };
+  var mic = $('mic'), t1 = $('t1'), t2 = $('t2'), lg = $('lg'), w = $('w');
+  var li = 0, rec = null, on = false, timer = null;
+  function fit() { try { window.frameElement.style.height = (w.offsetHeight + 4) + 'px'; } catch (e) {} }
+  function say(a, b, err) { t1.textContent = a || ''; t2.textContent = b || ''; w.className = err ? 'err' : ''; fit(); }
+  function paint(v) { on = v; mic.className = (v ? 'on' : '') + ((SRc || SRp) ? '' : ' off'); mic.setAttribute('aria-pressed', v ? 'true' : 'false'); }
+  function revive() { try { if (P && P.__aura) { P.__aura.revive(); } } catch (e) {} }
+  function unlockAudio() { try { if (P && P.__aura) { P.__aura.unlock(); } } catch (e) {} }
+  function tag() { return CFG.langs[li % CFG.langs.length]; }
+  function chip() { lg.textContent = tag().split('-')[0].toUpperCase(); lg.title = tag(); }
+  lg.style.display = CFG.langs.length > 1 ? '' : 'none';
+  lg.onclick = function (e) { e.stopPropagation(); li = (li + 1) % CFG.langs.length; chip(); };
+  mic.setAttribute('aria-label', S.title);
+  chip(); paint(false);
+  if (SRc || SRp) { say(S.title, S.hint, false); } else { say(S.unsupported, '', true); }
+
+  /* hand the command to Streamlit: write it into the hidden text field of the page and commit it like a keystroke */
+  function bridge(payload) {
+    if (!P) { return false; }
+    var d = P.document;
+    var inp = d.querySelector('.st-key-' + CFG.bridge + ' input') || d.querySelector('input[placeholder="' + CFG.ph + '"]');
+    if (!inp) { return false; }
+    var setter = Object.getOwnPropertyDescriptor(P.HTMLInputElement.prototype, 'value').set;
+    setter.call(inp, payload);
+    inp.dispatchEvent(new P.Event('input', { bubbles: true }));
+    ['keydown', 'keypress', 'keyup'].forEach(function (k) {
+      inp.dispatchEvent(new P.KeyboardEvent(k, { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true }));
+    });
+    setTimeout(function () {
+      try { inp.dispatchEvent(new P.FocusEvent('focusout', { bubbles: true })); inp.dispatchEvent(new P.FocusEvent('blur')); } catch (e) {}
+    }, 60);
+    return true;
+  }
+  function deliver(list) {
+    var cut = list.slice(0, 3).map(function (x) { return String(x).slice(0, 160); });   /* stays far below the field's 800-char limit */
+    var payload = JSON.stringify({ n: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), a: cut });
+    var ok = false;
+    try { ok = bridge(payload); } catch (e) { ok = false; }
+    if (ok) { say(S.heard + ': “' + list[0] + '”', S.sent, false); } else { say(S.nobridge, '“' + list[0] + '”', true); }
+  }
+
+  function start(useParent) {
+    var Ctor = useParent ? SRp : SRc;
+    if (!Ctor) { say(S.unsupported, '', true); return; }
+    var r, fin = '', alts = [], interim = '', err = '';
+    try {
+      r = new Ctor();
+      r.lang = tag(); r.interimResults = true; r.continuous = false; r.maxAlternatives = 3;
+    } catch (e) { say(S.unsupported, '', true); return; }
+    rec = r;
+    r.onstart = function () { paint(true); say(S.listening, S.hint, false); };
+    r.onresult = function (ev) {
+      interim = '';
+      for (var i = ev.resultIndex; i < ev.results.length; i++) {
+        var res = ev.results[i];
+        if (res.isFinal) {
+          alts = [];
+          for (var j = 0; j < res.length && j < 3; j++) { alts.push(String(res[j].transcript || '').trim()); }
+          fin = alts[0] || fin;
+        } else { interim = res[0].transcript; }
+      }
+      var shown = fin || interim;
+      if (shown) { t2.textContent = '“' + shown + '”'; }
+    };
+    r.onerror = function (ev) { err = (ev && ev.error) || 'error'; };
+    r.onend = function () {
+      clearTimeout(timer); paint(false); rec = null; revive();
+      if (err === 'not-allowed' || err === 'service-not-allowed') {
+        if (!useParent && SRp && SRp !== SRc && !fin) { start(true); return; }
+        say(S.denied, '', true); return;
+      }
+      if (err === 'language-not-supported') { li = (li + 1) % CFG.langs.length; chip(); say(S.error, '', true); return; }
+      if (err === 'network') { say(S.network, '', true); return; }
+      if (err === 'audio-capture') { say(S.nomic, '', true); return; }
+      if (err && err !== 'aborted' && err !== 'no-speech') { say(S.error, '', true); return; }
+      var text = fin || String(interim || '').trim();
+      if (!text) { say(S.nospeech, S.hint, false); return; }
+      deliver(alts.length ? alts : [text]);
+    };
+    try { r.start(); } catch (e) { paint(false); say(S.error, '', true); return; }
+    clearTimeout(timer);
+    timer = setTimeout(function () { try { r.stop(); } catch (e) {} }, CFG.maxMs);
+  }
+
+  mic.onclick = function () {
+    unlockAudio();                                   /* the tap also unlocks the soundtrack for the mood that follows */
+    if (on && rec) { try { rec.stop(); } catch (e) {} return; }
+    if (!SRc && !SRp) { say(S.unsupported, '', true); return; }
+    start(!SRc);
+  };
+  window.__auraMic = { start: start, bridge: bridge };
+})();
+</script>
+"""
+
+
+def mic_html():
+    lang = st.session_state.get("lang", "English")
+    tag = SR_LANGS.get(lang, "en-US")
+    langs = [tag] if tag.startswith("en") else [tag, "en-US"]
+    strings = {k: tt("mic_" + k) for k in ("title", "hint", "listening", "heard", "sent", "denied", "unsupported",
+                                          "nospeech", "network", "nomic", "nobridge", "error")}
+    cfg = {"langs": langs, "bridge": MIC_BRIDGE_KEY, "ph": MIC_PH, "maxMs": 9000, "s": strings}
+    blob = json.dumps(cfg, ensure_ascii=False).replace("</", "<\\/")
+    return themed(MIC_HTML.replace("__CFG__", blob))
+
+
+def render_voice_mic():
+    ss = st.session_state
+    st.text_input("◈ 7731", key=MIC_BRIDGE_KEY, placeholder=MIC_PH, label_visibility="collapsed", max_chars=800,
+                  on_change=cb_voice_bridge)
+    components.html(mic_html(), height=84)
+    if ss.get("mic_last"):
+        st.caption(ss.mic_last)
+
+
+# ---- 3b. "Voice Automation Links" panel (sidebar, collapsible, locked behind the AuraSync token)
+def app_base_url():
+    v = _secret("APP_URL")
+    if v:
+        return str(v).strip().rstrip("/")
+    try:
+        host = st.context.headers.get("X-Forwarded-Host") or st.context.headers.get("Host") or ""
+        if host:
+            local = host.startswith(("localhost", "127.", "0.0.0.0")) or host.startswith("192.168.")
+            return ("http://" if local else "https://") + host.split(",")[0].strip()
+    except Exception:
+        pass
+    return ""
+
+
+def app_link(base, mid):
+    return base.rstrip("/") + "/?" + urllib.parse.urlencode({"mode": mid, "token": str(_secret("AURASYNC_TOKEN", ""))})
+
+
+def cb_auto_unlock():
+    ss = st.session_state
+    state = check_token(ss.get("auto_pw"))
+    if state == "ok":
+        ss.auto_admin, ss.auto_msg = True, ""
+    else:
+        ss.auto_msg = t({"unset": "auto_no_secret", "locked": "auto_wait"}.get(state, "auto_bad_token"))
+
+
+def cb_auto_lock():
+    st.session_state.auto_admin = False
+    st.session_state.pop("iot_over", None)
+
+
+def cb_auto_test():
+    ss = st.session_state
+    mid = ss.get("auto_test_sel") or "reading"
+    res = dispatch_cloud(mid, "test")
+    ss.flash = ""
+    ss.auto_msg = (t("iot_sent", ok=sum(1 for r in res if r[1]), n=len(res))) if res else t("auto_direct_none")
+
+
+def cb_auto_apply():
+    ss = st.session_state
+    over = {}
+    if (ss.get("auto_tpl_in") or "").strip():
+        over["tpl"] = ss.auto_tpl_in.strip()
+    if (ss.get("auto_vm_in") or "").strip():
+        over["vm_token"] = ss.auto_vm_in.strip()
+    ss.iot_over = over
+    ss.auto_msg = t("auto_applied")
+
+
+def cb_auto_clear():
+    st.session_state.pop("iot_over", None)
+    st.session_state.auto_msg = ""
+
+
+def render_automation_panel():
+    ss = st.session_state
+    with st.expander("🔗 " + t("auto_links_title"), expanded=False):
+        if not _secret("AURASYNC_TOKEN"):
+            st.warning(t("auto_no_secret"))
+            return
+        if not ss.get("auto_admin"):
+            st.caption(t("auto_locked"))
+            with st.form("auto_unlock_form", clear_on_submit=True):
+                st.text_input(t("auto_token"), type="password", key="auto_pw", max_chars=300)
+                st.form_submit_button(t("auto_unlock"), on_click=cb_auto_unlock)
+            if ss.get("auto_msg"):
+                st.error(ss.auto_msg)
+            return
+        base = st.text_input(t("auto_base"), value=app_base_url(), key="auto_base_in").strip()
+        st.caption(t("auto_why"))
+        tab_ios, tab_and, tab_cloud = st.tabs(["🍎 " + tt("auto_ios"), "🤖 " + tt("auto_android"), "☁️ IoT"])
+        for tab, helpkey in ((tab_ios, "auto_ios_help"), (tab_and, "auto_android_help")):
+            with tab:
+                st.caption(t(helpkey))
+                if not base:
+                    st.info(t("auto_base"))
+                    continue
+                for mid, icon, _rx, _k, _arg in AUTO_MODES:
+                    st.caption(icon + " " + t("auto_say") + ": \u201c" + mid + " mode\u201d")
+                    st.code(app_link(base, mid), language=None)
+        with tab_cloud:
+            st.markdown("**" + t("auto_direct") + "**")
+            shown = 0
+            for mid, icon, *_rest in AUTO_MODES:
+                for lbl, url, meth in iot_targets(mid):
+                    if meth == "GET":
+                        st.caption(icon + " " + mid + " \u00b7 " + lbl)
+                        st.code(url, language=None)
+                        shown += 1
+            if not shown:
+                st.caption(t("auto_direct_none"))
+            st.selectbox(t("auto_test_mode"), list(AUTO_IDS), key="auto_test_sel")
+            st.button(t("auto_test"), key="auto_test_btn", on_click=cb_auto_test)
+            st.markdown("**" + t("auto_iot_title") + "**")
+            st.caption(t("auto_iot_hint"))
+            st.text_input(t("auto_tpl"), type="password", key="auto_tpl_in", max_chars=600)
+            st.text_input(t("auto_vm"), type="password", key="auto_vm_in", max_chars=300)
+            c1, c2 = st.columns(2)
+            c1.button(t("auto_apply"), key="auto_apply_btn", on_click=cb_auto_apply)
+            c2.button(t("auto_clear"), key="auto_clear_btn", on_click=cb_auto_clear)
+        if ss.get("auto_msg"):
+            st.info(ss.auto_msg)
+        st.button(t("auto_lock"), key="auto_lock_btn", on_click=cb_auto_lock)
+
+
+# ----------------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------------
 NAV_ORDER = [1, 6, 2, 3, 4, 5]
@@ -5409,6 +6078,7 @@ def main():
         with st.spinner(t("i18n_wait")):
             ss["i18n_ok_" + code] = bool(i18n_prefetch())
     repair_orphans()
+    handle_query_params()
     st.markdown(build_css(), unsafe_allow_html=True)
     with st.sidebar:
         st.markdown('<div class="brand">✨ AuraSync</div>', unsafe_allow_html=True)
@@ -5420,6 +6090,7 @@ def main():
         st.radio("🌗 " + t("theme"), ["dark", "light"], key="theme_choice",
                  format_func=lambda x: t("theme_dark") if x == "dark" else t("theme_light"))
         guest_toggle("guest_sb")
+        render_automation_panel()
         st.divider()
         st.radio(t("nav"), NAV_ORDER, format_func=lambda i: t("p" + str(i)), key="nav")
         st.divider()
