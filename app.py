@@ -5268,3 +5268,28 @@ def main():
 
 
 main()
+import streamlit.components.v1 as components
+
+# Background & lock screen audio playback
+components.html(
+    """
+<script>
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: "AuraSync Soundscape",
+        artist: "AuraSync Ambient AI",
+        album: "Atmospheric Intelligence"
+    });
+    navigator.mediaSession.setActionHandler('play', () => {});
+    navigator.mediaSession.setActionHandler('pause', () => {});
+}
+const audioTags = window.parent.document.querySelectorAll('audio');
+audioTags.forEach(el => {
+    el.setAttribute('playsinline', 'true');
+    el.setAttribute('webkit-playsinline', 'true');
+});
+</script>
+""",
+    height=0,
+    width=0,
+)
