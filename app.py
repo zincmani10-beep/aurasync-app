@@ -97,6 +97,7 @@ T = {
     "off": ("Off", "நிறுத்து", "끄기", "ปิด", "Apagado"),
     "min": ("min", "நிமிடம்", "분", "นาที", "min"),
     "studio": ("Master Audio Studio (Procedural Synthesizer)", "மாஸ்டர் ஆடியோ ஸ்டுடியோ (செயற்கை ஒலி உருவாக்கி)", "마스터 오디오 스튜디오 (프로시저럴 신시사이저)", "สตูดิโอเสียงหลัก (ซินธ์สร้างเสียงอัตโนมัติ)", "Estudio de Audio Maestro (Sintetizador Procedural)"),
+    "arm_tap": ("✦ Tap anywhere to start soundscape", "✦ இதைத் தொட்டு ஒலியைத் தொடங்குங்கள்", "✦ 화면을 탭하면 사운드스케이프 시작", "✦ แตะที่หน้าจอเพื่อเริ่มเสียง", "✦ Toca en cualquier parte para iniciar el sonido"),
     "play": ("Play", "தொடங்கு", "재생", "เล่น", "Reproducir"),
     "stop": ("Stop", "நிறுத்து", "정지", "หยุด", "Detener"),
     "mixer": ("Multi-Layer Sound Studio Mixer", "பல அடுக்கு ஒலி கலவை", "멀티 레이어 사운드 믹서", "มิกเซอร์เสียงหลายชั้น", "Mezclador de Sonido Multicapa"),
@@ -1193,12 +1194,12 @@ PALETTES = {
     "dark": {"SCHEME": "dark", "BG": "#0B0B0B", "SIDE": "#121212", "BTN": "#0B0B0B", "ACC": "#D4AF37", "ACC2": "#B8962E",
              "ONACC": "#141414", "CARD1": "#161616", "CARD2": "#0F0F0F", "STAT": "#121212", "SUB": "#BBA85A",
              "LOG": "#CFC7AE", "MUTE": "#9A9172", "CHATBG": "#0F0F0F", "BUBDV": "#1D1D1D", "TXT": "#EDE6D3",
-             "TXT2": "#E8E2D0", "INPUT": "#171717", "BORDER": "#3A3320", "POP": "#1A1A1A", "SEL": "#3A3115", "HUE": "48deg"},
+             "TXT2": "#E8E2D0", "INPUT": "#171717", "BORDER": "#3A3320", "POP": "#1A1A1A", "SEL": "#2E2712", "HUE": "48deg"},
     # Light: pure white page, electric blue accent, near-black text
     "light": {"SCHEME": "light", "BG": "#FFFFFF", "SIDE": "#FFFFFF", "BTN": "#FFFFFF", "ACC": "#0057FF", "ACC2": "#0043CC",
               "ONACC": "#FFFFFF", "CARD1": "#FFFFFF", "CARD2": "#F5F8FF", "STAT": "#F3F7FF", "SUB": "#3F4F73",
               "LOG": "#1E293B", "MUTE": "#566176", "CHATBG": "#FFFFFF", "BUBDV": "#EEF3FF", "TXT": "#0F172A",
-              "TXT2": "#1E293B", "INPUT": "#FFFFFF", "BORDER": "#CFDBF5", "POP": "#FFFFFF", "SEL": "#D6E6FF", "HUE": "212deg"},
+              "TXT2": "#1E293B", "INPUT": "#FFFFFF", "BORDER": "#CFDBF5", "POP": "#FFFFFF", "SEL": "#E8F0FE", "HUE": "212deg"},
 }
 
 CSS_T = """
@@ -1351,6 +1352,31 @@ div[data-testid="stTextInput"]:has(input[placeholder="◈4417◈"]) { position: 
 .aucard .ab { display: flex; flex-wrap: wrap; gap: 10px; }
 .aucard a.abtn { flex: 1 1 180px; text-align: center; text-decoration: none !important; background: #D4AF37; color: #0B0B0B !important; font-weight: 700; padding: 12px 14px; border-radius: 14px; }
 .aucard a.abtn.ghost { background: transparent; color: #D4AF37 !important; border: 1.5px solid #D4AF37; }
+/* ===== AuraSync dropdown legibility: FINAL block, wins over the earlier select / popover rules ===== */
+/* closed select / multiselect */
+[data-baseweb="select"] > div, [data-baseweb="select"] [role="combobox"] { background-color: @INPUT@ !important; border: 1px solid @BORDER@ !important; }
+[data-baseweb="select"] input, [data-baseweb="select"] div, [data-baseweb="select"] span {
+  color: @TXT@ !important; -webkit-text-fill-color: @TXT@ !important; opacity: 1 !important; font-weight: 500; }
+[data-baseweb="select"] input::placeholder { color: @MUTE@ !important; -webkit-text-fill-color: @MUTE@ !important; opacity: 1 !important; font-weight: 400; }
+[data-baseweb="select"] svg, [data-baseweb="select"] svg path { fill: @ACC@ !important; color: @ACC@ !important; opacity: 1 !important; }
+[data-baseweb="select"] [data-baseweb="tag"] * { color: @ONACC@ !important; -webkit-text-fill-color: @ONACC@ !important; }
+[data-baseweb="select"] [data-baseweb="tag"] svg, [data-baseweb="select"] [data-baseweb="tag"] svg path { fill: @ONACC@ !important; color: @ONACC@ !important; }
+/* popup menu */
+[data-baseweb="popover"] [data-baseweb="menu"], [data-baseweb="popover"] ul[role="listbox"], ul[role="listbox"] { background-color: @POP@ !important; border: 1px solid @BORDER@ !important; }
+[data-baseweb="popover"] li[role="option"], ul[role="listbox"] li[role="option"] { background-color: @POP@ !important; }
+[data-baseweb="popover"] li[role="option"], [data-baseweb="popover"] li[role="option"] *, ul[role="listbox"] li[role="option"] * {
+  color: @TXT@ !important; -webkit-text-fill-color: @TXT@ !important; opacity: 1 !important; font-weight: 400; }
+/* hovered / keyboard-highlighted / selected row */
+[data-baseweb="popover"] li[role="option"]:hover, [data-baseweb="popover"] li[role="option"][aria-selected="true"],
+[data-baseweb="popover"] li[role="option"][data-highlighted="true"], [data-baseweb="popover"] li[role="option"][data-highlighted],
+ul[role="listbox"] li[role="option"]:hover, ul[role="listbox"] li[role="option"][aria-selected="true"], ul[role="listbox"] li[data-highlighted] {
+  background-color: @SEL@ !important; }
+[data-baseweb="popover"] li[role="option"]:hover, [data-baseweb="popover"] li[role="option"]:hover *,
+[data-baseweb="popover"] li[role="option"][aria-selected="true"], [data-baseweb="popover"] li[role="option"][aria-selected="true"] *,
+[data-baseweb="popover"] li[role="option"][data-highlighted="true"], [data-baseweb="popover"] li[role="option"][data-highlighted="true"] *,
+[data-baseweb="popover"] li[role="option"][data-highlighted], [data-baseweb="popover"] li[role="option"][data-highlighted] *,
+ul[role="listbox"] li[role="option"]:hover *, ul[role="listbox"] li[role="option"][aria-selected="true"] *, ul[role="listbox"] li[data-highlighted] * {
+  color: @ACC@ !important; -webkit-text-fill-color: @ACC@ !important; font-weight: 700 !important; }
 </style>
 """
 
@@ -3062,6 +3088,7 @@ ENGINE_JS = r"""
     p.mix = mm;
     if (!p.genre) { p.genre = 'Ambient Space'; }
     A.p = p;
+    A.setArmed(p);
     if (p.tTok !== A.tTok) { A.tTok = p.tTok; A.arm(); }
     if (p.title !== A.lastTitle) { A.lastTitle = p.title; if (A.unlocked || A.playing) { A.session(); } }
     if (A.playing) { A.revive(); }
@@ -3131,6 +3158,7 @@ ENGINE_JS = r"""
     A.setStyle((A.p && A.p.genre) || 'Ambient Space');
     A.applyMix(); A.arm(); A.fadeIn();
     A.startTicker(); A.mediaOn();
+    try { A.armPill(false); } catch (e) {}
   };
   A.stop = function () {
     var n = A.nodes;
@@ -3353,12 +3381,69 @@ ENGINE_JS = r"""
   setInterval(function () {
     if (HRM.st === 'connected' && Date.now() - HRM.ts > 30000) { HRM.st = 'stale'; hrPush(true); }
   }, 5000);
+  /* ---- armed autoplay: the first tap anywhere starts the soundscape (iOS Safari keeps Web Audio suspended until a gesture) ---- */
+  var ARM_EV = ['touchstart', 'touchend', 'pointerdown', 'click'];
+  A.armed = false; A.armTok = null; A.armSeen = null; A.armAt = 0; A.armDocs = []; A.armHooks = [];
+  A.armPill = function (on) {
+    try {
+      var d = document, el = d.getElementById('aura-arm-pill');
+      if (!on) {
+        if (el) { el.style.opacity = '0'; el.style.transform = 'translate(-50%, -14px)'; setTimeout(function () { try { el.remove(); } catch (e) {} }, 650); }
+        return;
+      }
+      if (el) { return; }
+      var q = A.p || {}, acc = q.armAcc || '#D4AF37', bg = q.armBg || '#0B0B0B', fg = q.armFg || '#EDE6D3';
+      el = d.createElement('div'); el.id = 'aura-arm-pill'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+      el.textContent = String(q.armText || 'Tap anywhere to start soundscape');
+      el.style.cssText = 'position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translate(-50%,-14px);opacity:0;' +
+        'z-index:2147483000;pointer-events:none;padding:8px 18px;border-radius:999px;font:600 13px/1.2 Inter,Arial,sans-serif;letter-spacing:.3px;' +
+        'white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;color:' + fg + ';background:' + bg + 'ee;border:1px solid ' + acc + ';' +
+        'box-shadow:0 6px 22px rgba(0,0,0,.28),0 0 14px ' + acc + '55;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);' +
+        'transition:opacity .55s ease,transform .55s ease;';
+      (d.body || d.documentElement).appendChild(el);
+      setTimeout(function () { el.style.opacity = '1'; el.style.transform = 'translate(-50%, 0)'; }, 30);
+    } catch (e) {}
+  };
+  A.armOff = function () {
+    A.armHooks.forEach(function (h) { ARM_EV.forEach(function (ev) { try { h.d.removeEventListener(ev, h.fn, true); } catch (e) {} }); });
+    A.armHooks = [];
+  };
+  A.armFire = function () {
+    if (!A.armed) { return; }
+    A.armed = false; A.armSeen = A.armTok; A.armAt = Date.now();
+    A.armOff();                                        /* one-shot: later taps never toggle the audio */
+    try { A.unlock(); A.start(); } catch (e) {}
+    try { if (A.ctx && A.ctx.state === 'suspended') { A.ctx.resume(); } } catch (e) {}
+    A.armPill(false);
+  };
+  function armAttach(d) {
+    if (!A.armed || !d) { return; }
+    for (var i = 0; i < A.armHooks.length; i++) { if (A.armHooks[i].d === d) { return; } }
+    var fn = function () { A.armFire(); };
+    ARM_EV.forEach(function (ev) { try { d.addEventListener(ev, fn, { capture: true, passive: true }); } catch (e) {} });
+    A.armHooks.push({ d: d, fn: fn });
+  }
+  A.armBind = function (d) {                           /* iframes (audio dock, mic) register their own document here */
+    if (!d) { return; }
+    if (A.armDocs.indexOf(d) < 0) { A.armDocs.push(d); if (A.armDocs.length > 8) { A.armDocs.shift(); } }
+    armAttach(d);
+  };
+  A.setArmed = function (p) {
+    if (!p || !p.armed) { return; }
+    if (A.playing) { A.armSeen = p.armTok; A.armPill(false); return; }
+    if (p.armTok === A.armSeen) { return; }            /* this arming was already used */
+    A.armed = true; A.armTok = p.armTok;
+    A.armPill(true);
+    armAttach(document);
+    try { if (window.parent && window.parent.document && window.parent.document !== document) { armAttach(window.parent.document); } } catch (e) {}
+    A.armDocs.forEach(armAttach);
+  };
   A.styles = S;
   window.__aura = A;
 })();
 """
 
-ENGINE_VER = 10
+ENGINE_VER = 11
 
 HOST_BOOT = """
 <script id="eng" type="text/plain">__ENGINE__</script>
@@ -3409,6 +3494,7 @@ document.addEventListener('visibilitychange', function () { try { A.revive(); } 
 var btn = document.getElementById('tg'), ttl = document.getElementById('ttl');
 var sub = document.getElementById('sub'), box = document.getElementById('box');
 if (SEND || !A.p) { A.update(PARAMS); }
+try { A.armBind(document); } catch (e) {}   /* taps inside the audio dock also fire armed autoplay */
 function paint() {
   var p = A.p || PARAMS;
   ttl.textContent = p.title; sub.textContent = p.sub;
@@ -3416,7 +3502,10 @@ function paint() {
   btn.title = A.playing ? STOP : PLAY;
   box.className = A.playing ? 'on' : '';
 }
-btn.onclick = function () { A.unlock(); if (A.playing) { A.stop(); } else { A.start(); } paint(); };
+btn.onclick = function () {
+  if (A.armAt && Date.now() - A.armAt < 900 && A.playing) { paint(); return; }   /* this very tap already started the sound */
+  A.unlock(); if (A.playing) { A.stop(); } else { A.start(); } paint();
+};
 paint();
 setInterval(paint, 700);
 </script>
@@ -3464,6 +3553,11 @@ def synth_params(name):
     p = {"genre": env.get("genre", GENRES[0]), "mix": full_mix(cfg["mix"]), "modeMix": full_mix(env.get("mix")),
          "bed": max(0, min(100, int(cfg["bed"]))), "tMin": cfg["timer"],
          "tTok": cfg["tok"], "title": tr_mode(name), "sub": tr(env.get("genre", GENRES[0]))}
+    pl = pal()
+    p["armed"] = bool(st.session_state.get("audio_armed"))
+    p["armTok"] = str(st.session_state.get("arm_tok", ""))
+    p["armText"] = _u8(tt("arm_tap"))
+    p["armAcc"], p["armBg"], p["armFg"] = pl["ACC"], pl["SIDE"], pl["TXT"]
     if name == WIND_MODE:
         p["fade"] = 300
         p["fadeTok"] = st.session_state.fade_tok
@@ -6023,6 +6117,8 @@ def run_auto_mode(mid, source="app"):
     if shown and not ss.flash:
         ss.flash = icon + " " + tr_mode(shown)
     dispatch_cloud(mid, source)
+    if source == "link":
+        ss._arm_req = True                       # ?mode=... link: arm tap-anywhere autoplay (main() consumes it)
     return msg
 
 
@@ -6131,6 +6227,13 @@ def _qp_pop(*names):
         except Exception:
             pass
     return out
+
+
+def arm_audio():
+    """Arm autoplay: the next tap anywhere starts the soundscape (a new token means a new arming)."""
+    ss = st.session_state
+    ss.audio_armed = True
+    ss.arm_tok = uuid.uuid4().hex[:8]
 
 
 def handle_query_params():
@@ -6281,7 +6384,7 @@ def handle_spoken(alts):
 
 def cb_voice_bridge():
     ss = st.session_state
-    raw = str(ss.get(MIC_BRIDGE_KEY) or "")
+    raw = _u8(ss.get(MIC_BRIDGE_KEY) or "")
     ss[MIC_BRIDGE_KEY] = ""
     nonce, alts = "", []
     try:
@@ -6301,76 +6404,188 @@ MIC_HTML = """
   html, body { margin: 0; background: transparent; }
   #w { display: flex; align-items: center; gap: 14px; padding: 10px 14px; box-sizing: border-box; border-radius: 22px;
        border: 1px solid __ACC__; background: __BG__; font-family: Inter, Arial, sans-serif; color: __ACC__; }
-  #orbw { position: relative; width: 70px; height: 70px; flex: none; }
-  #orb { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; border: 0; cursor: pointer; padding: 0; overflow: hidden;
-         display: flex; align-items: center; justify-content: center; color: __BTN__; -webkit-tap-highlight-color: transparent;
-         background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.8), __ACC__ 46%, __ACC__aa 100%);
-         box-shadow: 0 0 14px __ACC__66, inset 0 0 12px rgba(0,0,0,.25); }
-  #orb svg { width: 26px; height: 26px; fill: currentColor; position: relative; z-index: 2; }
+  #orbw { position: relative; width: 88px; height: 88px; flex: none; }
+  #cv { position: absolute; top: 0; left: 0; width: 88px; height: 88px; pointer-events: none; }
+  #orb { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; border: 0; cursor: pointer; padding: 0;
+         background: transparent; display: flex; align-items: center; justify-content: center; color: __BTN__;
+         -webkit-tap-highlight-color: transparent; }
+  #orb svg { width: 24px; height: 24px; fill: currentColor; position: relative; z-index: 2; }
   #orb.off { opacity: .45; }
-  #orb.idle { animation: idle 4.5s ease-in-out infinite; }
-  @keyframes idle { 0%, 100% { box-shadow: 0 0 12px __ACC__55; } 50% { box-shadow: 0 0 22px __ACC__99; } }
-  #orb.listening { animation: pulse 1.15s ease-in-out infinite; }
-  @keyframes pulse { 0% { transform: scale(.96); box-shadow: 0 0 0 0 __ACC__aa, 0 0 18px __ACC__; }
-                     70% { transform: scale(1.07); box-shadow: 0 0 0 20px __ACC__00, 0 0 30px __ACC__; }
-                     100% { transform: scale(.96); box-shadow: 0 0 0 0 __ACC__00, 0 0 18px __ACC__; } }
-  #orb.thinking::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;
-         background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.7) 50%, transparent 75%); background-size: 220% 100%;
-         animation: shimmer 1.2s linear infinite; }
-  @keyframes shimmer { 0% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
-  #orb.speaking { animation: breathe 3.4s ease-in-out infinite; }
-  @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 14px __ACC__66; } 50% { transform: scale(1.08); box-shadow: 0 0 36px __ACC__bb; } }
-  #wave { display: none; align-items: flex-end; gap: 3px; height: 14px; margin-top: 6px; }
-  #wave i { display: block; width: 3px; height: 3px; border-radius: 2px; background: __ACC__; animation: wv .9s ease-in-out infinite; }
-  #wave i:nth-child(2) { animation-delay: .12s; } #wave i:nth-child(3) { animation-delay: .24s; }
-  #wave i:nth-child(4) { animation-delay: .36s; } #wave i:nth-child(5) { animation-delay: .48s; }
-  @keyframes wv { 0%, 100% { height: 3px; } 50% { height: 14px; } }
+  #orb:focus-visible { outline: 2px solid __ACC__; outline-offset: 2px; }
   #tx { flex: 1; min-width: 0; }
   #t1 { font-size: 14px; font-weight: 600; line-height: 1.25; }
   #t2 { font-size: 12px; color: __SUB__; line-height: 1.35; margin-top: 2px; overflow-wrap: anywhere; }
   #w.err #t1 { color: #ff8a80; }
   .sm { flex: none; border: 1px solid __ACC__; background: transparent; color: __ACC__; border-radius: 12px; padding: 3px 9px; font-size: 11px; cursor: pointer; }
   #bt { display: flex; flex-direction: column; gap: 6px; }
-  @media (prefers-reduced-motion: reduce) { #orb, #orb::after, #wave i { animation: none !important; } }
 </style>
 <div id="w">
-  <div id="orbw"><button id="orb" class="idle" type="button" aria-pressed="false" aria-label="Voice">
+  <div id="orbw"><canvas id="cv" aria-hidden="true"></canvas><button id="orb" type="button" aria-pressed="false" aria-label="Voice">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
   </button></div>
-  <div id="tx"><div id="t1"></div><div id="t2"></div><div id="wave"><i></i><i></i><i></i><i></i><i></i></div></div>
+  <div id="tx"><div id="t1"></div><div id="t2"></div></div>
   <div id="bt"><button id="lg" class="sm" type="button"></button><button id="mt" class="sm" type="button"></button></div>
 </div>
 <script>
 (function () {
-  var CFG = __CFG__, S = CFG.s;
+  var CFG = __CFG__, S = CFG.s, ACC = '__ACC__', SIL_MS = CFG.sil || 1200;
   var P = null;
   try { P = window.parent; void P.document.body; } catch (e) { P = null; }
+  var HW = P || window;
   var MIC = (P && P.__auraMic) || (P ? (P.__auraMic = { state: 'idle', spokenId: '', thinkAt: 0, muted: false }) : { state: 'idle', spokenId: '', thinkAt: 0, muted: false });
   var SRc = window.SpeechRecognition || window.webkitSpeechRecognition || null;
   var SRp = null;
   try { SRp = (P && (P.SpeechRecognition || P.webkitSpeechRecognition)) || null; } catch (e) { SRp = null; }
   var $ = function (id) { return document.getElementById(id); };
-  var orb = $('orb'), t1 = $('t1'), t2 = $('t2'), lg = $('lg'), mt = $('mt'), w = $('w'), wave = $('wave');
-  var li = 0, rec = null, timer = null, recOn = false, errMsg = '';
+  var orb = $('orb'), t1 = $('t1'), t2 = $('t2'), lg = $('lg'), mt = $('mt'), w = $('w'), cv = $('cv');
+  var li = 0, rec = null, timer = null, vad = null, recOn = false, errMsg = '';
   function eng() { try { return (P && P.__aura) || null; } catch (e) { return null; } }
   function fit() { try { window.frameElement.style.height = (w.offsetHeight + 4) + 'px'; } catch (e) {} }
   function say(a, b, err) { t1.textContent = a || ''; t2.textContent = b || ''; w.className = err ? 'err' : ''; fit(); }
   function revive() { try { var a = eng(); if (a) { a.revive(); } } catch (e) {} }
   function tag() { return CFG.langs[li % CFG.langs.length]; }
   function chip() { lg.textContent = tag().split('-')[0].toUpperCase(); lg.title = tag(); }
-  function muteLabel() { mt.textContent = MIC.muted ? '\uD83D\uDD07' : '\uD83D\uDD0A'; mt.title = MIC.muted ? S.unmute : S.mute; }
+  function muteLabel() { mt.textContent = MIC.muted ? '\\uD83D\\uDD07' : '\\uD83D\\uDD0A'; mt.title = MIC.muted ? S.unmute : S.mute; }
+  /* strip lone UTF-16 surrogates so Python never meets an unencodable string */
+  function clean(s) {
+    s = String(s == null ? '' : s);
+    var o = '';
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
+      if (c >= 0xD800 && c <= 0xDBFF) { var d = s.charCodeAt(i + 1); if (d >= 0xDC00 && d <= 0xDFFF) { o += s.charAt(i) + s.charAt(i + 1); i++; } }
+      else if (c < 0xDC00 || c > 0xDFFF) { o += s.charAt(i); }
+    }
+    return o;
+  }
   lg.style.display = CFG.langs.length > 1 ? '' : 'none';
   lg.onclick = function (e) { e.stopPropagation(); li = (li + 1) % CFG.langs.length; chip(); };
   mt.onclick = function (e) { e.stopPropagation(); MIC.muted = !MIC.muted; if (MIC.muted) { var a = eng(); if (a) { a.stopSpeech(); } } muteLabel(); };
   chip(); muteLabel();
+  try { var a9 = eng(); if (a9 && a9.armBind) { a9.armBind(document); } } catch (e) {}   /* a tap on the mic card also fires armed autoplay */
   var canRec = !!(SRc || SRp);
   var shown = '';
+
+  /* ---------- microphone level (Web Audio AnalyserNode). The stream lives on the host page so it survives re-renders ---------- */
+  var AN = null, BUF = null, LIVE = false, lvl = 0, cen = 0.3, pulseAt = 0;
+  function attachMic() {
+    if (MIC.an && MIC.stream && MIC.stream.active) { AN = MIC.an; BUF = new Uint8Array(AN.frequencyBinCount); LIVE = true; }
+  }
+  function openMic() {
+    attachMic();
+    if (LIVE) { return; }
+    var md = null;
+    try { md = HW.navigator.mediaDevices || navigator.mediaDevices; } catch (e) { md = null; }
+    if (!md || !md.getUserMedia) { return; }
+    md.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function (stream) {
+      try {
+        var AC = HW.AudioContext || HW.webkitAudioContext;
+        var ctx = (MIC.actx && MIC.actx.state !== 'closed') ? MIC.actx : new AC();
+        MIC.actx = ctx;
+        try { ctx.resume(); } catch (e) {}
+        var src = ctx.createMediaStreamSource(stream), an = ctx.createAnalyser();
+        an.fftSize = 512; an.smoothingTimeConstant = 0.78;
+        src.connect(an);                                  /* analyser only, never to the speakers: no feedback */
+        MIC.stream = stream; MIC.src = src; MIC.an = an;
+        attachMic();
+      } catch (e) { try { stream.getTracks().forEach(function (k) { k.stop(); }); } catch (x) {} }
+    }).catch(function () { LIVE = false; });
+  }
+  function closeMic() {
+    try { if (MIC.stream) { MIC.stream.getTracks().forEach(function (k) { k.stop(); }); } } catch (e) {}
+    MIC.stream = null; MIC.an = null; MIC.src = null; AN = null; BUF = null; LIVE = false;
+  }
+  attachMic();
+  function sample() {
+    var raw = 0;
+    if (AN && BUF && MIC.stream && MIC.stream.active) {
+      try {
+        AN.getByteFrequencyData(BUF);
+        var n = Math.floor(BUF.length * 0.6), sum = 0, wsum = 0, sq = 0;
+        for (var i = 0; i < n; i++) { var x = BUF[i] / 255; sum += x; wsum += x * i; sq += x * x; }
+        raw = Math.min(1, Math.sqrt(sq / n) * 2.4);
+        if (sum > 0.05) { cen += ((wsum / sum) / n - cen) * 0.15; }      /* spectral centroid = pitch */
+      } catch (e) { raw = 0; }
+    } else if (Date.now() - pulseAt < 350) { raw = 0.45 + 0.25 * Math.sin(Date.now() / 60); }   /* no analyser: pulse on speech deltas */
+    lvl += (raw - lvl) * 0.28;
+  }
+
+  /* ---------- the living orb (canvas) ---------- */
+  var SZ = 88, C0 = 44, DPR = Math.min(2, window.devicePixelRatio || 1), g = cv.getContext('2d');
+  cv.width = SZ * DPR; cv.height = SZ * DPR;
+  var RGB = (function (h) {
+    h = String(h).replace('#', '');
+    if (h.length === 3) { h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2); }
+    var n = parseInt(h, 16); if (isNaN(n)) { n = 0xD4AF37; }
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  })(ACC);
+  function rgba(a) { return 'rgba(' + RGB[0] + ',' + RGB[1] + ',' + RGB[2] + ',' + Math.max(0, Math.min(1, a)) + ')'; }
+  var RM = false; try { RM = !!window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  function glow(r, a) {
+    var gr = g.createRadialGradient(C0, C0, r * 0.2, C0, C0, r);
+    gr.addColorStop(0, rgba(a)); gr.addColorStop(1, rgba(0));
+    g.fillStyle = gr; g.beginPath(); g.arc(C0, C0, r, 0, 6.2832); g.fill();
+  }
+  function disc(r, a) {
+    var gr = g.createRadialGradient(C0 - r * 0.25, C0 - r * 0.3, 1, C0, C0, r);
+    gr.addColorStop(0, 'rgba(255,255,255,0.85)'); gr.addColorStop(0.45, rgba(a)); gr.addColorStop(1, rgba(a * 0.65));
+    g.fillStyle = gr; g.beginPath(); g.arc(C0, C0, r, 0, 6.2832); g.fill();
+  }
+  function ribbon(base, amp, lobes, ph, alpha, wd) {
+    g.beginPath();
+    for (var i = 0; i <= 72; i++) {
+      var th = i / 72 * 6.2832, bi = Math.floor((i <= 36 ? i : 72 - i) / 36 * 40), v = BUF && LIVE ? BUF[bi] / 255 : 0.5;
+      var r = base + amp * (0.35 * lvl + 0.65 * v * lvl + 0.1) * (0.6 * Math.sin(lobes * th + ph) + 0.4 * Math.sin((lobes + 2) * th - ph * 1.3));
+      var x = C0 + r * Math.cos(th), y = C0 + r * Math.sin(th);
+      if (i === 0) { g.moveTo(x, y); } else { g.lineTo(x, y); }
+    }
+    g.closePath(); g.strokeStyle = rgba(alpha); g.lineWidth = wd; g.stroke();
+  }
+  var T0 = Date.now();
+  function frame() {
+    try { window.requestAnimationFrame(frame); } catch (e) { return; }
+    var t = (Date.now() - T0) / 1000, s = recOn ? 'listening' : MIC.state;
+    sample();
+    g.setTransform(DPR, 0, 0, DPR, 0, 0); g.clearRect(0, 0, SZ, SZ);
+    if (s === 'listening') {
+      var lobes = 3 + Math.round(cen * 6), sp = 1.2 + cen * 3.2, am = 5 + lvl * 17;
+      glow(30 + lvl * 14, 0.22 + lvl * 0.35);
+      ribbon(26, am, lobes, t * sp, 0.85, 2.2);
+      ribbon(24, am * 0.8, lobes + 1, -t * sp * 0.8 + 1.7, 0.55, 1.8);
+      ribbon(22, am * 0.6, lobes + 2, t * sp * 0.55 + 3.1, 0.35, 1.4);
+      disc(15 + lvl * 5, 0.95);
+    } else if (s === 'thinking') {
+      glow(36, 0.2 + 0.08 * Math.sin(t * 3));
+      g.lineWidth = 1.5; g.strokeStyle = rgba(0.2); g.beginPath(); g.arc(C0, C0, 30, 0, 6.2832); g.stroke();
+      for (var k = 0; k < 3; k++) {
+        var a0 = t * 2.4 + k * 2.0944;
+        g.lineWidth = 3; g.lineCap = 'round'; g.strokeStyle = rgba(0.45 + 0.45 * Math.sin(t * 5 + k * 1.7));
+        g.beginPath(); g.arc(C0, C0, 30, a0, a0 + 0.95); g.stroke();
+        var da = -t * 1.7 + k * 2.0944;
+        g.fillStyle = rgba(0.9); g.beginPath(); g.arc(C0 + 36 * Math.cos(da), C0 + 36 * Math.sin(da), 2.2, 0, 6.2832); g.fill();
+      }
+      disc(15, 0.9);
+    } else if (s === 'speaking') {
+      var pu = 0.5 + 0.35 * Math.sin(t * 7.3) + 0.15 * Math.sin(t * 11.1);
+      for (var j = 0; j < 3; j++) {
+        var ph = ((t * 0.9) + j / 3) % 1;
+        g.lineWidth = 2; g.strokeStyle = rgba((1 - ph) * 0.55);
+        g.beginPath(); g.arc(C0, C0, 18 + ph * 24, 0, 6.2832); g.stroke();
+      }
+      glow(34 + pu * 8, 0.3 + pu * 0.2);
+      disc(16 + pu * 5, 0.95);
+    } else {
+      var b = RM ? 0.5 : 0.5 + 0.5 * Math.sin(t * 1.4);
+      glow(40, 0.2 + 0.2 * b);
+      disc(17 + 1.8 * b, 0.95);
+    }
+  }
+  frame();
+
   function paint() {
     var s = recOn ? 'listening' : MIC.state;
     if (s === 'thinking' && Date.now() - MIC.thinkAt > 25000) { MIC.state = 'idle'; s = 'idle'; }
-    orb.className = s + (canRec ? '' : ' off');
+    orb.className = canRec ? '' : 'off';
     orb.setAttribute('aria-pressed', recOn ? 'true' : 'false');
-    wave.style.display = s === 'thinking' ? 'flex' : 'none';
     if (errMsg && s === 'idle') { return; }
     if (s === 'listening') { if (!shown) { t1.textContent = S.listening; w.className = ''; } }
     else if (s === 'thinking') { t1.textContent = S.thinking; w.className = ''; }
@@ -6380,11 +6595,14 @@ MIC_HTML = """
   }
   setInterval(paint, 250);
 
+  /* release the microphone ~45 s after the last use (kept open while Aura speaks so barge-in works) */
+  setInterval(function () { if (LIVE && !recOn && MIC.state === 'idle' && Date.now() - (MIC.lastAct || 0) > 45000) { closeMic(); } }, 5000);
+
   /* a reply from the companion: show it and speak it (the speech itself lives in the page, so it survives re-renders) */
   if (CFG.say && CFG.say.id) {
-    shown = CFG.say.text; t2.textContent = CFG.say.text; t1.textContent = S.speaking;
+    shown = clean(CFG.say.text); t2.textContent = shown; t1.textContent = S.speaking;
     if (CFG.say.id !== MIC.spokenId) {
-      MIC.spokenId = CFG.say.id;
+      MIC.spokenId = CFG.say.id; MIC.speakAt = Date.now(); MIC.lastAct = Date.now();
       var a0 = eng();
       if (a0 && a0.canSpeak() && !MIC.muted) { a0.speak(CFG.say.text, CFG.say.lang); }
       else { MIC.state = 'idle'; if (a0 && !a0.canSpeak()) { t1.textContent = S.notts; errMsg = ''; } }
@@ -6408,60 +6626,93 @@ MIC_HTML = """
     return true;
   }
   function deliver(list) {
-    var cut = list.slice(0, 3).map(function (x) { return String(x).slice(0, 160); });
+    list = list.map(clean).filter(function (x) { return x; });
+    if (!list.length) { return; }
+    var cut = list.slice(0, 3).map(function (x) { return x.slice(0, 160); });
     var payload = JSON.stringify({ n: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), a: cut });
     var ok = false;
     try { ok = bridge(payload); } catch (e) { ok = false; }
-    if (ok) { MIC.state = 'thinking'; MIC.thinkAt = Date.now(); shown = '\u201c' + list[0] + '\u201d'; t2.textContent = shown; errMsg = ''; }
-    else { errMsg = S.nobridge; say(S.nobridge, '\u201c' + list[0] + '\u201d', true); }
+    if (ok) { MIC.state = 'thinking'; MIC.thinkAt = Date.now(); shown = String.fromCharCode(0x201c) + list[0] + String.fromCharCode(0x201d); t2.textContent = shown; errMsg = ''; }
+    else { errMsg = S.nobridge; say(S.nobridge, String.fromCharCode(0x201c) + list[0] + String.fromCharCode(0x201d), true); }
     paint();
   }
+  function speakingNow() {
+    try { var a = eng(); return !!(a && a.canSpeak() && HW.speechSynthesis && HW.speechSynthesis.speaking); } catch (e) { return false; }
+  }
+  /* barge-in: the user talks over Aura, so Aura stops at once and listens */
+  function bargeIn() {
+    try { var a = eng(); if (a) { a.stopSpeech(); } } catch (e) {}
+    if (MIC.state === 'speaking') { MIC.state = 'idle'; }
+  }
+  function commitNow() { clearTimeout(vad); if (rec) { try { rec.stop(); } catch (e) {} } }
+
   function start(useParent) {
     var Ctor = useParent ? SRp : SRc;
     if (!Ctor) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
-    var r, fin = '', alts = [], interim = '', err = '';
-    try { r = new Ctor(); r.lang = tag(); r.interimResults = true; r.continuous = false; r.maxAlternatives = 3; }
+    var r, finals = [], lastAlts = [], interim = '', err = '';
+    try { r = new Ctor(); r.lang = tag(); r.interimResults = true; r.continuous = true; r.maxAlternatives = 3; }
     catch (e) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
-    rec = r; errMsg = ''; shown = '';
+    rec = r; errMsg = ''; shown = ''; MIC.lastAct = Date.now();
     r.onstart = function () { recOn = true; MIC.state = 'listening'; say(S.listening, S.hint, false); paint(); };
     r.onresult = function (ev) {
       interim = '';
       for (var i = ev.resultIndex; i < ev.results.length; i++) {
         var res = ev.results[i];
         if (res.isFinal) {
-          alts = [];
-          for (var j = 0; j < res.length && j < 3; j++) { alts.push(String(res[j].transcript || '').trim()); }
-          fin = alts[0] || fin;
-        } else { interim = res[0].transcript; }
+          var alts = [];
+          for (var j = 0; j < res.length && j < 3; j++) { alts.push(clean(res[j].transcript).trim()); }
+          if (alts[0]) { finals.push(alts[0]); lastAlts = alts; }
+        } else { interim = clean(res[0].transcript); }
       }
-      var s = fin || interim;
-      if (s) { shown = '\u201c' + s + '\u201d'; t2.textContent = shown; }
+      pulseAt = Date.now(); MIC.lastAct = Date.now();
+      if (speakingNow()) { bargeIn(); }                  /* speech heard while Aura talks: stop her voice */
+      var s = (finals.join(' ') + ' ' + interim).trim();
+      if (s) {
+        shown = String.fromCharCode(0x201c) + s + String.fromCharCode(0x201d); t2.textContent = shown;
+        clearTimeout(vad); vad = setTimeout(commitNow, SIL_MS);    /* auto-silence: 1.2 s without a new speech delta = send */
+      }
     };
     r.onerror = function (ev) { err = (ev && ev.error) || 'error'; };
     r.onend = function () {
-      clearTimeout(timer); recOn = false; rec = null; if (MIC.state === 'listening') { MIC.state = 'idle'; } revive();
+      clearTimeout(timer); clearTimeout(vad); recOn = false; rec = null; if (MIC.state === 'listening') { MIC.state = 'idle'; } revive();
       var bad = function (m) { errMsg = m; shown = ''; say(m, '', true); paint(); };
+      var text = (finals.join(' ') + ' ' + interim).trim();
       if (err === 'not-allowed' || err === 'service-not-allowed') {
-        if (!useParent && SRp && SRp !== SRc && !fin) { start(true); return; }
+        if (!useParent && SRp && SRp !== SRc && !text) { start(true); return; }
         bad(S.denied); return;
       }
       if (err === 'language-not-supported') { li = (li + 1) % CFG.langs.length; chip(); bad(S.error); return; }
       if (err === 'network') { bad(S.network); return; }
       if (err === 'audio-capture') { bad(S.nomic); return; }
       if (err && err !== 'aborted' && err !== 'no-speech') { bad(S.error); return; }
-      var text = fin || String(interim || '').trim();
       if (!text) { shown = ''; errMsg = ''; say(S.nospeech, S.hint, false); paint(); return; }
-      deliver(alts.length ? alts : [text]);
+      deliver(finals.length > 1 || !lastAlts.length ? [text] : lastAlts);
     };
     try { r.start(); } catch (e) { recOn = false; errMsg = S.error; say(S.error, '', true); return; }
     clearTimeout(timer);
     timer = setTimeout(function () { try { r.stop(); } catch (e) {} }, CFG.maxMs);
   }
+
+  /* barge-in by voice level: sustained loud input while Aura is speaking (echo cancellation is on) */
+  var loudSince = 0;
+  setInterval(function () {
+    if (!LIVE || recOn || !speakingNow() || Date.now() - (MIC.speakAt || 0) < 700) { loudSince = 0; return; }
+    if (lvl > 0.3) {
+      if (!loudSince) { loudSince = Date.now(); }
+      else if (Date.now() - loudSince > 300) {
+        loudSince = 0; bargeIn();
+        if (canRec) { start(!SRc); }                     /* back to attentive listening */
+      }
+    } else { loudSince = 0; }
+  }, 80);
+
   orb.onclick = function () {
     var a = eng();
     if (a) { a.unlock(); a.unlockSpeech(); a.stopSpeech(); }        /* this tap also unlocks the soundtrack and the voice */
-    if (recOn && rec) { try { rec.stop(); } catch (e) {} return; }
+    if (recOn && rec) { commitNow(); return; }
     if (!canRec) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
+    MIC.lastAct = Date.now();
+    openMic();
     start(!SRc);
   };
   window.__auraMic = { start: start, bridge: bridge };
@@ -6484,6 +6735,14 @@ def tts_lang_for(text):
     return SR_LANGS.get(st.session_state.get("lang", "English"), "en-US")
 
 
+def _u8(s):
+    """Drop lone UTF-16 surrogates so a string can always be UTF-8 encoded."""
+    try:
+        return str(s).encode("utf-16", "surrogatepass").decode("utf-16", "ignore")
+    except Exception:
+        return str(s).encode("utf-8", "ignore").decode("utf-8", "ignore")
+
+
 def mic_html():
     ss = st.session_state
     lang = ss.get("lang", "English")
@@ -6492,17 +6751,19 @@ def mic_html():
     keys = ("title", "hint", "listening", "heard", "sent", "denied", "unsupported", "nospeech", "network", "nomic",
             "nobridge", "error", "thinking", "speaking", "notts", "mute", "unmute")
     strings = {k: tt("mic_" + k) for k in keys}
-    cfg = {"langs": langs, "bridge": MIC_BRIDGE_KEY, "ph": MIC_PH, "maxMs": 9000, "s": strings,
-           "say": ss.get("mic_say") or {}}
+    say = dict(ss.get("mic_say") or {})
+    if say.get("text"):
+        say["text"] = _u8(say["text"])
+    cfg = {"langs": langs, "bridge": MIC_BRIDGE_KEY, "ph": MIC_PH, "maxMs": 20000, "sil": 1200, "s": strings, "say": say}
     blob = json.dumps(cfg, ensure_ascii=False).replace("</", "<\\/")
-    return themed(MIC_HTML.replace("__CFG__", blob))
+    return themed(MIC_HTML.replace("__CFG__", _u8(blob)))
 
 
 def render_voice_mic():
     ss = st.session_state
     st.text_input("◈ 7731", key=MIC_BRIDGE_KEY, placeholder=MIC_PH, label_visibility="collapsed", max_chars=800,
                   on_change=cb_voice_bridge)
-    components.html(mic_html(), height=96)
+    components.html(mic_html(), height=112)
     if ss.get("mic_last"):
         st.caption(ss.mic_last)
 
@@ -6649,6 +6910,9 @@ def main():
     repair_orphans()
     ss.cfg.setdefault("api_token", "")
     handle_query_params()
+    if ss.pop("_arm_req", False):
+        arm_audio()
+    ss.setdefault("audio_armed", False)
     st.markdown(build_css(), unsafe_allow_html=True)
     with st.sidebar:
         st.markdown('<div class="brand">✨ AuraSync</div>', unsafe_allow_html=True)
