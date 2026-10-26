@@ -35,6 +35,27 @@ import requests
 import streamlit as st
 import streamlit.components.v1 as components
 
+# --- Auto-sanitize Unicode surrogates for Streamlit components ---
+_orig_components_html = components.html
+def _safe_components_html(html_str=None, *args, **kwargs):
+    def _clean(s):
+        if isinstance(s, str):
+            try:
+                return s.encode('utf-16', 'surrogatepass').decode('utf-16', 'ignore')
+            except Exception:
+                return s.encode('utf-8', 'ignore').decode('utf-8')
+        return s
+    if html_str is not None:
+        html_str = _clean(html_str)
+    elif 'html' in kwargs:
+        kwargs['html'] = _clean(kwargs['html'])
+    return _orig_components_html(html_str, *args, **kwargs)
+components.html = _safe_components_html
+
+try:
+    from openai import OpenAI
+except Exception:  # pragma: no cover - openai is optional; the rule-based engine still works
+    OpenAI = None
 try:
     from openai import OpenAI
 except Exception:  # pragma: no cover - openai is optional; the rule-based engine still works
