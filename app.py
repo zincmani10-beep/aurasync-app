@@ -9,6 +9,7 @@ Secrets (.streamlit/secrets.toml, or the Secrets box on Streamlit Community Clou
   APP_URL, VOICEMONKEY_TOKEN, IOT_WEBHOOK_URL, ...   cloud IoT triggers, see the "Cloud automation" section below
 """
 import ast
+import uuid
 import calendar
 import concurrent.futures
 import hashlib
@@ -416,6 +417,41 @@ AUTO_T = {
     "auto_denied": ("A link was blocked: wrong or missing token.", "ஒரு இணைப்பு தடுக்கப்பட்டது: டோக்கன் தவறு அல்லது இல்லை."),
     "iot_sent": ("☁️ Cloud triggers sent: {ok} of {n}", "☁️ கிளவுட் தூண்டுதல்கள் அனுப்பப்பட்டன: {n} இல் {ok}"),
     "iot_blocked": ("blocked (needs a public https address)", "தடுக்கப்பட்டது (பொது https முகவரி தேவை)"),
+    "mic_thinking": ("Thinking…",),
+    "mic_speaking": ("Speaking…",),
+    "mic_notts": ("This browser cannot speak replies aloud, so the reply is shown as text.",),
+    "mic_mute": ("Voice replies: on",),
+    "mic_unmute": ("Voice replies: off",),
+    "src_ble": ("Bluetooth band / ring",),
+    "ble_title": ("Connect a heart-rate wearable",),
+    "ble_sub": ("Smart bands, watches, rings and chest straps that share heart rate over standard Bluetooth connect straight to AuraSync.",),
+    "ble_connect": ("Connect band / ring",),
+    "ble_all": ("Show all Bluetooth devices",),
+    "ble_disc": ("Disconnect",),
+    "ble_idle": ("Not connected",),
+    "ble_connecting": ("Connecting…",),
+    "ble_connected": ("Connected",),
+    "ble_reconnecting": ("Connection lost, reconnecting…",),
+    "ble_stale": ("Connected, waiting for a heart-rate reading…",),
+    "ble_disconnected": ("Disconnected. Tap Connect to pair again.",),
+    "ble_unsupported": ("This browser has no Web Bluetooth. Use Chrome on Android or desktop, or the free Bluefy browser on iPhone and iPad. You can also pick Wearable API as the data source.",),
+    "ble_blocked": ("Bluetooth was blocked. Allow Bluetooth for this site, or open the app directly in Chrome instead of inside another page.",),
+    "ble_cancelled": ("No device was chosen.",),
+    "ble_error": ("Could not connect. Switch on heart-rate broadcast on your band or ring, keep it close, then try again.",),
+    "ble_note": ("Oura and Ultrahuman rings and Apple Watch do not share heart rate over open Bluetooth. For them choose Wearable API and point it at their cloud or a Shortcuts relay.",),
+    "ble_live": ("Live from {n}: {hr} bpm",),
+    "ble_wait": ("Waiting for the first heart-rate reading…",),
+    "api_token": ("Wearable API access token (optional)",),
+    "as_title": ("One-tap voice shortcuts",),
+    "as_sub": ("Talk to your home from the lock screen, your watch or your car.",),
+    "as_siri": ("Add to Siri",),
+    "as_google": ("Add to Google Assistant",),
+    "as_steps": ("Google Assistant setup in 1 minute",),
+    "as_g1": ("Install the free HTTP Shortcuts app (button above).",),
+    "as_g2": ("Tap + and choose Regular Shortcut. Paste your AuraSync link as the URL, method GET, and set Response handling to Open in browser.",),
+    "as_g3": ("Long-press the shortcut and add it to your home screen. Then say: Hey Google, open <your shortcut name>.",),
+    "as_g_link": ("Your link for the Reading mode",),
+    "as_g_nolink": ("Add AURASYNC_TOKEN to your app secrets to get your private link here.",),
     "mic_title": ("Tap the mic and speak", "மைக்கைத் தட்டிப் பேசுங்கள்"),
     "mic_hint": ("Try: “Turn to reading mode”, “Activate Zen”, “Focus mode”", "முயலுங்கள்: “reading mode”, “Zen”, “Focus mode”"),
     "mic_listening": ("Listening…", "கேட்கிறேன்…"),
@@ -1136,12 +1172,12 @@ PALETTES = {
     "dark": {"SCHEME": "dark", "BG": "#0B0B0B", "SIDE": "#121212", "BTN": "#0B0B0B", "ACC": "#D4AF37", "ACC2": "#B8962E",
              "ONACC": "#141414", "CARD1": "#161616", "CARD2": "#0F0F0F", "STAT": "#121212", "SUB": "#BBA85A",
              "LOG": "#CFC7AE", "MUTE": "#9A9172", "CHATBG": "#0F0F0F", "BUBDV": "#1D1D1D", "TXT": "#EDE6D3",
-             "TXT2": "#E8E2D0", "INPUT": "#171717", "BORDER": "#3A3320", "POP": "#1A1A1A", "HUE": "48deg"},
+             "TXT2": "#E8E2D0", "INPUT": "#171717", "BORDER": "#3A3320", "POP": "#1A1A1A", "SEL": "#3A3115", "HUE": "48deg"},
     # Light: pure white page, electric blue accent, near-black text
     "light": {"SCHEME": "light", "BG": "#FFFFFF", "SIDE": "#FFFFFF", "BTN": "#FFFFFF", "ACC": "#0057FF", "ACC2": "#0043CC",
               "ONACC": "#FFFFFF", "CARD1": "#FFFFFF", "CARD2": "#F5F8FF", "STAT": "#F3F7FF", "SUB": "#3F4F73",
               "LOG": "#1E293B", "MUTE": "#566176", "CHATBG": "#FFFFFF", "BUBDV": "#EEF3FF", "TXT": "#0F172A",
-              "TXT2": "#1E293B", "INPUT": "#FFFFFF", "BORDER": "#CFDBF5", "POP": "#FFFFFF", "HUE": "212deg"},
+              "TXT2": "#1E293B", "INPUT": "#FFFFFF", "BORDER": "#CFDBF5", "POP": "#FFFFFF", "SEL": "#D6E6FF", "HUE": "212deg"},
 }
 
 CSS_T = """
@@ -1266,6 +1302,34 @@ input::placeholder, textarea::placeholder { color: @MUTE@ !important; -webkit-te
 @keyframes blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
 .st-key-aura_voice_bridge { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; opacity: 0 !important; }
 div[data-testid="stTextInput"]:has(input[placeholder="◈7731◈"]) { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; opacity: 0 !important; }
+/* menu button that opens the sidebar: always visible, big enough for a thumb */
+[data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {
+  position: fixed !important; top: 10px !important; left: 10px !important; z-index: 1000002 !important; width: 46px !important;
+  height: 46px !important; display: flex !important; align-items: center !important; justify-content: center !important;
+  visibility: visible !important; opacity: 1 !important; background-color: @ACC@ !important; border-radius: 14px !important;
+  box-shadow: 0 3px 12px rgba(0,0,0,.30) !important; }
+[data-testid="stExpandSidebarButton"] *, [data-testid="stSidebarCollapsedControl"] *, [data-testid="collapsedControl"] * {
+  color: @ONACC@ !important; fill: @ONACC@ !important; visibility: visible !important; opacity: 1 !important; }
+[data-testid="stSidebarCollapseButton"] button, [data-testid="stSidebarHeader"] button { color: @ACC@ !important; }
+[data-testid="stSidebarCollapseButton"] svg, [data-testid="stSidebarHeader"] button svg { fill: @ACC@ !important; color: @ACC@ !important; }
+[data-testid="stHeader"] { z-index: 999990 !important; }
+/* dropdowns: light selected row with dark text, readable control, readable list */
+[data-baseweb="select"], [data-baseweb="select"] > div, [data-baseweb="select"] [role="combobox"] { background-color: @INPUT@ !important; }
+[data-baseweb="select"] * { background-color: transparent !important; color: @TXT@ !important; -webkit-text-fill-color: @TXT@ !important; }
+[data-baseweb="select"] [data-baseweb="tag"], [data-baseweb="select"] [data-baseweb="tag"] * { background-color: @ACC@ !important; color: @ONACC@ !important; -webkit-text-fill-color: @ONACC@ !important; }
+[data-baseweb="popover"] *, [data-baseweb="menu"] *, ul[role="listbox"] * { background-color: transparent !important; color: @TXT@ !important; -webkit-text-fill-color: @TXT@ !important; }
+[data-baseweb="popover"] > div, [data-baseweb="popover"] [data-baseweb="menu"], ul[role="listbox"] { background-color: @POP@ !important; }
+[data-baseweb="popover"] li, [data-baseweb="menu"] li, [role="option"] { background-color: @POP@ !important; }
+[data-baseweb="popover"] li:hover, [data-baseweb="menu"] li:hover, [role="option"]:hover, [role="option"][aria-selected="true"], li[aria-selected="true"], li[data-highlighted], [data-highlighted="true"] { background-color: @SEL@ !important; }
+[data-testid="stToggle"] label > div:first-child, [data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child { filter: hue-rotate(@HUE@); }
+.st-key-aura_hr_bridge { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; opacity: 0 !important; }
+div[data-testid="stTextInput"]:has(input[placeholder="◈4417◈"]) { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; opacity: 0 !important; }
+.aucard { background: #0B0B0B; border: 1.5px solid #D4AF37; border-radius: 20px; padding: 16px 18px; margin: 8px 0 10px 0; box-shadow: 0 6px 22px rgba(212,175,55,.28); }
+.aucard .at { color: #D4AF37 !important; font-weight: 700; font-size: 1.05rem; }
+.aucard .as { color: #E9DFC0 !important; font-size: .9rem; margin: 4px 0 12px 0; }
+.aucard .ab { display: flex; flex-wrap: wrap; gap: 10px; }
+.aucard a.abtn { flex: 1 1 180px; text-align: center; text-decoration: none !important; background: #D4AF37; color: #0B0B0B !important; font-weight: 700; padding: 12px 14px; border-radius: 14px; }
+.aucard a.abtn.ghost { background: transparent; color: #D4AF37 !important; border: 1.5px solid #D4AF37; }
 </style>
 """
 
@@ -2321,7 +2385,7 @@ def init_state():
         ss.cfg = {"auto_mode": False, "source": "sim", "scn": "relaxed",
                   "api_url": "http://localhost:8000/latest-biometrics", "thr": 100, "rel": 78, "rest": 62, "poll": 3,
                   "notif": True, "chime": True, "timer": 0, "tok": 0, "bed": 100, "mix": dict(BASE_MIX),
-                  "follow_me": True, "cut_mode": "Off", "calm_on": True, "tracker": "Apple Watch Series 9",
+                  "api_token": "", "follow_me": True, "cut_mode": "Off", "calm_on": True, "tracker": "Apple Watch Series 9",
                   "geo_auto": True}
     for k, v in (("holds", {}), ("room_mode", {}), ("conn", {"mode": "home"}),
                  ("geo", {"state": "idle", "chimed": False, "km": 20, "rev": 0}), ("presence", {"room": "Living Lounge"}),
@@ -2371,17 +2435,192 @@ SCN = {"relaxed": (68, (50, 70), 33.6, False), "active": (90, (38, 55), 34.8, Fa
        "wake": (73, (48, 60), 33.8, False)}
 
 
+HR_BRIDGE_KEY = "aura_hr_bridge"
+HR_PH = "◈4417◈"
+
+
+def rmssd(rr):
+    """Heart-rate variability (ms) from beat-to-beat intervals; 0 when there is not enough data."""
+    rr = [x for x in rr if 300 < x < 2000]
+    if len(rr) < 6:
+        return 0
+    d = [(rr[i + 1] - rr[i]) ** 2 for i in range(len(rr) - 1)]
+    return int(max(10, min(150, math.sqrt(sum(d) / len(d)))))
+
+
+def cb_hr_bridge():
+    """The browser (Web Bluetooth) hands heart-rate samples and connection status over through a hidden field."""
+    ss = st.session_state
+    raw = str(ss.get(HR_BRIDGE_KEY) or "")
+    ss[HR_BRIDGE_KEY] = ""
+    try:
+        d = json.loads(raw)
+    except Exception:
+        return
+    if not isinstance(d, dict):
+        return
+    n = str(d.get("n", ""))[:40]
+    if n and n == ss.get("hr_nonce"):
+        return
+    ss.hr_nonce = n
+    b = dict(ss.get("ble") or {})
+    b["state"] = str(d.get("st", ""))[:20]
+    b["name"] = str(d.get("name", ""))[:40]
+    b["err"] = str(d.get("err", ""))[:30]
+    try:
+        hr = int(float(d.get("hr") or 0))
+    except (TypeError, ValueError):
+        hr = 0
+    if 25 < hr < 230:
+        b["hr"], b["ts"] = hr, time.time()
+        try:
+            b["rr"] = [int(x) for x in (d.get("rr") or [])][-60:]
+        except (TypeError, ValueError):
+            pass
+    prev = ss.get("ble_prev_state")
+    ss.ble = b
+    ss.ble_prev_state = b["state"]
+    if b["state"] == "connected" and prev != "connected":
+        ss.cfg["source"] = "ble"
+        log("⌚ Heart-rate wearable connected: " + (b["name"] or "band"))
+        ss.flash = "⌚ " + (b["name"] or "")
+    elif b["state"] in ("disconnected", "error") and prev != b["state"]:
+        log("⌚ Heart-rate wearable: " + b["state"] + (" (" + b["err"] + ")" if b["err"] else ""))
+
+
+def render_hr_bridge():
+    st.text_input("◈ 4417", key=HR_BRIDGE_KEY, placeholder=HR_PH, label_visibility="collapsed", max_chars=1200,
+                  on_change=cb_hr_bridge)
+
+
+WEAR_HTML = """
+<style>
+  html, body { margin: 0; background: transparent; }
+  #w { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 12px 14px; box-sizing: border-box; border-radius: 18px;
+       border: 1px solid __ACC__; background: __BG__; font-family: Inter, Arial, sans-serif; color: __ACC__; }
+  #heart { font-size: 30px; line-height: 1; }
+  #heart.beat { animation: beat 1s ease-in-out infinite; }
+  @keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.22); } 30% { transform: scale(1); } 45% { transform: scale(1.14); } }
+  #bpm { font-size: 30px; font-weight: 700; min-width: 64px; }
+  #bpm small { font-size: 12px; font-weight: 400; color: __SUB__; }
+  #tx { flex: 1; min-width: 160px; }
+  #t1 { font-size: 14px; font-weight: 600; } #t2 { font-size: 12px; color: __SUB__; margin-top: 2px; overflow-wrap: anywhere; }
+  #w.err #t1 { color: #ff8a80; }
+  button { border: 1px solid __ACC__; background: transparent; color: __ACC__; border-radius: 12px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+  button.main { background: __ACC__; color: __BTN__; font-weight: 700; }
+  #nt { width: 100%; font-size: 11px; color: __SUB__; }
+</style>
+<div id="w">
+  <div id="heart">&#10084;&#65039;</div>
+  <div id="bpm">--<small> bpm</small></div>
+  <div id="tx"><div id="t1"></div><div id="t2"></div></div>
+  <button id="c1" class="main" type="button"></button>
+  <button id="c2" type="button"></button>
+  <button id="c3" type="button"></button>
+  <div id="nt"></div>
+</div>
+<script>
+(function () {
+  var CFG = __CFG__, S = CFG.s, P = null;
+  try { P = window.parent; void P.document.body; } catch (e) { P = null; }
+  var $ = function (id) { return document.getElementById(id); };
+  var w = $('w');
+  $('c1').textContent = S.connect; $('c2').textContent = S.all; $('c3').textContent = S.disc; $('nt').textContent = S.note;
+  function eng() { return (P && P.__aura && P.__aura.hrm) ? P.__aura : null; }
+  function fit() { try { window.frameElement.style.height = (w.offsetHeight + 6) + 'px'; } catch (e) {} }
+  function paint() {
+    var a = eng(), h = a ? a.hrm : null, st = h ? h.st : 'idle', err = h ? h.err : '';
+    var hasBT = !!(P && P.navigator && P.navigator.bluetooth) || !!navigator.bluetooth;
+    var fresh = h && h.hr && (Date.now() - h.ts < 15000);
+    $('bpm').innerHTML = (fresh ? h.hr : '--') + '<small> bpm</small>';
+    $('heart').className = fresh ? 'beat' : '';
+    var line = S[st] || S.idle, sub = h && h.name ? h.name : '', bad = false;
+    if (!hasBT && st === 'idle') { line = S.unsupported; bad = true; }
+    if (st === 'error' || st === 'unsupported' || err) {
+      bad = st === 'error' || st === 'unsupported';
+      if (err === 'unsupported') { line = S.unsupported; }
+      else if (err === 'NotAllowedError' || err === 'SecurityError') { line = S.blocked; }
+      else if (err === 'cancelled') { line = S.cancelled; bad = false; }
+      else if (st === 'error') { line = S.error; }
+    }
+    if (st === 'connected' && !fresh) { line = S.wait; }
+    $('t1').textContent = line; $('t2').textContent = sub; w.className = bad ? 'err' : '';
+    var live = st === 'connected' || st === 'connecting' || st === 'reconnecting' || st === 'stale';
+    $('c1').style.display = live ? 'none' : ''; $('c2').style.display = live ? 'none' : '';
+    $('c3').style.display = live ? '' : 'none';
+    fit();
+  }
+  $('c1').onclick = function () { var a = eng(); if (a) { a.hrConnect(false); } paint(); };
+  $('c2').onclick = function () { var a = eng(); if (a) { a.hrConnect(true); } paint(); };
+  $('c3').onclick = function () { var a = eng(); if (a) { a.hrDisconnect(); } paint(); };
+  setInterval(paint, 1000); paint();
+})();
+</script>
+"""
+
+
+def wear_html():
+    keys = ("connect", "all", "disc", "idle", "connecting", "connected", "reconnecting", "stale", "disconnected",
+            "unsupported", "blocked", "cancelled", "error", "note", "wait")
+    strings = {k: tt("ble_" + k) for k in keys}
+    blob = json.dumps({"s": strings}, ensure_ascii=False).replace("</", "<\\/")
+    return themed(WEAR_HTML.replace("__CFG__", blob))
+
+
+def render_wearable():
+    ss = st.session_state
+    st.markdown("**⌚ " + t("ble_title") + "**")
+    st.caption(t("ble_sub"))
+    components.html(wear_html(), height=130)
+    b = ss.get("ble") or {}
+    if b.get("hr") and time.time() - b.get("ts", 0) < 25:
+        st.caption("💓 " + t("ble_live", n=b.get("name") or "band", hr=b["hr"]))
+
+
+def parse_hr_payload(d):
+    """Our own JSON plus Oura / Fitbit style answers -> dict with the key _hr, or None."""
+    if isinstance(d, list):
+        d = d[-1] if d else {}
+    if isinstance(d, dict) and isinstance(d.get("data"), list) and d["data"]:
+        d = d["data"][-1]
+    if isinstance(d, dict) and "activities-heart-intraday" in d:
+        ds = (d["activities-heart-intraday"] or {}).get("dataset") or []
+        d = {"heart_rate": ds[-1].get("value")} if ds else {}
+    if not isinstance(d, dict):
+        return None
+    for k in ("heart_rate", "hr", "bpm", "heartRate", "heart_rate_bpm"):
+        if k in d:
+            try:
+                return dict(d, _hr=int(float(d[k])))
+            except (TypeError, ValueError):
+                return None
+    return None
+
+
 def read_biometrics():
-    cfg = st.session_state.cfg
-    last = st.session_state.hr_hist[-1]
+    ss = st.session_state
+    cfg = ss.cfg
+    last = ss.hr_hist[-1]
+    if cfg["source"] == "ble":
+        b = ss.get("ble") or {}
+        if b.get("hr") and time.time() - b.get("ts", 0) < 25:
+            return {"hr": int(b["hr"]), "hrv": rmssd(b.get("rr", [])) or 55, "spo2": 97.0, "skin": 33.5,
+                    "asleep": False, "live": True}
     if cfg["source"] == "wear":
         try:
-            r = requests.get(cfg["api_url"], timeout=1.5)
+            now = datetime.utcnow()
+            url = (cfg["api_url"].replace("{start}", urllib.parse.quote((now - timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%S+00:00")))
+                   .replace("{end}", urllib.parse.quote(now.strftime("%Y-%m-%dT%H:%M:%S+00:00"))))
+            hdr = {"Authorization": "Bearer " + cfg["api_token"]} if cfg.get("api_token") else {}
+            r = requests.get(url, headers=hdr, timeout=1.5)
             r.raise_for_status()
-            d = r.json()
+            raw = r.json()
+            d = parse_hr_payload(raw)
+            if d is None:
+                raise ValueError("no heart rate in the answer")
             stage = str(d.get("sleep_stage", "")).lower()
             asleep = bool(d.get("asleep", d.get("sleeping", stage in ("light", "deep", "rem", "asleep"))))
-            return {"hr": int(d.get("heart_rate", d.get("hr", last))), "hrv": int(d.get("hrv", 55)),
+            return {"hr": d["_hr"], "hrv": int(d.get("hrv", 55)),
                     "spo2": float(d.get("spo2", 97)), "skin": float(d.get("temperature", 33.5)),
                     "asleep": asleep, "flag": any(k in d for k in ("asleep", "sleeping", "sleep_stage")), "live": True}
         except Exception:
@@ -2710,7 +2949,7 @@ ENGINE_JS = r"""
     g.connect(lp); lp.connect(n.master); lp.connect(sd); sd.connect(n.dly);
     return { g: g, lp: lp, sd: sd };
   }
-  A.bedLevel = function () { return ((A.p && A.p.bed !== undefined) ? A.p.bed : 100) / 100; };
+  A.bedLevel = function () { return (((A.p && A.p.bed !== undefined) ? A.p.bed : 100) / 100) * (A.ducked ? 0.3 : 1); };
   A.setStyle = function (g) {
     var c = A.ctx, now = c.currentTime, old = A.bus;
     A.genre = g; A.st = S[g] || S['Ambient Space']; A.tune = A.st.tune || 440;
@@ -2975,12 +3214,130 @@ ENGINE_JS = r"""
     if (A.tick) { clearInterval(A.tick); A.tick = null; }
     if (A.worker) { try { A.worker.terminate(); } catch (e) {} A.worker = null; }
   };
+  /* ---- the soundtrack gets quieter while the companion speaks ---- */
+  A.duck = function (on) {
+    A.ducked = !!on;
+    try { if (A.bus && A.ctx && !(A.fadeEnd && A.ctx.currentTime < A.fadeEnd)) { A.bus.g.gain.setTargetAtTime(A.bedLevel(), A.ctx.currentTime, 0.3); } } catch (e) {}
+  };
+  /* ---- spoken replies (browser speech synthesis, calm voice). State lives in the page, so it survives re-renders ---- */
+  var MIC = (window.__auraMic = window.__auraMic || { state: 'idle', spokenId: '', thinkAt: 0, muted: false });
+  function voicePick(lang) {
+    var vs = (window.speechSynthesis && window.speechSynthesis.getVoices()) || [], want = String(lang || 'en-US').replace('_', '-').toLowerCase();
+    var base = want.split('-')[0];
+    var exact = vs.filter(function (v) { return v.lang && v.lang.replace('_', '-').toLowerCase() === want; });
+    var pref = exact.concat(vs.filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf(base) === 0 && exact.indexOf(v) < 0; }));
+    var soft = /samantha|karen|moira|tessa|serena|ava|allison|joelle|shruti|veena|lekha|kyoko|yuna|google.*(female|uk|us)|natural|neural|aria|jenny|siri/i;
+    for (var i = 0; i < pref.length; i++) { if (soft.test(pref[i].name)) { return pref[i]; } }
+    return pref[0] || null;
+  }
+  A.canSpeak = function () { return !!(window.speechSynthesis && window.SpeechSynthesisUtterance); };
+  A.unlockSpeech = function () {
+    try { if (A.canSpeak()) { var u = new SpeechSynthesisUtterance(''); u.volume = 0; window.speechSynthesis.speak(u); } } catch (e) {}
+  };
+  A.stopSpeech = function () {
+    try { if (window.speechSynthesis) { window.speechSynthesis.cancel(); } } catch (e) {}
+    A.duck(false); if (MIC.state === 'speaking') { MIC.state = 'idle'; }
+  };
+  A.speak = function (text, lang) {
+    if (!A.canSpeak() || MIC.muted || !text) { if (MIC.state !== 'listening') { MIC.state = 'idle'; } return false; }
+    try {
+      var syn = window.speechSynthesis; syn.cancel();
+      var parts = String(text).match(/[^.!?\u2026]+[.!?\u2026]*/g) || [String(text)];
+      parts.forEach(function (p, i) {
+        p = p.trim(); if (!p) { return; }
+        var u = new SpeechSynthesisUtterance(p);
+        u.lang = lang || 'en-US'; var v = voicePick(u.lang); if (v) { u.voice = v; }
+        u.rate = 0.92; u.pitch = 1.0; u.volume = 1;
+        if (i === 0) { u.onstart = function () { MIC.state = 'speaking'; A.duck(true); }; }
+        if (i === parts.length - 1) { u.onend = u.onerror = function () { A.duck(false); if (MIC.state === 'speaking') { MIC.state = 'idle'; } }; }
+        syn.speak(u);
+      });
+      return true;
+    } catch (e) { MIC.state = 'idle'; return false; }
+  };
+  /* ---- heart-rate wearables over standard Bluetooth (Web Bluetooth, Heart Rate profile) ---- */
+  var HRM = A.hrm = { st: 'idle', name: '', hr: 0, rr: [], ts: 0, err: '', dev: null, ch: null, lastPush: 0, key: 'aura_hr_bridge', ph: '\u25c84417\u25c4' };
+  function hrBridge(payload) {
+    var inp = document.querySelector('.st-key-' + HRM.key + ' input') || document.querySelector('input[placeholder="' + HRM.ph + '"]');
+    if (!inp) { return false; }
+    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    setter.call(inp, payload);
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    ['keydown', 'keypress', 'keyup'].forEach(function (k) {
+      inp.dispatchEvent(new KeyboardEvent(k, { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true }));
+    });
+    setTimeout(function () { try { inp.dispatchEvent(new FocusEvent('focusout', { bubbles: true })); inp.dispatchEvent(new FocusEvent('blur')); } catch (e) {} }, 60);
+    return true;
+  }
+  function hrPush(force) {
+    var now = Date.now();
+    if (!force && now - HRM.lastPush < 4000) { return; }
+    HRM.lastPush = now;
+    try {
+      hrBridge(JSON.stringify({ n: now.toString(36) + Math.random().toString(36).slice(2, 5), st: HRM.st, name: HRM.name,
+                                hr: HRM.hr, rr: HRM.rr.slice(-24), err: HRM.err }));
+    } catch (e) {}
+  }
+  function hrParse(e) {
+    var v = e.target.value, f = v.getUint8(0), i = 1, hr, rr = [];
+    if (f & 1) { hr = v.getUint16(i, true); i += 2; } else { hr = v.getUint8(i); i += 1; }
+    if (f & 8) { i += 2; }
+    if (f & 16) { for (; i + 1 < v.byteLength; i += 2) { rr.push(Math.round(v.getUint16(i, true) * 1000 / 1024)); } }
+    if (((f >> 1) & 3) === 2) { return; }          /* the sensor reports "not touching the skin" */
+    if (hr > 25 && hr < 230) {
+      HRM.hr = hr; HRM.ts = Date.now(); if (HRM.st === 'stale') { HRM.st = 'connected'; }
+      if (rr.length) { HRM.rr = HRM.rr.concat(rr).slice(-60); }
+      hrPush(HRM.first); HRM.first = false;
+    }
+  }
+  function hrOpen(dev) {
+    HRM.st = 'connecting'; HRM.err = '';
+    return dev.gatt.connect().then(function (server) { return server.getPrimaryService('heart_rate'); })
+      .then(function (svc) { return svc.getCharacteristic('heart_rate_measurement'); })
+      .then(function (ch) {
+        ch.addEventListener('characteristicvaluechanged', hrParse);
+        return ch.startNotifications().then(function () { return ch; });
+      })
+      .then(function (ch) {
+        HRM.dev = dev; HRM.ch = ch; HRM.st = 'connected'; HRM.name = dev.name || 'Heart-rate band'; HRM.ts = Date.now(); HRM.first = true; hrPush(true);
+      });
+  }
+  function hrLost() {
+    if (HRM.st === 'idle') { return; }
+    HRM.st = 'reconnecting'; hrPush(true);
+    (function retry(n) {
+      if (!HRM.dev || HRM.st === 'idle') { return; }
+      if (n > 6) { HRM.st = 'disconnected'; hrPush(true); return; }
+      setTimeout(function () { hrOpen(HRM.dev).catch(function () { retry(n + 1); }); }, 1500 * n);
+    })(1);
+  }
+  A.hrConnect = function (all) {
+    if (!navigator.bluetooth) { HRM.st = 'unsupported'; HRM.err = 'unsupported'; hrPush(true); return; }
+    var opts = all ? { acceptAllDevices: true, optionalServices: ['heart_rate', 'battery_service'] }
+                   : { filters: [{ services: ['heart_rate'] }], optionalServices: ['battery_service'] };
+    navigator.bluetooth.requestDevice(opts).then(function (dev) {
+      dev.addEventListener('gattserverdisconnected', hrLost);
+      return hrOpen(dev);
+    }).catch(function (e) {
+      var n = (e && e.name) || 'error';
+      if (n === 'NotFoundError') { HRM.st = 'idle'; HRM.err = 'cancelled'; } else { HRM.st = 'error'; HRM.err = n; }
+      hrPush(true);
+    });
+  };
+  A.hrDisconnect = function () {
+    HRM.st = 'idle'; HRM.err = '';
+    try { if (HRM.dev && HRM.dev.gatt && HRM.dev.gatt.connected) { HRM.dev.gatt.disconnect(); } } catch (e) {}
+    HRM.hr = 0; hrPush(true);
+  };
+  setInterval(function () {
+    if (HRM.st === 'connected' && Date.now() - HRM.ts > 30000) { HRM.st = 'stale'; hrPush(true); }
+  }, 5000);
   A.styles = S;
   window.__aura = A;
 })();
 """
 
-ENGINE_VER = 9
+ENGINE_VER = 10
 
 HOST_BOOT = """
 <script id="eng" type="text/plain">__ENGINE__</script>
@@ -3386,7 +3743,7 @@ def bio_panel(zen=False):
         log("⚠ automation step skipped: " + type(e).__name__)
     if cfg["auto_mode"] and not home:
         st.caption("🚗 " + t("away_pause"))
-    if cfg["source"] == "wear" and not r["live"]:
+    if cfg["source"] in ("wear", "ble") and not r["live"]:
         st.caption("⚠️ " + t("offline"))
     if zen:
         st.caption(t("zen_well", s=t("st_" + res["state"])))
@@ -3467,12 +3824,14 @@ def page_dashboard_pro():
     if not cfg["auto_mode"]:
         st.caption(t("auto_hint"))
     b1, b2 = st.columns(2)
-    srcs = ["sim", "wear"]
-    cfg["source"] = b1.radio(t("source"), srcs, index=srcs.index(cfg["source"]), horizontal=True,
-                             format_func=lambda s: t(s))
+    srcs = ["sim", "ble", "wear"]
+    cfg["source"] = b1.radio(t("source"), srcs, index=srcs.index(cfg["source"]) if cfg["source"] in srcs else 0,
+                             horizontal=True, format_func=lambda s: t({"ble": "src_ble"}.get(s, s)))
     if cfg["source"] == "sim":
         scns = list(SCN.keys())
         cfg["scn"] = b2.selectbox(t("scn"), scns, index=scns.index(cfg["scn"]), format_func=lambda s: t("st_" + s))
+    if cfg["source"] == "ble":
+        render_wearable()
     if hasattr(st, "fragment"):
         st.fragment(run_every=cfg["poll"])(bio_panel)()
     else:
@@ -3816,8 +4175,33 @@ def render_voice_bar():
         st.caption(ss.voice_last)
 
 
+SIRI_SHORTCUT_URL = "https://www.icloud.com/shortcuts/2032cdddec6f4f8e8b8ed1fcb2432b32"
+HTTP_SHORTCUTS_URL = "https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts"
+
+
+def render_assistant_card():
+    """Black & gold card with the two 1-tap onboarding buttons (under the Lock Screen Live Activity bar)."""
+    st.markdown(
+        '<div class="aucard"><div class="at">✦ ' + html.escape(t("as_title")) + '</div><div class="as">' +
+        html.escape(t("as_sub")) + '</div><div class="ab">'
+        '<a class="abtn" href="' + SIRI_SHORTCUT_URL + '" target="_blank" rel="noopener noreferrer"> ' +
+        html.escape(t("as_siri")) + '</a>'
+        '<a class="abtn ghost" href="' + HTTP_SHORTCUTS_URL + '" target="_blank" rel="noopener noreferrer">🤖 ' +
+        html.escape(t("as_google")) + "</a></div></div>", unsafe_allow_html=True)
+    with st.expander("🤖 " + t("as_steps")):
+        st.markdown("1. " + t("as_g1") + "\n2. " + t("as_g2") + "\n3. " + t("as_g3"))
+        tok = _secret("AURASYNC_TOKEN")
+        base = app_base_url()
+        if tok and base:
+            st.caption(t("as_g_link"))
+            st.code(app_link(base, "reading"), language=None)
+        else:
+            st.caption(t("as_g_nolink"))
+
+
 def render_zero_ui():
     render_watch_card()
+    render_assistant_card()
     render_voice_bar()
     render_dial()
 
@@ -5439,6 +5823,8 @@ def page_system():
     ss, cfg = st.session_state, st.session_state.cfg
     st.header(t("p5"))
     cfg["api_url"] = st.text_input(t("api"), value=cfg["api_url"])
+    cfg["api_token"] = st.text_input(t("api_token"), value=cfg.get("api_token", ""), type="password", key="api_token_w")
+    render_wearable()
     c1, c2, c3, c4 = st.columns(4)
     cfg["thr"] = c1.slider(t("thr"), 85, 150, int(cfg["thr"]))
     cfg["rel"] = c2.slider(t("rel"), 55, 95, int(cfg["rel"]))
@@ -5757,7 +6143,102 @@ def handle_query_params():
 
 
 # ---- 4. microphone: Web Speech API in the browser, command handed back to Streamlit through a hidden field
-def handle_spoken(alts):
+COMPANION_MODES = {"reading room": "reading", "zen mode": "zen", "focus work": "focus", "relax evening": "relax",
+                   "energize": "energize"}
+STRESS_RX = (r"stress|anxi|tension|overwhelm|worr|panic|exhaust|burn ?out|lonely|sad\b|upset|"
+             r"ஸ்ட்ரெஸ்|டென்ஷன்|கவலை|மன அழுத்த|romba stress|stress-?aa|kovam|kavalai")
+COMPANION_PROMPT = """You are AuraSync, a calm luxury home-ambience companion who talks with the user out loud, like a warm personal concierge.
+Reply with ONLY one JSON object and nothing else, with exactly these two keys:
+{"spoken_reply": "...", "mode": "..."}
+- spoken_reply: one or two short, warm, empathetic sentences (under 45 words) in the SAME language and style the user spoke (English, Tamil, Tanglish, Korean, Thai ...). It must sound natural when spoken aloud: no emoji, no lists. Say what you are doing for them, for example: "I've got you. Let's dim the living lounge to warm amber and queue up calming lo-fi rain so you can unwind."
+- mode: the ambience to switch on. One of exactly: "Reading Room", "Zen Mode", "Focus Work", "Relax Evening", "Energize", or "None" when the user only wants to talk.
+Choose the mode that best helps how the person feels or what they want to do (stress or worry: Zen Mode or Relax Evening; reading: Reading Room; working or studying: Focus Work; low energy in the morning: Energize)."""
+
+
+def nim_companion(text):
+    """NVIDIA NIM: {'spoken': str, 'mid': mode id or None}. Returns None when NIM is not configured or fails."""
+    key = _secret("NVIDIA_API_KEY")
+    if not key or OpenAI is None:
+        return None
+    ss = st.session_state
+    try:
+        client = OpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=key)
+        prof = ss.get("profile") or {}
+        ctx = ("User: " + str(prof.get("name", "friend")) + ". Room: " + ss.presence["room"] + ". Current ambience: " + eff_mode() +
+               ". Body state: " + str(ss.get("last_state") or "unknown") + ". Time: " + datetime.now().strftime("%H:%M") + ".")
+        resp = client.chat.completions.create(
+            model="meta/llama-3.1-70b-instruct",
+            messages=[{"role": "system", "content": COMPANION_PROMPT + "\n\n" + ctx},
+                      {"role": "user", "content": text}],
+            temperature=0.6, max_tokens=200, timeout=12)
+        raw = resp.choices[0].message.content or ""
+        m = re.search(r"\{.*\}", raw, re.S)
+        data = json.loads(m.group(0))
+        spoken = " ".join(str(data.get("spoken_reply", "")).split())[:320]
+        if not spoken:
+            return None
+        mid = COMPANION_MODES.get(str(data.get("mode", "")).strip().lower())
+        return {"spoken": spoken, "mid": mid}
+    except Exception as e:
+        log("⚠ NVIDIA NIM voice fallback: " + type(e).__name__)
+        return None
+
+
+LOCAL_SPOKEN = {
+    "reading": "Of course. I'm warming the lights and starting quiet, gentle music so you can read in comfort.",
+    "zen": "I've got you. Let's soften the room to a calm green glow and start gentle garden sounds. Breathe out slowly.",
+    "meditation": "Let's settle in together. Deep violet light and a slow soundtrack are on. Take your time.",
+    "focus": "Focus time. Clear, bright light and quiet lo-fi are on, and I'll keep everything else out of your way.",
+    "relax": "Let's slow down together. Warm amber light and soft jazz are on so you can unwind.",
+    "energize": "Let's lift the energy. Bright light and upbeat music are coming right up.",
+    "sleep": "Time to rest. I'm dimming the lights and starting a soft sleep soundscape. Sleep well.",
+    "movie": "Movie time. Curtains closing and cinematic light on. Enjoy.",
+    "away": "Away mode on. Your home is going to standby. Have a safe trip.",
+    "home": "Welcome home. I'll have everything ready for you.",
+}
+LOCAL_SPOKEN_TG = {
+    "zen": "Naan irukken. Room-a konjam soft-a maathi, calm music podren. Mella moochu vidunga.",
+    "relax": "Sari, konjam slow-a pogalaam. Warm light-um soft music-um podren, relax pannunga.",
+}
+
+
+def local_spoken(mid, text):
+    try:
+        if detect_lang(text) == "tanglish" and mid in LOCAL_SPOKEN_TG:
+            return LOCAL_SPOKEN_TG[mid]
+    except Exception:
+        pass
+    return LOCAL_SPOKEN.get(mid, "Done.")
+
+
+def companion_turn(alts):
+    """Two-way voice: NIM (or the local brain) decides the words and the mood, the app applies the mood at once,
+    and the browser speaks the words back. Returns the spoken text."""
+    ss = st.session_state
+    text = alts[0] if alts else ""
+    spoken, mid, nim = "", None, nim_companion(text)
+    if nim:
+        spoken, mid = nim["spoken"], nim["mid"]
+    else:
+        mid = next((m for m in (parse_auto_mode(a) for a in alts) if m), None)
+        if not mid and re.search(STRESS_RX, text.lower()):
+            mid = "zen"
+    if mid:
+        run_auto_mode(mid, "voice")
+        spoken = spoken or local_spoken(mid, text)
+    elif not nim:
+        msg = run_voice(text)
+        spoken = t("mic_unknown", x=text[:60]) if msg == t("voice_unknown") else msg
+    spoken = spoken or t("mic_unknown", x=text[:60])
+    ss.mic_say = {"id": uuid.uuid4().hex[:10], "text": spoken, "lang": tts_lang_for(spoken)}
+    log("🎙 Companion: " + (mid or "talk only"))
+    if ss.get("profile"):
+        add_msg("user", text)
+        add_msg("assistant", spoken)
+    return spoken
+
+
+def handle_spoken_basic(alts):
     """Try each recognition alternative: mood first, then the older voice intents (lights off, warmer ...)."""
     for a in alts:
         mid = parse_auto_mode(a)
@@ -5766,6 +6247,15 @@ def handle_spoken(alts):
     best = alts[0] if alts else ""
     msg = run_voice(best)
     return t("mic_unknown", x=best[:60]) if msg == t("voice_unknown") else msg
+
+
+def handle_spoken(alts):
+    """Two-way companion first; the classic command parser stays as the safety net."""
+    try:
+        return companion_turn(alts)
+    except Exception as e:
+        log("⚠ Voice companion error: " + type(e).__name__)
+        return handle_spoken_basic(alts)
 
 
 def cb_voice_bridge():
@@ -5788,57 +6278,100 @@ def cb_voice_bridge():
 MIC_HTML = """
 <style>
   html, body { margin: 0; background: transparent; }
-  #w { display: flex; align-items: center; gap: 14px; padding: 10px 14px; box-sizing: border-box; border-radius: 18px;
+  #w { display: flex; align-items: center; gap: 14px; padding: 10px 14px; box-sizing: border-box; border-radius: 22px;
        border: 1px solid __ACC__; background: __BG__; font-family: Inter, Arial, sans-serif; color: __ACC__; }
-  #mic { position: relative; width: 54px; height: 54px; flex: none; border-radius: 50%; border: 1px solid __ACC__;
-         background: __BTN__; color: __ACC__; cursor: pointer; display: flex; align-items: center; justify-content: center;
-         padding: 0; -webkit-tap-highlight-color: transparent; transition: background .2s, color .2s; }
-  #mic svg { width: 24px; height: 24px; fill: currentColor; }
-  #mic:hover, #mic.on { background: __ACC__; color: __BTN__; }
-  #mic.on::after { content: ""; position: absolute; top: -6px; left: -6px; right: -6px; bottom: -6px; border-radius: 50%;
-                   border: 2px solid __ACC__; animation: ring 1.2s ease-out infinite; }
-  #mic.off { opacity: .45; }
-  @keyframes ring { 0% { transform: scale(.85); opacity: .9; } 100% { transform: scale(1.3); opacity: 0; } }
+  #orbw { position: relative; width: 70px; height: 70px; flex: none; }
+  #orb { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; border: 0; cursor: pointer; padding: 0; overflow: hidden;
+         display: flex; align-items: center; justify-content: center; color: __BTN__; -webkit-tap-highlight-color: transparent;
+         background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.8), __ACC__ 46%, __ACC__aa 100%);
+         box-shadow: 0 0 14px __ACC__66, inset 0 0 12px rgba(0,0,0,.25); }
+  #orb svg { width: 26px; height: 26px; fill: currentColor; position: relative; z-index: 2; }
+  #orb.off { opacity: .45; }
+  #orb.idle { animation: idle 4.5s ease-in-out infinite; }
+  @keyframes idle { 0%, 100% { box-shadow: 0 0 12px __ACC__55; } 50% { box-shadow: 0 0 22px __ACC__99; } }
+  #orb.listening { animation: pulse 1.15s ease-in-out infinite; }
+  @keyframes pulse { 0% { transform: scale(.96); box-shadow: 0 0 0 0 __ACC__aa, 0 0 18px __ACC__; }
+                     70% { transform: scale(1.07); box-shadow: 0 0 0 20px __ACC__00, 0 0 30px __ACC__; }
+                     100% { transform: scale(.96); box-shadow: 0 0 0 0 __ACC__00, 0 0 18px __ACC__; } }
+  #orb.thinking::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;
+         background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.7) 50%, transparent 75%); background-size: 220% 100%;
+         animation: shimmer 1.2s linear infinite; }
+  @keyframes shimmer { 0% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
+  #orb.speaking { animation: breathe 3.4s ease-in-out infinite; }
+  @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 14px __ACC__66; } 50% { transform: scale(1.08); box-shadow: 0 0 36px __ACC__bb; } }
+  #wave { display: none; align-items: flex-end; gap: 3px; height: 14px; margin-top: 6px; }
+  #wave i { display: block; width: 3px; height: 3px; border-radius: 2px; background: __ACC__; animation: wv .9s ease-in-out infinite; }
+  #wave i:nth-child(2) { animation-delay: .12s; } #wave i:nth-child(3) { animation-delay: .24s; }
+  #wave i:nth-child(4) { animation-delay: .36s; } #wave i:nth-child(5) { animation-delay: .48s; }
+  @keyframes wv { 0%, 100% { height: 3px; } 50% { height: 14px; } }
   #tx { flex: 1; min-width: 0; }
   #t1 { font-size: 14px; font-weight: 600; line-height: 1.25; }
-  #t2 { font-size: 12px; color: __SUB__; line-height: 1.3; margin-top: 2px; overflow-wrap: anywhere; }
+  #t2 { font-size: 12px; color: __SUB__; line-height: 1.35; margin-top: 2px; overflow-wrap: anywhere; }
   #w.err #t1 { color: #ff8a80; }
-  #lg { flex: none; border: 1px solid __ACC__; background: transparent; color: __ACC__; border-radius: 12px; padding: 3px 9px;
-        font-size: 11px; cursor: pointer; }
-  @media (prefers-reduced-motion: reduce) { #mic.on::after { animation: none; } }
+  .sm { flex: none; border: 1px solid __ACC__; background: transparent; color: __ACC__; border-radius: 12px; padding: 3px 9px; font-size: 11px; cursor: pointer; }
+  #bt { display: flex; flex-direction: column; gap: 6px; }
+  @media (prefers-reduced-motion: reduce) { #orb, #orb::after, #wave i { animation: none !important; } }
 </style>
 <div id="w">
-  <button id="mic" type="button" aria-pressed="false" aria-label="Voice">
+  <div id="orbw"><button id="orb" class="idle" type="button" aria-pressed="false" aria-label="Voice">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
-  </button>
-  <div id="tx"><div id="t1"></div><div id="t2"></div></div>
-  <button id="lg" type="button"></button>
+  </button></div>
+  <div id="tx"><div id="t1"></div><div id="t2"></div><div id="wave"><i></i><i></i><i></i><i></i><i></i></div></div>
+  <div id="bt"><button id="lg" class="sm" type="button"></button><button id="mt" class="sm" type="button"></button></div>
 </div>
 <script>
 (function () {
   var CFG = __CFG__, S = CFG.s;
   var P = null;
   try { P = window.parent; void P.document.body; } catch (e) { P = null; }
+  var MIC = (P && P.__auraMic) || (P ? (P.__auraMic = { state: 'idle', spokenId: '', thinkAt: 0, muted: false }) : { state: 'idle', spokenId: '', thinkAt: 0, muted: false });
   var SRc = window.SpeechRecognition || window.webkitSpeechRecognition || null;
   var SRp = null;
   try { SRp = (P && (P.SpeechRecognition || P.webkitSpeechRecognition)) || null; } catch (e) { SRp = null; }
   var $ = function (id) { return document.getElementById(id); };
-  var mic = $('mic'), t1 = $('t1'), t2 = $('t2'), lg = $('lg'), w = $('w');
-  var li = 0, rec = null, on = false, timer = null;
+  var orb = $('orb'), t1 = $('t1'), t2 = $('t2'), lg = $('lg'), mt = $('mt'), w = $('w'), wave = $('wave');
+  var li = 0, rec = null, timer = null, recOn = false, errMsg = '';
+  function eng() { try { return (P && P.__aura) || null; } catch (e) { return null; } }
   function fit() { try { window.frameElement.style.height = (w.offsetHeight + 4) + 'px'; } catch (e) {} }
   function say(a, b, err) { t1.textContent = a || ''; t2.textContent = b || ''; w.className = err ? 'err' : ''; fit(); }
-  function paint(v) { on = v; mic.className = (v ? 'on' : '') + ((SRc || SRp) ? '' : ' off'); mic.setAttribute('aria-pressed', v ? 'true' : 'false'); }
-  function revive() { try { if (P && P.__aura) { P.__aura.revive(); } } catch (e) {} }
-  function unlockAudio() { try { if (P && P.__aura) { P.__aura.unlock(); } } catch (e) {} }
+  function revive() { try { var a = eng(); if (a) { a.revive(); } } catch (e) {} }
   function tag() { return CFG.langs[li % CFG.langs.length]; }
   function chip() { lg.textContent = tag().split('-')[0].toUpperCase(); lg.title = tag(); }
+  function muteLabel() { mt.textContent = MIC.muted ? '\uD83D\uDD07' : '\uD83D\uDD0A'; mt.title = MIC.muted ? S.unmute : S.mute; }
   lg.style.display = CFG.langs.length > 1 ? '' : 'none';
   lg.onclick = function (e) { e.stopPropagation(); li = (li + 1) % CFG.langs.length; chip(); };
-  mic.setAttribute('aria-label', S.title);
-  chip(); paint(false);
-  if (SRc || SRp) { say(S.title, S.hint, false); } else { say(S.unsupported, '', true); }
+  mt.onclick = function (e) { e.stopPropagation(); MIC.muted = !MIC.muted; if (MIC.muted) { var a = eng(); if (a) { a.stopSpeech(); } } muteLabel(); };
+  chip(); muteLabel();
+  var canRec = !!(SRc || SRp);
+  var shown = '';
+  function paint() {
+    var s = recOn ? 'listening' : MIC.state;
+    if (s === 'thinking' && Date.now() - MIC.thinkAt > 25000) { MIC.state = 'idle'; s = 'idle'; }
+    orb.className = s + (canRec ? '' : ' off');
+    orb.setAttribute('aria-pressed', recOn ? 'true' : 'false');
+    wave.style.display = s === 'thinking' ? 'flex' : 'none';
+    if (errMsg && s === 'idle') { return; }
+    if (s === 'listening') { if (!shown) { t1.textContent = S.listening; w.className = ''; } }
+    else if (s === 'thinking') { t1.textContent = S.thinking; w.className = ''; }
+    else if (s === 'speaking') { t1.textContent = S.speaking; w.className = ''; }
+    else if (!shown) { t1.textContent = canRec ? S.title : S.unsupported; w.className = canRec ? '' : 'err'; if (canRec) { t2.textContent = S.hint; } }
+    fit();
+  }
+  setInterval(paint, 250);
 
-  /* hand the command to Streamlit: write it into the hidden text field of the page and commit it like a keystroke */
+  /* a reply from the companion: show it and speak it (the speech itself lives in the page, so it survives re-renders) */
+  if (CFG.say && CFG.say.id) {
+    shown = CFG.say.text; t2.textContent = CFG.say.text; t1.textContent = S.speaking;
+    if (CFG.say.id !== MIC.spokenId) {
+      MIC.spokenId = CFG.say.id;
+      var a0 = eng();
+      if (a0 && a0.canSpeak() && !MIC.muted) { a0.speak(CFG.say.text, CFG.say.lang); }
+      else { MIC.state = 'idle'; if (a0 && !a0.canSpeak()) { t1.textContent = S.notts; errMsg = ''; } }
+    }
+  }
+  paint();
+
+  /* hand the transcript to Streamlit: write it into the hidden text field of the page and commit it like a keystroke */
   function bridge(payload) {
     if (!P) { return false; }
     var d = P.document;
@@ -5850,29 +6383,26 @@ MIC_HTML = """
     ['keydown', 'keypress', 'keyup'].forEach(function (k) {
       inp.dispatchEvent(new P.KeyboardEvent(k, { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true }));
     });
-    setTimeout(function () {
-      try { inp.dispatchEvent(new P.FocusEvent('focusout', { bubbles: true })); inp.dispatchEvent(new P.FocusEvent('blur')); } catch (e) {}
-    }, 60);
+    setTimeout(function () { try { inp.dispatchEvent(new P.FocusEvent('focusout', { bubbles: true })); inp.dispatchEvent(new P.FocusEvent('blur')); } catch (e) {} }, 60);
     return true;
   }
   function deliver(list) {
-    var cut = list.slice(0, 3).map(function (x) { return String(x).slice(0, 160); });   /* stays far below the field's 800-char limit */
+    var cut = list.slice(0, 3).map(function (x) { return String(x).slice(0, 160); });
     var payload = JSON.stringify({ n: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), a: cut });
     var ok = false;
     try { ok = bridge(payload); } catch (e) { ok = false; }
-    if (ok) { say(S.heard + ': “' + list[0] + '”', S.sent, false); } else { say(S.nobridge, '“' + list[0] + '”', true); }
+    if (ok) { MIC.state = 'thinking'; MIC.thinkAt = Date.now(); shown = '\u201c' + list[0] + '\u201d'; t2.textContent = shown; errMsg = ''; }
+    else { errMsg = S.nobridge; say(S.nobridge, '\u201c' + list[0] + '\u201d', true); }
+    paint();
   }
-
   function start(useParent) {
     var Ctor = useParent ? SRp : SRc;
-    if (!Ctor) { say(S.unsupported, '', true); return; }
+    if (!Ctor) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
     var r, fin = '', alts = [], interim = '', err = '';
-    try {
-      r = new Ctor();
-      r.lang = tag(); r.interimResults = true; r.continuous = false; r.maxAlternatives = 3;
-    } catch (e) { say(S.unsupported, '', true); return; }
-    rec = r;
-    r.onstart = function () { paint(true); say(S.listening, S.hint, false); };
+    try { r = new Ctor(); r.lang = tag(); r.interimResults = true; r.continuous = false; r.maxAlternatives = 3; }
+    catch (e) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
+    rec = r; errMsg = ''; shown = '';
+    r.onstart = function () { recOn = true; MIC.state = 'listening'; say(S.listening, S.hint, false); paint(); };
     r.onresult = function (ev) {
       interim = '';
       for (var i = ev.resultIndex; i < ev.results.length; i++) {
@@ -5883,33 +6413,34 @@ MIC_HTML = """
           fin = alts[0] || fin;
         } else { interim = res[0].transcript; }
       }
-      var shown = fin || interim;
-      if (shown) { t2.textContent = '“' + shown + '”'; }
+      var s = fin || interim;
+      if (s) { shown = '\u201c' + s + '\u201d'; t2.textContent = shown; }
     };
     r.onerror = function (ev) { err = (ev && ev.error) || 'error'; };
     r.onend = function () {
-      clearTimeout(timer); paint(false); rec = null; revive();
+      clearTimeout(timer); recOn = false; rec = null; if (MIC.state === 'listening') { MIC.state = 'idle'; } revive();
+      var bad = function (m) { errMsg = m; shown = ''; say(m, '', true); paint(); };
       if (err === 'not-allowed' || err === 'service-not-allowed') {
         if (!useParent && SRp && SRp !== SRc && !fin) { start(true); return; }
-        say(S.denied, '', true); return;
+        bad(S.denied); return;
       }
-      if (err === 'language-not-supported') { li = (li + 1) % CFG.langs.length; chip(); say(S.error, '', true); return; }
-      if (err === 'network') { say(S.network, '', true); return; }
-      if (err === 'audio-capture') { say(S.nomic, '', true); return; }
-      if (err && err !== 'aborted' && err !== 'no-speech') { say(S.error, '', true); return; }
+      if (err === 'language-not-supported') { li = (li + 1) % CFG.langs.length; chip(); bad(S.error); return; }
+      if (err === 'network') { bad(S.network); return; }
+      if (err === 'audio-capture') { bad(S.nomic); return; }
+      if (err && err !== 'aborted' && err !== 'no-speech') { bad(S.error); return; }
       var text = fin || String(interim || '').trim();
-      if (!text) { say(S.nospeech, S.hint, false); return; }
+      if (!text) { shown = ''; errMsg = ''; say(S.nospeech, S.hint, false); paint(); return; }
       deliver(alts.length ? alts : [text]);
     };
-    try { r.start(); } catch (e) { paint(false); say(S.error, '', true); return; }
+    try { r.start(); } catch (e) { recOn = false; errMsg = S.error; say(S.error, '', true); return; }
     clearTimeout(timer);
     timer = setTimeout(function () { try { r.stop(); } catch (e) {} }, CFG.maxMs);
   }
-
-  mic.onclick = function () {
-    unlockAudio();                                   /* the tap also unlocks the soundtrack for the mood that follows */
-    if (on && rec) { try { rec.stop(); } catch (e) {} return; }
-    if (!SRc && !SRp) { say(S.unsupported, '', true); return; }
+  orb.onclick = function () {
+    var a = eng();
+    if (a) { a.unlock(); a.unlockSpeech(); a.stopSpeech(); }        /* this tap also unlocks the soundtrack and the voice */
+    if (recOn && rec) { try { rec.stop(); } catch (e) {} return; }
+    if (!canRec) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
     start(!SRc);
   };
   window.__auraMic = { start: start, bridge: bridge };
@@ -5918,13 +6449,30 @@ MIC_HTML = """
 """
 
 
+def tts_lang_for(text):
+    """Language tag for the spoken reply: the language of the reply itself, otherwise the app language."""
+    m = {"ta": "ta-IN", "tanglish": "en-IN", "ko": "ko-KR", "th": "th-TH", "es": "es-ES", "ja": "ja-JP", "ar": "ar-SA",
+         "hi": "hi-IN", "ru": "ru-RU", "zh": "zh-CN", "fr": "fr-FR", "de": "de-DE", "it": "it-IT", "pt": "pt-BR",
+         "id": "id-ID"}
+    try:
+        lg = detect_lang(text)
+    except Exception:
+        lg = "en"
+    if lg in m:
+        return m[lg]
+    return SR_LANGS.get(st.session_state.get("lang", "English"), "en-US")
+
+
 def mic_html():
-    lang = st.session_state.get("lang", "English")
+    ss = st.session_state
+    lang = ss.get("lang", "English")
     tag = SR_LANGS.get(lang, "en-US")
     langs = [tag] if tag.startswith("en") else [tag, "en-US"]
-    strings = {k: tt("mic_" + k) for k in ("title", "hint", "listening", "heard", "sent", "denied", "unsupported",
-                                          "nospeech", "network", "nomic", "nobridge", "error")}
-    cfg = {"langs": langs, "bridge": MIC_BRIDGE_KEY, "ph": MIC_PH, "maxMs": 9000, "s": strings}
+    keys = ("title", "hint", "listening", "heard", "sent", "denied", "unsupported", "nospeech", "network", "nomic",
+            "nobridge", "error", "thinking", "speaking", "notts", "mute", "unmute")
+    strings = {k: tt("mic_" + k) for k in keys}
+    cfg = {"langs": langs, "bridge": MIC_BRIDGE_KEY, "ph": MIC_PH, "maxMs": 9000, "s": strings,
+           "say": ss.get("mic_say") or {}}
     blob = json.dumps(cfg, ensure_ascii=False).replace("</", "<\\/")
     return themed(MIC_HTML.replace("__CFG__", blob))
 
@@ -5933,7 +6481,7 @@ def render_voice_mic():
     ss = st.session_state
     st.text_input("◈ 7731", key=MIC_BRIDGE_KEY, placeholder=MIC_PH, label_visibility="collapsed", max_chars=800,
                   on_change=cb_voice_bridge)
-    components.html(mic_html(), height=84)
+    components.html(mic_html(), height=96)
     if ss.get("mic_last"):
         st.caption(ss.mic_last)
 
@@ -6049,7 +6597,7 @@ def render_automation_panel():
 # ----------------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------------
-NAV_ORDER = [1, 6, 2, 3, 4, 5]
+NAV_ORDER = [1, 3, 6, 2, 4, 5]     # Live Dashboard, Inner Voice, Room Settings, Moods, Device Fleet, System Settings
 
 
 def cb_ui_mode(key):
@@ -6078,6 +6626,7 @@ def main():
         with st.spinner(t("i18n_wait")):
             ss["i18n_ok_" + code] = bool(i18n_prefetch())
     repair_orphans()
+    ss.cfg.setdefault("api_token", "")
     handle_query_params()
     st.markdown(build_css(), unsafe_allow_html=True)
     with st.sidebar:
@@ -6096,6 +6645,7 @@ def main():
         st.divider()
         audio_component(synth_params(eff_mode()), ss.nav != 1)
     render_topbar()
+    render_hr_bridge()
     if ss.flash:
         st.toast(ss.flash)
         ss.flash = ""
