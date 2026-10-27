@@ -8,6 +8,11 @@ Secrets (.streamlit/secrets.toml, or the Secrets box on Streamlit Community Clou
   AURASYNC_TOKEN   protects the ?mode=...&token=... links and the "Voice Automation Links" panel (required for both)
   APP_URL, VOICEMONKEY_TOKEN, IOT_WEBHOOK_URL, ...   cloud IoT triggers, see the "Cloud automation" section below
 """
+import os, logging, warnings
+warnings.filterwarnings("ignore")
+logging.getLogger("streamlit").setLevel(logging.ERROR)
+os.environ["STREAMLIT_LOG_LEVEL"] = "error"
+
 import ast
 import uuid
 import calendar
@@ -97,7 +102,6 @@ T = {
     "off": ("Off", "நிறுத்து", "끄기", "ปิด", "Apagado"),
     "min": ("min", "நிமிடம்", "분", "นาที", "min"),
     "studio": ("Master Audio Studio (Procedural Synthesizer)", "மாஸ்டர் ஆடியோ ஸ்டுடியோ (செயற்கை ஒலி உருவாக்கி)", "마스터 오디오 스튜디오 (프로시저럴 신시사이저)", "สตูดิโอเสียงหลัก (ซินธ์สร้างเสียงอัตโนมัติ)", "Estudio de Audio Maestro (Sintetizador Procedural)"),
-    "arm_tap": ("✦ Tap anywhere to start soundscape", "✦ இதைத் தொட்டு ஒலியைத் தொடங்குங்கள்", "✦ 화면을 탭하면 사운드스케이프 시작", "✦ แตะที่หน้าจอเพื่อเริ่มเสียง", "✦ Toca en cualquier parte para iniciar el sonido"),
     "play": ("Play", "தொடங்கு", "재생", "เล่น", "Reproducir"),
     "stop": ("Stop", "நிறுத்து", "정지", "หยุด", "Detener"),
     "mixer": ("Multi-Layer Sound Studio Mixer", "பல அடுக்கு ஒலி கலவை", "멀티 레이어 사운드 믹서", "มิกเซอร์เสียงหลายชั้น", "Mezclador de Sonido Multicapa"),
@@ -791,6 +795,264 @@ LIGHT_ADJ = {
 }
 
 
+# ---- Zen Sanctuary / multi-source biometrics / Wearables Hub strings (English row; other languages are translated live by tt()) ----
+ZEN_T = {
+    "zk_pills": ("Instant mood",),
+    "zp_rest": ("Deep Rest",), "zp_focus": ("Zen Focus",), "zp_reading": ("Aura Reading",), "zp_night": ("Night Calm",),
+    "zk_more": ("More quick actions, watch card, dial and family",),
+    "zk_hr": ("Live heart rate",),
+    "zk_calm": ("🟢 Deep Calm 🧘",), "zk_bal": ("🟡 Balanced & Centered 🌿",), "zk_high": ("🔴 Elevated Stress — Breathe Now 🌬️",),
+    "zk_in": ("Breathe in…",), "zk_out": ("Breathe out…",),
+    "zk_src": ("Source: {s}",),
+    "zk_dock": ("Living Player",), "zk_master": ("Master volume",),
+    "zk_mixer": ("🎛️ Sound Studio Mixer",),
+    "zk_l432": ("432Hz Healing Frequency",), "zk_lrain": ("Rain on Glass",),
+    "zk_lstream": ("Gentle Stream / Chimes",), "zk_lnoise": ("White / Pink Noise",),
+    "zk_tell": ("Just tell AuraSync",), "zk_tell_hint": ("Speak with the microphone or type how you want to feel.",),
+    "zk_va_cfg": ("⚙️ Configure Voice Assistants",), "zk_va_done": ("✓ Voice assistants linked · Edit",),
+    "zk_va_mark": ("Mark as Configured & Hide",),
+    "zk_va_local": ("Local network URL (Apple Shortcuts)",), "zk_va_remote": ("Remote URL (Apple Shortcuts, away from home)",),
+    "zk_va_unlock": ("Unlock Voice Automation Links in the sidebar to reveal your personal URLs. The pattern is:",),
+    "zk_va_google": ("Google Assistant routing",),
+    "zk_va_g1": ("Install HTTP Shortcuts on your Android phone.",),
+    "zk_va_g2": ("Create a Browser Shortcut with the Remote URL above.",),
+    "zk_va_g3": ("In Google Assistant choose Routines, add your phrase, then the action Open HTTP Shortcut.",),
+    "zk_ap": ("Biometric Auto-Pilot (above 85 BPM)",),
+    "zk_ap_hint": ("Switches the atmosphere only when your heart rate crosses 85 BPM, so your own tweaks are never overwritten.",),
+    "zk_ap_stress": ("Elevated heart rate ({hr} BPM): amber candlelight, AC 22 °C, gentle breeze, 432Hz with rain",),
+    "zk_ap_calm": ("Calm heart rate ({hr} BPM): soft warm daylight, 24 °C, natural breeze, zen chimes",),
+    "zk_manual": ("Manual Control",), "zk_manual_note": ("Automatic biometric takeover is paused.",),
+    "zk_bulb": ("Smart Bulb",), "zk_power": ("Power",), "zk_color": ("Colour",), "zk_bright": ("Brightness",),
+    "zk_ac": ("Smart AC",), "zk_temp": ("Temperature (°C)",), "zk_acmode": ("Cooling mode",),
+    "zk_fan": ("Smart Fan",), "zk_fanspd": ("Speed",),
+    "fan_Off": ("Off",), "fan_Low": ("Low",), "fan_Medium": ("Medium",), "fan_High": ("High",), "fan_Natural Breeze": ("Natural Breeze",),
+    "acm_Cool": ("Cool",), "acm_Dry": ("Dry",), "acm_Fan Only": ("Fan Only",), "acm_Sleep Eco": ("Sleep Eco",),
+    "zk_endp": ("Device Endpoints",), "zk_wiz": ("WiZ bulb IP address (local network)",),
+    "zk_acurl": ("AC webhook URL",), "zk_fanurl": ("Fan webhook URL",), "zk_save": ("Save endpoints",),
+    "zk_ep_ok": ("Endpoints saved for this room.",), "zk_ep_bad": ("Check the address: the WiZ IP must be a local network address and webhooks must start with http:// or https://",),
+    "zk_nodev": ("This room has no {d}.",),
+    "zk_hub": ("Universal Wearables Hub",),
+    "zk_hub_sub": ("Link your wearable in one tap, no Shortcuts needed. Cloud links here are simulated; real readings arrive through bridge.py, the page link (?hr=) or Bluetooth.",),
+    "zk_link": ("Link in 1 tap",), "zk_unlink": ("Unlink",), "zk_linked": ("Linked (simulated)",), "zk_notlinked": ("Not linked",),
+    "zk_ble": ("Direct Bluetooth: Heart Rate Service (0x180D)",),
+    "zk_bridge_live": ("bridge.py is live: {hr} BPM, updated {age} s ago",),
+    "zk_bridge_wait": ("bridge.py: waiting for a fresh aurasync_bridge.json",),
+}
+T.update(ZEN_T)
+
+# ---- Hand-written Zen Sanctuary + room-default strings for all 22 non-English languages.
+# These never need the network: t() prefers them over the live translator (which stays as the fallback for everything else).
+T.update({
+    "zk_s_link": ("page link",), "zk_s_simd": ("{n} (simulated)",), "zk_s_sim": ("simulation",), "zk_s_live": ("live",),
+    "zk_refresh": ("↻ Refresh",),
+})
+LX_A_KEYS = ("zk_pills", "zp_rest", "zp_focus", "zp_reading", "zp_night", "zk_ap", "zk_ap_hint", "zk_hr",
+             "zk_calm", "zk_bal", "zk_high", "zk_in", "zk_out", "zk_src",
+             "zk_s_link", "zk_s_simd", "zk_s_sim", "zk_s_live", "zk_refresh")
+LX_B_KEYS = ("room_sel", "rs_preset_apply", "preset_apply_all", "preset_none", "zen_hidden")
+# rows follow LANGS[1:] (Tamil ... Filipino)
+LX_A_ROWS = (
+    ("உடனடி மனநிலை", "ஆழ்ந்த ஓய்வு", "ஜென் கவனம்", "ஆரா வாசிப்பு", "இரவு அமைதி",
+     "பயோமெட்ரிக் ஆட்டோ-பைலட் (85 BPM-க்கு மேல்)",
+     "உங்கள் இதயத் துடிப்பு 85 BPM-ஐ கடக்கும்போது மட்டுமே சூழலை மாற்றும்; உங்கள் சொந்த மாற்றங்கள் ஒருபோதும் மேலெழுதப்படாது.",
+     "நேரடி இதயத் துடிப்பு", "🟢 ஆழ்ந்த அமைதி 🧘", "🟡 சமநிலை & மையம் 🌿", "🔴 அதிக மன அழுத்தம் — இப்போது மூச்சு விடுங்கள் 🌬️",
+     "மூச்சை உள்ளிழுக்கவும்…", "மூச்சை வெளியே விடவும்…", "மூலம்: {s}",
+     "பக்க இணைப்பு", "{n} (உருவகப்படுத்தப்பட்டது)", "உருவகப்படுத்தல்", "நேரடி", "↻ புதுப்பி"),
+    ("즉시 무드", "깊은 휴식", "젠 포커스", "오라 리딩", "나이트 캄",
+     "바이오메트릭 오토 파일럿 (85 BPM 초과)",
+     "심박수가 85 BPM을 넘을 때만 분위기를 전환하므로, 직접 조정한 설정은 덮어쓰이지 않습니다.",
+     "실시간 심박수", "🟢 깊은 평온 🧘", "🟡 균형과 중심 🌿", "🔴 스트레스 상승 — 지금 호흡하세요 🌬️",
+     "숨을 들이쉬세요…", "숨을 내쉬세요…", "출처: {s}",
+     "페이지 링크", "{n} (시뮬레이션)", "시뮬레이션", "실시간", "↻ 새로고침"),
+    ("อารมณ์ทันที", "พักผ่อนลึก", "โฟกัสแบบเซน", "อ่านออร่า", "ค่ำคืนสงบ",
+     "ออโต้ไพลอตตามชีวมิติ (เกิน 85 BPM)",
+     "เปลี่ยนบรรยากาศเฉพาะเมื่ออัตราการเต้นของหัวใจเกิน 85 BPM เท่านั้น การปรับแต่งของคุณเองจะไม่ถูกเขียนทับ",
+     "อัตราการเต้นของหัวใจแบบสด", "🟢 สงบลึก 🧘", "🟡 สมดุลและมั่นคง 🌿", "🔴 ความเครียดสูง — หายใจตอนนี้ 🌬️",
+     "หายใจเข้า…", "หายใจออก…", "แหล่งที่มา: {s}",
+     "ลิงก์หน้าเว็บ", "{n} (จำลอง)", "การจำลอง", "สด", "↻ รีเฟรช"),
+    ("Ánimo instantáneo", "Descanso profundo", "Enfoque zen", "Lectura del aura", "Calma nocturna",
+     "Piloto automático biométrico (por encima de 85 BPM)",
+     "Cambia el ambiente solo cuando tu frecuencia cardíaca supera los 85 BPM, para que tus propios ajustes nunca se sobrescriban.",
+     "Frecuencia cardíaca en vivo", "🟢 Calma profunda 🧘", "🟡 Equilibrado y centrado 🌿", "🔴 Estrés elevado — Respira ahora 🌬️",
+     "Inhala…", "Exhala…", "Fuente: {s}",
+     "enlace de la página", "{n} (simulado)", "simulación", "en vivo", "↻ Actualizar"),
+    ("तुरंत मूड", "गहरा विश्राम", "ज़ेन फ़ोकस", "ऑरा रीडिंग", "रात की शांति",
+     "बायोमेट्रिक ऑटो-पायलट (85 BPM से ऊपर)",
+     "यह माहौल तभी बदलता है जब आपकी हृदय गति 85 BPM पार करती है, इसलिए आपके अपने बदलाव कभी ओवरराइट नहीं होते।",
+     "लाइव हृदय गति", "🟢 गहरी शांति 🧘", "🟡 संतुलित और केंद्रित 🌿", "🔴 बढ़ा हुआ तनाव — अभी साँस लें 🌬️",
+     "साँस अंदर लें…", "साँस बाहर छोड़ें…", "स्रोत: {s}",
+     "पेज लिंक", "{n} (सिम्युलेटेड)", "सिमुलेशन", "लाइव", "↻ रीफ़्रेश"),
+    ("مزاج فوري", "راحة عميقة", "تركيز زِن", "قراءة الهالة", "هدوء الليل",
+     "الطيار الآلي الحيوي (أعلى من 85 BPM)",
+     "يغيّر الأجواء فقط عندما يتجاوز معدل ضربات قلبك 85 BPM، فلا تُستبدل تعديلاتك الخاصة أبدًا.",
+     "معدل ضربات القلب المباشر", "🟢 هدوء عميق 🧘", "🟡 متوازن ومتمركز 🌿", "🔴 توتر مرتفع — تنفّس الآن 🌬️",
+     "شهيق…", "زفير…", "المصدر: {s}",
+     "رابط الصفحة", "{n} (محاكاة)", "محاكاة", "مباشر", "↻ تحديث"),
+    ("クイックムード", "深い休息", "禅フォーカス", "オーラリーディング", "ナイトカーム",
+     "バイオメトリック・オートパイロット(85 BPM超)",
+     "心拍数が85 BPMを超えたときだけ雰囲気を切り替えるので、あなたの手動調整が上書きされることはありません。",
+     "リアルタイム心拍数", "🟢 深い静けさ 🧘", "🟡 バランスと安定 🌿", "🔴 ストレス上昇 — 今すぐ呼吸を 🌬️",
+     "息を吸って…", "息を吐いて…", "ソース: {s}",
+     "ページリンク", "{n}(シミュレーション)", "シミュレーション", "ライブ", "↻ 更新"),
+    ("即时心情", "深度休息", "禅意专注", "光环解读", "静谧夜晚",
+     "生物识别自动驾驶(高于 85 BPM)",
+     "仅当心率超过 85 BPM 时才切换氛围，因此你自己的调整不会被覆盖。",
+     "实时心率", "🟢 深度平静 🧘", "🟡 平衡且专注 🌿", "🔴 压力升高 — 现在请呼吸 🌬️",
+     "吸气…", "呼气…", "来源：{s}",
+     "页面链接", "{n}（模拟）", "模拟", "实时", "↻ 刷新"),
+    ("Ambiance instantanée", "Repos profond", "Concentration zen", "Lecture d'aura", "Calme nocturne",
+     "Pilote automatique biométrique (au-dessus de 85 BPM)",
+     "Ne change l'ambiance que lorsque votre fréquence cardiaque dépasse 85 BPM, afin que vos propres réglages ne soient jamais écrasés.",
+     "Fréquence cardiaque en direct", "🟢 Calme profond 🧘", "🟡 Équilibré et centré 🌿", "🔴 Stress élevé — Respirez maintenant 🌬️",
+     "Inspirez…", "Expirez…", "Source : {s}",
+     "lien de la page", "{n} (simulé)", "simulation", "en direct", "↻ Actualiser"),
+    ("Sofort-Stimmung", "Tiefe Ruhe", "Zen-Fokus", "Aura-Lesung", "Nächtliche Ruhe",
+     "Biometrischer Autopilot (über 85 BPM)",
+     "Wechselt die Atmosphäre nur, wenn Ihre Herzfrequenz 85 BPM überschreitet, damit Ihre eigenen Einstellungen nie überschrieben werden.",
+     "Live-Herzfrequenz", "🟢 Tiefe Gelassenheit 🧘", "🟡 Ausgeglichen & zentriert 🌿", "🔴 Erhöhter Stress — Jetzt atmen 🌬️",
+     "Einatmen…", "Ausatmen…", "Quelle: {s}",
+     "Seitenlink", "{n} (simuliert)", "Simulation", "live", "↻ Aktualisieren"),
+    ("Umore istantaneo", "Riposo profondo", "Focus zen", "Lettura dell'aura", "Calma notturna",
+     "Pilota automatico biometrico (sopra 85 BPM)",
+     "Cambia l'atmosfera solo quando la frequenza cardiaca supera 85 BPM, così le tue regolazioni non vengono mai sovrascritte.",
+     "Frequenza cardiaca in tempo reale", "🟢 Calma profonda 🧘", "🟡 Equilibrato e centrato 🌿", "🔴 Stress elevato — Respira ora 🌬️",
+     "Inspira…", "Espira…", "Fonte: {s}",
+     "link della pagina", "{n} (simulato)", "simulazione", "dal vivo", "↻ Aggiorna"),
+    ("Humor instantâneo", "Descanso profundo", "Foco zen", "Leitura da aura", "Calma noturna",
+     "Piloto automático biométrico (acima de 85 BPM)",
+     "Muda o ambiente apenas quando a sua frequência cardíaca ultrapassa 85 BPM, para que os seus próprios ajustes nunca sejam sobrescritos.",
+     "Frequência cardíaca ao vivo", "🟢 Calma profunda 🧘", "🟡 Equilibrado e centrado 🌿", "🔴 Estresse elevado — Respire agora 🌬️",
+     "Inspire…", "Expire…", "Fonte: {s}",
+     "link da página", "{n} (simulado)", "simulação", "ao vivo", "↻ Atualizar"),
+    ("Мгновенное настроение", "Глубокий отдых", "Дзен-фокус", "Чтение ауры", "Ночное спокойствие",
+     "Биометрический автопилот (выше 85 BPM)",
+     "Меняет атмосферу, только когда пульс превышает 85 BPM, поэтому ваши собственные настройки никогда не перезаписываются.",
+     "Пульс в реальном времени", "🟢 Глубокое спокойствие 🧘", "🟡 Уравновешенность и собранность 🌿", "🔴 Повышенный стресс — дышите сейчас 🌬️",
+     "Вдох…", "Выдох…", "Источник: {s}",
+     "ссылка страницы", "{n} (симуляция)", "симуляция", "в реальном времени", "↻ Обновить"),
+    ("Anlık ruh hali", "Derin dinlenme", "Zen odağı", "Aura okuma", "Gece sakinliği",
+     "Biyometrik otomatik pilot (85 BPM üzeri)",
+     "Atmosferi yalnızca kalp atış hızınız 85 BPM'yi geçtiğinde değiştirir; böylece kendi ayarlarınızın üzerine asla yazılmaz.",
+     "Canlı kalp atış hızı", "🟢 Derin sakinlik 🧘", "🟡 Dengeli ve merkezde 🌿", "🔴 Yüksek stres — Şimdi nefes alın 🌬️",
+     "Nefes alın…", "Nefes verin…", "Kaynak: {s}",
+     "sayfa bağlantısı", "{n} (simüle)", "simülasyon", "canlı", "↻ Yenile"),
+    ("Directe stemming", "Diepe rust", "Zenfocus", "Aura-lezing", "Nachtelijke kalmte",
+     "Biometrische automatische piloot (boven 85 BPM)",
+     "Wijzigt de sfeer alleen wanneer je hartslag 85 BPM overschrijdt, zodat je eigen aanpassingen nooit worden overschreven.",
+     "Live hartslag", "🟢 Diepe kalmte 🧘", "🟡 Gebalanceerd en gecentreerd 🌿", "🔴 Verhoogde stress — Adem nu 🌬️",
+     "Adem in…", "Adem uit…", "Bron: {s}",
+     "paginalink", "{n} (gesimuleerd)", "simulatie", "live", "↻ Vernieuwen"),
+    ("Natychmiastowy nastrój", "Głęboki odpoczynek", "Skupienie zen", "Odczyt aury", "Nocny spokój",
+     "Biometryczny autopilot (powyżej 85 BPM)",
+     "Zmienia atmosferę tylko wtedy, gdy tętno przekroczy 85 BPM, więc Twoje własne ustawienia nigdy nie zostaną nadpisane.",
+     "Tętno na żywo", "🟢 Głęboki spokój 🧘", "🟡 Zrównoważony i skupiony 🌿", "🔴 Podwyższony stres — Oddychaj teraz 🌬️",
+     "Wdech…", "Wydech…", "Źródło: {s}",
+     "link do strony", "{n} (symulacja)", "symulacja", "na żywo", "↻ Odśwież"),
+    ("Direkt stämning", "Djup vila", "Zenfokus", "Auraläsning", "Nattlugn",
+     "Biometrisk autopilot (över 85 BPM)",
+     "Ändrar stämningen bara när din puls överstiger 85 BPM, så dina egna justeringar skrivs aldrig över.",
+     "Live-puls", "🟢 Djupt lugn 🧘", "🟡 Balanserad och centrerad 🌿", "🔴 Förhöjd stress — Andas nu 🌬️",
+     "Andas in…", "Andas ut…", "Källa: {s}",
+     "sidlänk", "{n} (simulerad)", "simulering", "live", "↻ Uppdatera"),
+    ("Άμεση διάθεση", "Βαθιά ξεκούραση", "Ζεν εστίαση", "Ανάγνωση αύρας", "Νυχτερινή ηρεμία",
+     "Βιομετρικός αυτόματος πιλότος (άνω των 85 BPM)",
+     "Αλλάζει την ατμόσφαιρα μόνο όταν οι παλμοί σας ξεπεράσουν τα 85 BPM, ώστε οι δικές σας ρυθμίσεις να μην αντικαθίστανται ποτέ.",
+     "Παλμοί σε πραγματικό χρόνο", "🟢 Βαθιά ηρεμία 🧘", "🟡 Ισορροπία και συγκέντρωση 🌿", "🔴 Αυξημένο στρες — Αναπνεύστε τώρα 🌬️",
+     "Εισπνεύστε…", "Εκπνεύστε…", "Πηγή: {s}",
+     "σύνδεσμος σελίδας", "{n} (προσομοίωση)", "προσομοίωση", "ζωντανά", "↻ Ανανέωση"),
+    ("Suasana instan", "Istirahat dalam", "Fokus zen", "Pembacaan aura", "Malam tenang",
+     "Autopilot biometrik (di atas 85 BPM)",
+     "Hanya mengubah suasana saat detak jantung Anda melewati 85 BPM, sehingga penyesuaian Anda sendiri tidak pernah tertimpa.",
+     "Detak jantung langsung", "🟢 Tenang mendalam 🧘", "🟡 Seimbang & terpusat 🌿", "🔴 Stres meningkat — Bernapaslah sekarang 🌬️",
+     "Tarik napas…", "Embuskan napas…", "Sumber: {s}",
+     "tautan halaman", "{n} (simulasi)", "simulasi", "langsung", "↻ Muat ulang"),
+    ("Tâm trạng tức thì", "Nghỉ ngơi sâu", "Tập trung thiền", "Đọc hào quang", "Đêm bình yên",
+     "Tự động lái sinh trắc (trên 85 BPM)",
+     "Chỉ thay đổi không khí khi nhịp tim của bạn vượt quá 85 BPM, nên các điều chỉnh của riêng bạn không bao giờ bị ghi đè.",
+     "Nhịp tim trực tiếp", "🟢 Bình tĩnh sâu 🧘", "🟡 Cân bằng & tập trung 🌿", "🔴 Căng thẳng cao — Hãy thở ngay 🌬️",
+     "Hít vào…", "Thở ra…", "Nguồn: {s}",
+     "liên kết trang", "{n} (mô phỏng)", "mô phỏng", "trực tiếp", "↻ Làm mới"),
+    ("Mood segera", "Rehat mendalam", "Fokus zen", "Bacaan aura", "Malam tenang",
+     "Juruterbang automatik biometrik (melebihi 85 BPM)",
+     "Hanya menukar suasana apabila kadar denyutan jantung anda melepasi 85 BPM, jadi pelarasan anda sendiri tidak akan ditimpa.",
+     "Kadar denyutan jantung langsung", "🟢 Tenang mendalam 🧘", "🟡 Seimbang & berpusat 🌿", "🔴 Tekanan meningkat — Bernafas sekarang 🌬️",
+     "Tarik nafas…", "Hembus nafas…", "Sumber: {s}",
+     "pautan halaman", "{n} (simulasi)", "simulasi", "langsung", "↻ Muat semula"),
+    ("Agarang mood", "Malalim na pahinga", "Zen focus", "Pagbasa ng aura", "Kalmadong gabi",
+     "Biometric Auto-Pilot (higit sa 85 BPM)",
+     "Binabago lang ang kapaligiran kapag lumampas sa 85 BPM ang tibok ng puso mo, kaya hindi kailanman nasusulatan ang sarili mong mga ayos.",
+     "Live na tibok ng puso", "🟢 Malalim na kalmado 🧘", "🟡 Balanse at nakasentro 🌿", "🔴 Mataas na stress — Huminga ngayon 🌬️",
+     "Huminga papasok…", "Huminga palabas…", "Pinagmulan: {s}",
+     "link ng pahina", "{n} (simulado)", "simulasyon", "live", "↻ I-refresh"),
+)
+# rows follow LANGS[5:] (Hindi ... Filipino); Tamil / Korean / Thai / Spanish already have these in their T rows
+LX_B_ROWS = (
+    ("सक्रिय कमरा", "{n} पर डिफ़ॉल्ट लागू करें", "सभी कमरों पर डिफ़ॉल्ट लागू करें",
+     "इस कमरे के लिए अभी कोई सहेजा गया डिफ़ॉल्ट नहीं है। इसे कमरा सेटिंग्स में सेट करें।",
+     "ज़ेन मोड में तकनीकी विवरण छिपे हैं। ग्राफ़, मिक्सर और लॉग के लिए प्रो स्टूडियो पर जाएँ।"),
+    ("الغرفة النشطة", "تطبيق الإعداد الافتراضي على {n}", "تطبيق الإعدادات الافتراضية على جميع الغرف",
+     "لا يوجد إعداد افتراضي محفوظ لهذه الغرفة بعد. اضبطه في إعدادات الغرفة.",
+     "التفاصيل التقنية مخفية في وضع زِن. انتقل إلى برو ستوديو للرسوم البيانية والمازجات والسجلات."),
+    ("アクティブな部屋", "{n}にデフォルトを適用", "すべての部屋にデフォルトを適用",
+     "この部屋にはまだ保存されたデフォルトがありません。部屋設定で設定してください。",
+     "禅モードでは技術的な詳細は非表示です。グラフ、ミキサー、ログはプロスタジオに切り替えてご覧ください。"),
+    ("当前房间", "将默认设置应用到{n}", "将默认设置应用到所有房间",
+     "此房间尚无已保存的默认设置。请在房间设置中进行设置。",
+     "禅模式下技术细节已隐藏。请切换到专业工作室查看图表、混音器和日志。"),
+    ("Pièce active", "Appliquer le réglage par défaut à {n}", "Appliquer les réglages par défaut à TOUTES les pièces",
+     "Aucun réglage par défaut enregistré pour cette pièce. Configurez-le dans les réglages de la pièce.",
+     "Les détails techniques sont masqués en mode Zen. Passez à Pro Studio pour les graphiques, mixeurs et journaux."),
+    ("Aktiver Raum", "Standard auf {n} anwenden", "Standards auf ALLE Räume anwenden",
+     "Für diesen Raum ist noch kein Standard gespeichert. Richten Sie ihn in den Raumeinstellungen ein.",
+     "Technische Details sind im Zen-Modus ausgeblendet. Wechseln Sie zu Pro Studio für Diagramme, Mixer und Protokolle."),
+    ("Stanza attiva", "Applica predefinito a {n}", "Applica i predefiniti a TUTTE le stanze",
+     "Nessun predefinito salvato per questa stanza. Impostalo nelle Impostazioni stanza.",
+     "I dettagli tecnici sono nascosti in modalità Zen. Passa a Pro Studio per grafici, mixer e registri."),
+    ("Cômodo ativo", "Aplicar padrão a {n}", "Aplicar padrões a TODOS os cômodos",
+     "Ainda não há padrão salvo para este cômodo. Configure-o nas Configurações do cômodo.",
+     "Os detalhes técnicos ficam ocultos no modo Zen. Mude para o Pro Studio para ver gráficos, mixers e registros."),
+    ("Активная комната", "Применить настройки по умолчанию к: {n}", "Применить настройки по умолчанию ко ВСЕМ комнатам",
+     "Для этой комнаты пока нет сохранённых настроек по умолчанию. Задайте их в настройках комнаты.",
+     "В режиме «Дзен» технические детали скрыты. Перейдите в Pro Studio, чтобы увидеть графики, микшеры и журналы."),
+    ("Etkin oda", "Varsayılanı {n} için uygula", "Varsayılanları TÜM odalara uygula",
+     "Bu oda için henüz kaydedilmiş varsayılan yok. Oda Ayarları'ndan belirleyin.",
+     "Teknik ayrıntılar Zen Modunda gizlidir. Grafikler, mikserler ve kayıtlar için Pro Studio'ya geçin."),
+    ("Actieve ruimte", "Standaard toepassen op {n}", "Standaarden toepassen op ALLE ruimtes",
+     "Nog geen opgeslagen standaard voor deze ruimte. Stel die in via Ruimte-instellingen.",
+     "Technische details zijn verborgen in Zenmodus. Schakel over naar Pro Studio voor grafieken, mixers en logs."),
+    ("Aktywny pokój", "Zastosuj ustawienia domyślne dla: {n}", "Zastosuj ustawienia domyślne we WSZYSTKICH pokojach",
+     "Ten pokój nie ma jeszcze zapisanych ustawień domyślnych. Skonfiguruj je w ustawieniach pokoju.",
+     "Szczegóły techniczne są ukryte w trybie Zen. Przełącz na Pro Studio, aby zobaczyć wykresy, miksery i dzienniki."),
+    ("Aktivt rum", "Använd standard för {n}", "Använd standardinställningar för ALLA rum",
+     "Ingen sparad standard för det här rummet ännu. Ställ in den i Rumsinställningar.",
+     "Tekniska detaljer är dolda i Zen-läge. Byt till Pro Studio för grafer, mixers och loggar."),
+    ("Ενεργός χώρος", "Εφαρμογή προεπιλογής στο {n}", "Εφαρμογή προεπιλογών σε ΟΛΟΥΣ τους χώρους",
+     "Δεν υπάρχει ακόμη αποθηκευμένη προεπιλογή για αυτόν τον χώρο. Ορίστε την στις Ρυθμίσεις χώρου.",
+     "Οι τεχνικές λεπτομέρειες είναι κρυφές στη λειτουργία Ζεν. Μεταβείτε στο Pro Studio για γραφήματα, μίκτες και αρχεία καταγραφής."),
+    ("Ruangan aktif", "Terapkan default ke {n}", "Terapkan default ke SEMUA ruangan",
+     "Belum ada default tersimpan untuk ruangan ini. Atur di Pengaturan Ruangan.",
+     "Detail teknis disembunyikan di Mode Zen. Beralih ke Pro Studio untuk grafik, mixer, dan log."),
+    ("Phòng đang dùng", "Áp dụng mặc định cho {n}", "Áp dụng mặc định cho TẤT CẢ các phòng",
+     "Phòng này chưa có mặc định đã lưu. Hãy thiết lập trong Cài đặt phòng.",
+     "Chi tiết kỹ thuật được ẩn trong Chế độ Thiền. Chuyển sang Pro Studio để xem biểu đồ, bộ trộn và nhật ký."),
+    ("Bilik aktif", "Guna lalai pada {n}", "Guna lalai pada SEMUA bilik",
+     "Belum ada lalai disimpan untuk bilik ini. Tetapkan dalam Tetapan Bilik.",
+     "Butiran teknikal disembunyikan dalam Mod Zen. Tukar ke Pro Studio untuk graf, pengadun dan log."),
+    ("Aktibong kuwarto", "Ilapat ang default sa {n}", "Ilapat ang mga default sa LAHAT ng kuwarto",
+     "Wala pang naka-save na default para sa kuwartong ito. I-set up ito sa Room Settings.",
+     "Nakatago ang mga teknikal na detalye sa Zen Mode. Lumipat sa Pro Studio para sa mga graph, mixer, at log."),
+)
+LX = {}
+for _lang, _row in zip(LANGS[1:], LX_A_ROWS):
+    LX.setdefault(_lang, {}).update(zip(LX_A_KEYS, _row))
+for _lang, _row in zip(LANGS[5:], LX_B_ROWS):
+    LX.setdefault(_lang, {}).update(zip(LX_B_KEYS, _row))
+
+
+def zt(key, **kw):
+    return tt(key, **kw)
+
+
 def t(key, **kw):
     lang = st.session_state.get("lang", "English")
     i = LANGS.index(lang)
@@ -801,6 +1063,9 @@ def t(key, **kw):
         text = TX[lang][CI[key]]
     else:
         text = row[0]
+    hand = LX.get(lang, {}).get(key) if lang != "English" else None
+    if hand:
+        text = hand
     for k, v in kw.items():
         text = text.replace("{" + k + "}", str(v))
     return text
@@ -990,6 +1255,9 @@ def _static_set(lang):
             if v:
                 s.add(v)
                 s.add(re.sub(r"^\W+|\W+$", "", v))
+        for v in LX.get(lang, {}).values():
+            s.add(v)
+            s.add(re.sub(r"^\W+|\W+$", "", v))
         _REG.static[lang] = s
     return s
 
@@ -1191,20 +1459,26 @@ def install_i18n():
 # ----------------------------------------------------------------------------
 PALETTES = {
     # Dark: black and gold
-    "dark": {"SCHEME": "dark", "BG": "#0B0B0B", "SIDE": "#121212", "BTN": "#0B0B0B", "ACC": "#D4AF37", "ACC2": "#B8962E",
-             "ONACC": "#141414", "CARD1": "#161616", "CARD2": "#0F0F0F", "STAT": "#121212", "SUB": "#BBA85A",
-             "LOG": "#CFC7AE", "MUTE": "#9A9172", "CHATBG": "#0F0F0F", "BUBDV": "#1D1D1D", "TXT": "#EDE6D3",
-             "TXT2": "#E8E2D0", "INPUT": "#171717", "BORDER": "#3A3320", "POP": "#1A1A1A", "SEL": "#2E2712", "HUE": "48deg"},
+    "dark": {"SCHEME": "dark", "BG": "#090A0E", "SIDE": "#0C0D12", "BTN": "#0A0B0F", "ACC": "#D4AF37", "ACC2": "#B8962E",
+             "ONACC": "#141414", "CARD1": "#12151C", "CARD2": "#0E1016", "STAT": "#12151C", "SUB": "#A89F86",
+             "LOG": "#CFC7AE", "MUTE": "#9E9A8E", "CHATBG": "#0E1016", "BUBDV": "#171A22", "TXT": "#F1ECDF",
+             "TXT2": "#E8E2D0", "INPUT": "#12151C", "BORDER": "#262932", "POP": "#14171E", "SEL": "#3A3115", "HUE": "48deg",
+             "GLOW": "radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.08), transparent 70%)", "GLASS": "rgba(18, 21, 28, 0.75)",
+             "GLASSB": "rgba(255, 255, 255, 0.07)", "GOLDLINE": "rgba(212,175,55,0.38)", "GOLDSOFT": "rgba(212,175,55,0.12)",
+             "GRAD": "linear-gradient(135deg, #EACB86, #C9A24A)", "CHAMP": "#E5C378", "GSHADOW": "0 8px 32px rgba(0,0,0,0.4)"},
     # Light: pure white page, electric blue accent, near-black text
     "light": {"SCHEME": "light", "BG": "#FFFFFF", "SIDE": "#FFFFFF", "BTN": "#FFFFFF", "ACC": "#0057FF", "ACC2": "#0043CC",
               "ONACC": "#FFFFFF", "CARD1": "#FFFFFF", "CARD2": "#F5F8FF", "STAT": "#F3F7FF", "SUB": "#3F4F73",
               "LOG": "#1E293B", "MUTE": "#566176", "CHATBG": "#FFFFFF", "BUBDV": "#EEF3FF", "TXT": "#0F172A",
-              "TXT2": "#1E293B", "INPUT": "#FFFFFF", "BORDER": "#CFDBF5", "POP": "#FFFFFF", "SEL": "#E8F0FE", "HUE": "212deg"},
+              "TXT2": "#1E293B", "INPUT": "#FFFFFF", "BORDER": "#CFDBF5", "POP": "#FFFFFF", "SEL": "#D6E6FF", "HUE": "212deg",
+              "GLOW": "none", "GLASS": "rgba(255, 255, 255, 0.88)", "GLASSB": "rgba(15, 23, 42, 0.10)", "GOLDLINE": "rgba(0,87,255,0.35)",
+              "GOLDSOFT": "rgba(0,87,255,0.08)", "GRAD": "linear-gradient(135deg, #2F7BFF, #0057FF)", "CHAMP": "#0057FF",
+              "GSHADOW": "0 6px 24px rgba(15,23,42,0.08)"},
 }
 
 CSS_T = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@400;500&family=Playfair+Display:wght@400;500&display=swap');
 :root { color-scheme: @SCHEME@; }
 html, body, [class*="css"], .stApp { font-family: 'Inter', sans-serif; color: @TXT@; }
 html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] { background-color: @BG@ !important; }
@@ -1352,31 +1626,153 @@ div[data-testid="stTextInput"]:has(input[placeholder="◈4417◈"]) { position: 
 .aucard .ab { display: flex; flex-wrap: wrap; gap: 10px; }
 .aucard a.abtn { flex: 1 1 180px; text-align: center; text-decoration: none !important; background: #D4AF37; color: #0B0B0B !important; font-weight: 700; padding: 12px 14px; border-radius: 14px; }
 .aucard a.abtn.ghost { background: transparent; color: #D4AF37 !important; border: 1.5px solid #D4AF37; }
-/* ===== AuraSync dropdown legibility: FINAL block, wins over the earlier select / popover rules ===== */
-/* closed select / multiselect */
-[data-baseweb="select"] > div, [data-baseweb="select"] [role="combobox"] { background-color: @INPUT@ !important; border: 1px solid @BORDER@ !important; }
-[data-baseweb="select"] input, [data-baseweb="select"] div, [data-baseweb="select"] span {
-  color: @TXT@ !important; -webkit-text-fill-color: @TXT@ !important; opacity: 1 !important; font-weight: 500; }
-[data-baseweb="select"] input::placeholder { color: @MUTE@ !important; -webkit-text-fill-color: @MUTE@ !important; opacity: 1 !important; font-weight: 400; }
-[data-baseweb="select"] svg, [data-baseweb="select"] svg path { fill: @ACC@ !important; color: @ACC@ !important; opacity: 1 !important; }
-[data-baseweb="select"] [data-baseweb="tag"] * { color: @ONACC@ !important; -webkit-text-fill-color: @ONACC@ !important; }
-[data-baseweb="select"] [data-baseweb="tag"] svg, [data-baseweb="select"] [data-baseweb="tag"] svg path { fill: @ONACC@ !important; color: @ONACC@ !important; }
-/* popup menu */
-[data-baseweb="popover"] [data-baseweb="menu"], [data-baseweb="popover"] ul[role="listbox"], ul[role="listbox"] { background-color: @POP@ !important; border: 1px solid @BORDER@ !important; }
-[data-baseweb="popover"] li[role="option"], ul[role="listbox"] li[role="option"] { background-color: @POP@ !important; }
-[data-baseweb="popover"] li[role="option"], [data-baseweb="popover"] li[role="option"] *, ul[role="listbox"] li[role="option"] * {
-  color: @TXT@ !important; -webkit-text-fill-color: @TXT@ !important; opacity: 1 !important; font-weight: 400; }
-/* hovered / keyboard-highlighted / selected row */
-[data-baseweb="popover"] li[role="option"]:hover, [data-baseweb="popover"] li[role="option"][aria-selected="true"],
-[data-baseweb="popover"] li[role="option"][data-highlighted="true"], [data-baseweb="popover"] li[role="option"][data-highlighted],
-ul[role="listbox"] li[role="option"]:hover, ul[role="listbox"] li[role="option"][aria-selected="true"], ul[role="listbox"] li[data-highlighted] {
-  background-color: @SEL@ !important; }
-[data-baseweb="popover"] li[role="option"]:hover, [data-baseweb="popover"] li[role="option"]:hover *,
-[data-baseweb="popover"] li[role="option"][aria-selected="true"], [data-baseweb="popover"] li[role="option"][aria-selected="true"] *,
-[data-baseweb="popover"] li[role="option"][data-highlighted="true"], [data-baseweb="popover"] li[role="option"][data-highlighted="true"] *,
-[data-baseweb="popover"] li[role="option"][data-highlighted], [data-baseweb="popover"] li[role="option"][data-highlighted] *,
-ul[role="listbox"] li[role="option"]:hover *, ul[role="listbox"] li[role="option"][aria-selected="true"] *, ul[role="listbox"] li[data-highlighted] * {
-  color: @ACC@ !important; -webkit-text-fill-color: @ACC@ !important; font-weight: 700 !important; }
+/* ===== AuraSync Luxury Obsidian: soft glass, champagne hairlines, no harsh outlines (final block, wins over earlier rules) ===== */
+.stApp { background-image: @GLOW@ !important; background-attachment: fixed !important; background-repeat: no-repeat !important; }
+h1, h2, h3, [data-testid="stHeading"] h2, [data-testid="stHeading"] h3 { font-family: 'Playfair Display', 'Cinzel', serif !important; font-weight: 400 !important; letter-spacing: .06em; color: @CHAMP@ !important; }
+[data-testid="stSidebar"] { border-right: 1px solid @GLASSB@ !important; }
+[data-testid="stSidebar"] > div:first-child { background-color: @SIDE@ !important; }
+hr { border-color: @GLASSB@ !important; }
+.brand { font-family: 'Cinzel', 'Playfair Display', serif; font-weight: 400; letter-spacing: .3em; color: @CHAMP@; font-size: 1.15rem; }
+/* glass surfaces */
+.zen, .pre, .card, .stat, .aibox, .banner, .geo, .ptile, .chatbox, .chathead, .aucard, .atbl,
+[data-testid="stExpander"] details, [data-testid="stForm"], [data-testid="stAlert"],
+[class*="st-key-gcard"] {
+  background: @GLASS@ !important; border: 1px solid @GLASSB@ !important; border-radius: 18px !important;
+  box-shadow: @GSHADOW@ !important; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+[class*="st-key-gcard"] { padding: 20px !important; }
+.zen { padding: 26px 30px; } .zen .zr { font-family: 'Playfair Display', serif; font-weight: 400; letter-spacing: .04em; color: @CHAMP@; }
+.stat { padding: 12px 14px; } .ptile.on { border-color: @GOLDLINE@ !important; background: @GOLDSOFT@ !important; }
+.geo { border-color: @GOLDLINE@ !important; } .banner { border-color: @GOLDLINE@ !important; background: @GOLDSOFT@ !important; }
+.aucard a.abtn { background: @GRAD@; color: @ONACC@ !important; border-radius: 999px; }
+.aucard a.abtn.ghost { background: transparent; color: @CHAMP@ !important; border: 1px solid @GOLDLINE@; }
+.aucard .at { color: @CHAMP@ !important; }
+.atbl th { border-bottom: 1px solid @GLASSB@; color: @CHAMP@; } .atbl td { border-bottom-color: @GLASSB@; }
+[data-testid="stExpander"] details { overflow: hidden; }
+[data-testid="stExpander"] summary, [data-testid="stExpander"] details > div, [data-testid="stExpander"] summary:hover, [data-testid="stExpander"] details[open] > summary { background-color: transparent !important; }
+[data-testid="stVerticalBlockBorderWrapper"] { border-color: @GLASSB@ !important; }
+.stat { border-color: @GLASSB@ !important; } .stat .sl { letter-spacing: .08em; text-transform: uppercase; font-size: .7rem; }
+[data-baseweb="select"] > div, .stTextInput > div > div, .stNumberInput > div > div, .stTimeInput > div > div, [data-testid="stChatInput"] > div { border-color: @GLASSB@ !important; border-radius: 12px !important; }
+/* buttons: slim pills with a champagne hairline */
+.stButton > button, .stFormSubmitButton > button, [data-testid="stNumberInput"] button {
+  background: transparent !important; color: @CHAMP@ !important; border: 1px solid @GOLDLINE@ !important; border-radius: 999px !important;
+  padding: .4rem 1.1rem; font-weight: 500; letter-spacing: .04em; transition: all .25s ease; }
+.stButton > button:hover, .stFormSubmitButton > button:hover { background: @GOLDSOFT@ !important; border-color: @ACC@ !important; color: @CHAMP@ !important; box-shadow: 0 0 18px @GOLDSOFT@; }
+.stButton > button[kind="primary"], .stButton > button[data-testid="stBaseButton-primary"] {
+  background: @GRAD@ !important; color: @ONACC@ !important; border-color: transparent !important; font-weight: 600; box-shadow: 0 4px 18px @GOLDSOFT@; }
+.stButton > button[kind="primary"]:hover, .stButton > button[data-testid="stBaseButton-primary"]:hover { filter: brightness(1.08); color: @ONACC@ !important; }
+.stButton > button[kind="primary"] p, .stButton > button[data-testid="stBaseButton-primary"] p { color: @ONACC@ !important; }
+[class*="st-key-zenbtn_"] button { min-height: 72px; border: 1px solid @GOLDLINE@ !important; border-radius: 22px !important; }
+[data-testid="stButtonGroup"] button { border-radius: 999px !important; border: 1px solid @GLASSB@ !important; background: transparent !important; }
+[data-testid="stButtonGroup"] button[data-testid="stBaseButton-segmented_controlActive"], [data-testid="stButtonGroup"] button[aria-checked="true"], [data-testid="stButtonGroup"] button[aria-pressed="true"] {
+  background: @GRAD@ !important; color: @ONACC@ !important; border-color: transparent !important; }
+[data-baseweb="slider"] div[role="slider"] { box-shadow: 0 0 12px @GOLDLINE@; }
+/* luxury header, mode switch, simulator */
+.lux-h1 { letter-spacing: .35em; font-weight: 300; font-family: 'Cinzel', 'Playfair Display', serif, sans-serif; text-align: center; color: @CHAMP@; margin-bottom: 0; font-size: 2.1rem; padding-top: .4rem; }
+.lux-sub { letter-spacing: .25em; font-size: .72rem; text-align: center; color: @MUTE@; text-transform: uppercase; margin-top: 4px; margin-bottom: 14px; }
+/* AURASYNC lockup: one wide-tracked line on desktop, a balanced two-line lockup (A U R A / S Y N C) on phones */
+.lux-h1 { width: fit-content; max-width: 100%; margin-left: auto !important; margin-right: auto !important; padding-left: .35em; }
+.lux-h1 .lx-w { white-space: nowrap; }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) and (color: color-mix(in srgb, red, white)) {
+  .lux-h1 { background: linear-gradient(135deg, @CHAMP@ 0%, color-mix(in srgb, @CHAMP@ 55%, #ffffff) 50%, @CHAMP@ 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+}
+@media (max-width: 768px) {
+  .lux-h1 { font-size: 1.95rem !important; letter-spacing: .3em !important; padding-left: .3em !important;
+            line-height: 1.32 !important; padding-top: .7rem; }
+  .lux-h1 .lx-w { display: block; text-align: center; }
+  .lux-sub { letter-spacing: .2em; padding-left: .2em; }
+}
+[class*="st-key-flowsw"] { display: flex; justify-content: center; }
+[class*="st-key-flowsw"] [data-testid="stButtonGroup"] { justify-content: center; background: @GLASS@; border: 1px solid @GLASSB@; border-radius: 999px; padding: 4px; }
+[class*="st-key-simbox"] { position: sticky; top: 0; z-index: 20; background: @GLASS@; border: 1px solid @GLASSB@; border-radius: 18px; padding: 14px 16px 10px 16px; margin-bottom: 14px; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.sim-h { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: @CHAMP@; letter-spacing: .04em; }
+.pdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4CD964; margin-right: 8px; animation: pdot 2s ease-in-out infinite; }
+@keyframes pdot { 0%, 100% { box-shadow: 0 0 0 0 rgba(76,217,100,.55); } 50% { box-shadow: 0 0 0 6px rgba(76,217,100,0); } }
+.sim-f { font-size: .74rem; color: @MUTE@; letter-spacing: .04em; margin-top: 6px; }
+/* hardware cards */
+.gc-t { font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: .05em; color: @CHAMP@; margin-bottom: 6px; }
+.gc-sw { height: 46px; border-radius: 14px; margin: 8px 0 10px 0; border: 1px solid @GLASSB@; transition: all .4s ease; }
+.gc-temp { text-align: center; font-size: 1.9rem; font-weight: 300; letter-spacing: .04em; color: @TXT@; line-height: 2.4rem; }
+@media (prefers-reduced-motion: reduce) { .pdot { animation: none; } }
+/* Luxury Glass & Centered Alignment for Selectbox & Inputs */
+div[data-baseweb="select"] > div {
+  background: rgba(18, 21, 28, 0.85) !important;
+  border: 1px solid rgba(212, 175, 55, 0.28) !important;
+  border-radius: 12px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 14px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+}
+
+div[data-baseweb="select"] > div:hover,
+div[data-baseweb="select"] > div:focus-within {
+  border-color: rgba(212, 175, 55, 0.65) !important;
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.2) !important;
+}
+
+div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p,
+div[data-baseweb="select"] div,
+div[data-baseweb="select"] span {
+  color: #EDE6D3 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 450 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.03em !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Dropdown arrow icon styling & alignment */
+div[data-baseweb="select"] svg {
+  fill: #E5C378 !important;
+  width: 18px !important;
+  height: 18px !important;
+  opacity: 0.85 !important;
+}
+
+/* Field labels subtle champagne styling */
+div[data-testid="stSelectbox"] label,
+div[data-testid="stTextInput"] label {
+  color: #9E9A8E !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+
+/* Popover menu options styling */
+div[data-baseweb="popover"],
+div[data-baseweb="popover"] > div,
+div[data-baseweb="menu"],
+ul[role="listbox"] {
+  background-color: #0E1015 !important;
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7) !important;
+}
+
+div[data-baseweb="popover"] li,
+ul[role="listbox"] li,
+li[role="option"] {
+  background-color: transparent !important;
+  color: #EDE6D3 !important;
+  font-family: 'Inter', sans-serif !important;
+  padding: 10px 14px !important;
+  font-size: 0.92rem !important;
+}
+
+div[data-baseweb="popover"] li:hover,
+ul[role="listbox"] li:hover,
+li[role="option"]:hover,
+li[aria-selected="true"] {
+  background: rgba(212, 175, 55, 0.2) !important;
+  color: #E5C378 !important;
+}
 </style>
 """
 
@@ -1412,7 +1808,8 @@ def themed(page):
     """Colour tokens used by the small HTML components (audio player, chime button)."""
     p = pal()
     return (page.replace("__BG__", p["SIDE"]).replace("__BTN__", p["BTN"])
-            .replace("__ACC__", p["ACC"]).replace("__SUB__", p["SUB"]))
+            .replace("__ACC__", p["ACC"]).replace("__SUB__", p["SUB"])
+            .replace("__LINE__", p["GOLDLINE"]).replace("__GLASS__", p["GLASS"]))
 
 
 def html_table(rows):
@@ -1680,7 +2077,8 @@ def push(dev):
             wiz_send(dev["addr"], {"id": 1, "method": "setPilot", "params": params})
         else:
             body = {"source": "AuraSync", "device": dev["name"], "type": dev["cid"], "room": dev["room"],
-                    "state": "on" if dev["on"] else "off", "level": dev["lvl"], "color": dev["color"]}
+                    "state": "on" if dev["on"] else "off", "level": dev["lvl"], "color": dev["color"],
+                    "mode": dev.get("acmode") or dev.get("fanmode") or ""}
             hdr = {"Authorization": "Bearer " + dev["token"]} if dev["token"] else {}
             requests.post(dev["addr"], json=body, headers=hdr, timeout=2)
         dev["last"] = "sent " + datetime.now().strftime("%H:%M:%S") + (" via cloud relay" if st.session_state.conn["mode"] == "away" else " via local mesh")
@@ -2544,7 +2942,7 @@ WEAR_HTML = """
 <style>
   html, body { margin: 0; background: transparent; }
   #w { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 12px 14px; box-sizing: border-box; border-radius: 18px;
-       border: 1px solid __ACC__; background: __BG__; font-family: Inter, Arial, sans-serif; color: __ACC__; }
+       border: 1px solid __LINE__; background: __GLASS__; font-family: Inter, Arial, sans-serif; color: __ACC__; }
   #heart { font-size: 30px; line-height: 1; }
   #heart.beat { animation: beat 1s ease-in-out infinite; }
   @keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.22); } 30% { transform: scale(1); } 45% { transform: scale(1.14); } }
@@ -2644,10 +3042,652 @@ def parse_hr_payload(d):
     return None
 
 
+# ---- Multi-source live heart rate: Web Bluetooth, page link (?hr=), bridge.py file, cloud-linked wearables ----
+BRIDGE_FILE = "aurasync_bridge.json"
+BRIDGE_MAX_AGE = 120        # seconds a bridge.py reading stays valid
+URL_HR_MAX_AGE = 90         # seconds a ?hr= reading stays valid
+_BRIDGE_CACHE = {}
+
+
+def _bridge_paths():
+    out = []
+    env = os.environ.get("AURASYNC_BRIDGE_FILE")
+    if env:
+        out.append(env)
+    try:
+        out.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), BRIDGE_FILE))
+    except NameError:
+        pass
+    out.append(os.path.join(os.getcwd(), BRIDGE_FILE))
+    seen, res = set(), []
+    for p in out:
+        if p not in seen:
+            seen.add(p)
+            res.append(p)
+    return res
+
+
+def _ts_epoch(v):
+    """Epoch seconds from a number or an ISO-8601 string, else None."""
+    try:
+        if isinstance(v, (int, float)):
+            x = float(v)
+            return x / 1000.0 if x > 1e11 else x
+        if isinstance(v, str) and v.strip():
+            s = v.strip().replace("Z", "+00:00")
+            d = datetime.fromisoformat(s)
+            if d.tzinfo is None:
+                d = d.replace(tzinfo=timezone.utc)
+            return d.timestamp()
+    except (ValueError, OverflowError, OSError):
+        return None
+    return None
+
+
+def read_bridge():
+    """Latest reading written by the background bridge.py listener (Apple Health and friends), or None when absent or stale."""
+    for p in _bridge_paths():
+        try:
+            stt = os.stat(p)
+            if stt.st_size > 65536:
+                continue
+            key = (p, stt.st_mtime_ns, stt.st_size)
+            if _BRIDGE_CACHE.get("key") != key:
+                with open(p, "r", encoding="utf-8", errors="ignore") as f:
+                    raw = json.load(f)
+                _BRIDGE_CACHE["key"], _BRIDGE_CACHE["raw"] = key, raw
+            raw = _BRIDGE_CACHE.get("raw")
+            d = parse_hr_payload(raw)
+            if not d or not (25 < d["_hr"] < 230):
+                continue
+            stamp = None
+            for k in ("timestamp", "ts", "time", "updated_at", "updated", "date"):
+                if k in d:
+                    stamp = _ts_epoch(d[k])
+                    if stamp:
+                        break
+            age = time.time() - (stamp or stt.st_mtime)
+            if age < 0:
+                age = 0.0
+            if age > BRIDGE_MAX_AGE:
+                continue
+            stage = str(d.get("sleep_stage", "")).lower()
+            asleep = bool(d.get("asleep", d.get("sleeping", stage in ("light", "deep", "rem", "asleep"))))
+            return {"hr": int(d["_hr"]), "hrv": int(float(d.get("hrv", 55) or 55)), "spo2": float(d.get("spo2", 97) or 97),
+                    "skin": float(d.get("temperature", 33.5) or 33.5), "asleep": asleep, "live": True,
+                    "src": "bridge.py", "age": int(age)}
+        except (OSError, ValueError, TypeError):
+            continue
+    return None
+
+
+def hr_from_url():
+    """?hr=94 on the page link: remember the reading and put it into the heart-rate history right away."""
+    if not hasattr(st, "query_params"):
+        return
+    ss = st.session_state
+    try:
+        if "hr" not in st.query_params:
+            return
+        raw = st.query_params.get("hr")
+        try:
+            del st.query_params["hr"]
+        except Exception:
+            pass
+        hr = int(float(str(raw).strip()[:8]))
+    except Exception:
+        return
+    if not (25 < hr < 230):
+        return
+    ss.url_hr = {"hr": hr, "ts": time.time()}
+    ss.hr_hist = (list(ss.get("hr_hist") or []) + [hr])[-60:]
+    log("Heart rate " + str(hr) + " BPM received from the page link")
+
+
+WEAR_CLOUDS = (("Apple Health", "🍎"), ("Oura Ring", "💍"), ("Ultrahuman", "🔆"), ("Fitbit / Google", "⌚"),
+               ("Garmin", "🧭"), ("Whoop", "🏋️"))
+
+
+def sim_linked_reading(last):
+    """Simulated stream for a wearable that was linked with one tap (no Shortcut needed)."""
+    ss = st.session_state
+    links = ss.get("wear_links") or {}
+    names = [n for n, v in links.items() if v]
+    if not names:
+        return None
+    tgt, hrv, skin, asleep = SCN[ss.cfg["scn"]]
+    hr = int(max(45, min(140, last + (tgt - last) * 0.35 + random.gauss(0, 1.5))))
+    return {"hr": hr, "hrv": random.randint(hrv[0], hrv[1]), "spo2": round(random.uniform(96, 99), 1),
+            "skin": round(skin + random.gauss(0, 0.15), 1), "asleep": asleep, "live": True, "src": names[0] + " (simulated)"}
+
+
+def multi_source_live():
+    """Priority: Bluetooth 0x180D, page link (?hr=), bridge.py file. Returns a reading dict or None."""
+    ss = st.session_state
+    b = ss.get("ble") or {}
+    if b.get("hr") and time.time() - b.get("ts", 0) < 25:
+        return {"hr": int(b["hr"]), "hrv": rmssd(b.get("rr", [])) or 55, "spo2": 97.0, "skin": 33.5,
+                "asleep": False, "live": True, "src": "Bluetooth 0x180D"}
+    u = ss.get("url_hr") or {}
+    if u.get("hr") and time.time() - u.get("ts", 0) < URL_HR_MAX_AGE:
+        return {"hr": int(u["hr"]), "hrv": 55, "spo2": 97.0, "skin": 33.5, "asleep": False, "live": True, "src": "page link"}
+    return read_bridge()
+
+
+# ---- Biometric Auto-Pilot (acts only when the zone changes, never on every polling tick)
+ZEN_STRESS_BPM = 85
+AP_PRESET = {
+    "stress": {"color": "#FF821E", "bright": 35, "ac": 22, "acmode": "Sleep Eco", "fan": 1, "fanmode": "Low",
+               "sound": "Deep Calm Studio", "layers": {"hz432": 45, "rain": 40, "stream": 0, "noise": 0}, "msg": "zk_ap_stress"},
+    "calm": {"color": "#FFE4A0", "bright": 65, "ac": 24, "acmode": "Cool", "fan": 2, "fanmode": "Natural Breeze",
+             "sound": "Zen Garden", "layers": {"hz432": 0, "rain": 0, "stream": 35, "noise": 0}, "msg": "zk_ap_calm"},
+}
+LAYER_KEYS = (("hz432", "zk_l432"), ("rain", "zk_lrain"), ("stream", "zk_lstream"), ("noise", "zk_lnoise"))
+FAN_LEVELS = {"Off": 0, "Low": 1, "Medium": 3, "High": 5, "Natural Breeze": 2}
+
+
+def layers_of():
+    cfg = st.session_state.cfg
+    cur = cfg.get("layers") if isinstance(cfg.get("layers"), dict) else {}
+    out = {}
+    for k, _l in LAYER_KEYS:
+        try:
+            out[k] = max(0, min(100, int(float(cur.get(k, 0)))))
+        except (TypeError, ValueError):
+            out[k] = 0
+    cfg["layers"] = out
+    return out
+
+
+def layers_params():
+    return dict(layers_of())
+
+
+def wiz_ip_ok(ip):
+    try:
+        a = ipaddress.ip_address(str(ip).strip())
+    except ValueError:
+        return False
+    return a.version == 4 and (a.is_private or a.is_link_local) and not a.is_loopback and not a.is_unspecified
+
+
+def wiz_fire(ip, hex_color, dim):
+    """Fire-and-forget WiZ setPilot UDP packet to a bulb on the local network."""
+    if not wiz_ip_ok(ip):
+        return False
+    r, g, b = hex_rgb(hex_color)
+    payload = {"id": 1, "method": "setPilot", "params": {"state": True, "dimming": max(10, min(100, int(dim))), "r": r, "g": g, "b": b}}
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.sendto(json.dumps(payload).encode("utf-8"), (str(ip).strip(), 38899))
+        return True
+    except OSError:
+        return False
+    finally:
+        s.close()
+
+
+def set_layers(vals):
+    ss = st.session_state
+    ss.cfg["layers"] = dict(vals)
+    layers_of()
+    ss.lay_rev = ss.get("lay_rev", 0) + 1
+
+
+def bio_autopilot(hr):
+    """Returns True when the atmosphere changed. Runs only on a transition between the calm and the elevated zone."""
+    ss, cfg = st.session_state, st.session_state.cfg
+    if not cfg.get("auto_mode") or ss.conn["mode"] != "home" or family_blocked():
+        return False
+    zone = "stress" if hr > ZEN_STRESS_BPM else "calm"
+    if zone == ss.get("ap_zone"):
+        return False
+    ss.ap_zone = zone
+    p = AP_PRESET[zone]
+    why = "Auto-Pilot: " + ("heart rate above " + str(ZEN_STRESS_BPM) if zone == "stress" else "calm / resting")
+    pool = [d for d in scope_devs() if d["room"] not in ss.room_mode]
+    wiz_done = False
+    for d in pool:
+        if held(d):
+            continue
+        c = d["cid"]
+        if c in BULBLIKE:
+            set_dev(d, True, p["bright"], p["color"], why=why)
+            if d["proto"].startswith("Philips") and d["addr"] and d["addr"] == str(cfg.get("wiz_ip", "")).strip():
+                wiz_done = True
+        elif c == "ac":
+            d["acmode"] = p["acmode"]
+            set_dev(d, True, p["ac"], why=why)
+        elif c == "fan":
+            d["fanmode"] = p["fanmode"]
+            set_dev(d, True, p["fan"], why=why)
+    if cfg.get("wiz_ip") and not wiz_done:
+        wiz_fire(cfg["wiz_ip"], p["color"], p["bright"])
+    set_layers(p["layers"])
+    if p["sound"] in ss.modes:
+        apply_mode(p["sound"], why=False, devs=[], set_active=True)
+    log(zt(p["msg"], hr=hr))
+    return True
+
+
+def zen_autopilot_active():
+    cfg = st.session_state.cfg
+    return bool(cfg.get("auto_mode")) and bool(cfg.get("ap_on", True)) and st.session_state.ui_mode == "zen"
+
+
+# ---- Zen Sanctuary: mood pills
+ZEN_PILLS = (("rest", "zp_rest", "sleep", {"hz432": 40, "rain": 30, "stream": 0, "noise": 0}),
+             ("focus", "zp_focus", "focus", {"hz432": 0, "rain": 0, "stream": 0, "noise": 25}),
+             ("reading", "zp_reading", "reading", {"hz432": 0, "rain": 15, "stream": 20, "noise": 0}),
+             ("night", "zp_night", "meditation", {"hz432": 45, "rain": 0, "stream": 10, "noise": 0}))
+
+
+def cb_zen_pill(kind):
+    ss = st.session_state
+    spec = next((p for p in ZEN_PILLS if p[0] == kind), None)
+    if not spec:
+        return
+    room = ss.presence["room"]
+    clear_room_override(room)
+    msg = run_auto_mode(spec[2], "app")
+    set_layers(spec[3])
+    if kind == "rest":
+        ss.fade_tok += 1
+    ss.pill_on = kind
+    if msg:
+        ss.flash = msg
+
+
+def render_zen_pills():
+    ss = st.session_state
+    st.markdown("**" + zt("zk_pills") + "**")
+    for col, (k, lk, _mid, _lay) in zip(st.columns(4), ZEN_PILLS):
+        col.button(zt(lk), key="zpill_" + k, width='stretch',
+                   type=("primary" if ss.get("pill_on") == k else "secondary"), on_click=cb_zen_pill, args=(k,))
+
+
+# ---- Zen Sanctuary: heart-rate graph + emotion badge + breathing cadence
+def zen_css():
+    p = pal()
+    return ("<style>.zs-badge{display:inline-block;padding:8px 18px;border-radius:999px;font-weight:700;font-size:1.02rem;margin:4px 0 6px 0;"
+            "border:1.5px solid var(--c);background:var(--b);color:" + p["TXT"] + ";animation:zsp 3.2s ease-in-out infinite}"
+            "@keyframes zsp{0%,100%{box-shadow:0 0 0 0 var(--b)}50%{box-shadow:0 0 18px 4px var(--b)}}"
+            ".zs-bw{display:flex;align-items:center;gap:16px;margin:6px 0 8px 0}"
+            ".zs-orb{width:54px;height:54px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#fff8,var(--c));"
+            "animation:zsb 10s ease-in-out infinite}"
+            "@keyframes zsb{0%{transform:scale(.62)}40%{transform:scale(1.08)}100%{transform:scale(.62)}}"
+            ".zs-cue{position:relative;height:1.4em;min-width:11em;font-weight:600;color:" + p["TXT"] + "}"
+            ".zs-cue span{position:absolute;left:0;top:0;opacity:0}"
+            ".zs-in{animation:zsi 10s linear infinite}.zs-out{animation:zso 10s linear infinite}"
+            "@keyframes zsi{0%,36%{opacity:1}42%,100%{opacity:0}}@keyframes zso{0%,38%{opacity:0}44%,96%{opacity:1}100%{opacity:0}}"
+            "@media (prefers-reduced-motion:reduce){.zs-badge,.zs-orb,.zs-in,.zs-out{animation:none}.zs-out{opacity:0}.zs-in{opacity:1}}"
+            "</style>")
+
+
+def zen_zone(hr):
+    if hr < 70:
+        return "calm", "zk_calm", "#2E9E6B", "rgba(46,158,107,.20)"
+    if hr <= ZEN_STRESS_BPM:
+        return "bal", "zk_bal", "#D9A21B", "rgba(217,162,27,.20)"
+    return "high", "zk_high", "#E5484D", "rgba(229,72,77,.20)"
+
+
+def zen_src_label(src):
+    """Raw source names (page link, simulation, ...) -> the chosen language. Product names such as bridge.py stay as they are."""
+    s = str(src or "")
+    suffix = " (simulated)"
+    if s.endswith(suffix):
+        return zt("zk_s_simd", n=s[:-len(suffix)])
+    return {"page link": zt("zk_s_link"), "simulation": zt("zk_s_sim"), "live": zt("zk_s_live")}.get(s, s)
+
+
+def zen_hr_card(r):
+    ss = st.session_state
+    hr = int(r["hr"])
+    zone, key, col, bg = zen_zone(hr)
+    src = r.get("src") or ("live" if r.get("live") else "simulation")
+    parts = [zen_css(), '<div class="zs-badge" style="--c:' + col + ";--b:" + bg + '">' + html.escape(zt(key)) + "  ·  " +
+             str(hr) + " BPM</div>"]
+    if zone == "high":
+        parts.append('<div class="zs-bw" style="--c:' + col + '"><div class="zs-orb"></div><div class="zs-cue"><span class="zs-in">' +
+                     html.escape(zt("zk_in")) + '</span><span class="zs-out">' + html.escape(zt("zk_out")) + "</span></div></div>")
+    st.markdown("**" + zt("zk_hr") + "**")
+    st.markdown("".join(parts), unsafe_allow_html=True)
+    themed_line_chart(list(ss.hr_hist)[-40:], 170)
+    st.caption(zt("zk_src", s=zen_src_label(src)))
+
+
+# ---- Zen Sanctuary: living player dock, mixer, conversational bar, voice assistant drawer
+def cb_master(key):
+    st.session_state.cfg["bed"] = max(0, min(100, int(st.session_state.get(key, 100))))
+
+
+def cb_layer(k, key):
+    layers = layers_of()
+    layers[k] = int(st.session_state.get(key, 0))
+    st.session_state.cfg["layers"] = layers
+
+
+def render_zen_dock(shown):
+    ss, cfg = st.session_state, st.session_state.cfg
+    st.markdown("**" + zt("zk_dock") + "**")
+    audio_component(synth_params(shown), True)
+    mk = "zen_master_" + str(ss.get("lay_rev", 0))
+    st.slider(zt("zk_master"), 0, 100, value=int(cfg.get("bed", 100)), key=mk, on_change=cb_master, args=(mk,))
+    with st.expander(zt("zk_mixer")):
+        layers = layers_of()
+        for k, lk in LAYER_KEYS:
+            key = "lay_" + k + "_" + str(ss.get("lay_rev", 0))
+            st.slider(zt(lk), 0, 100, value=layers[k], key=key, on_change=cb_layer, args=(k, key))
+
+
+def render_tell_bar():
+    ss = st.session_state
+    st.markdown("**" + zt("zk_tell") + "**")
+    st.caption(zt("zk_tell_hint"))
+    render_voice_mic()
+    cols = st.columns(3)
+    for col, (k, text) in zip(cols, (("tired", "I'm tired"), ("work", "Starting work"), ("movie", "Family movie time"))):
+        col.button(t("voice_" + k), key="voice_p_" + k, on_click=cb_voice_preset, args=(text,))
+    with st.form("voice_form", clear_on_submit=True):
+        c1, c2 = st.columns([5, 1])
+        c1.text_input(t("voice_title"), key="voice_txt", placeholder=t("voice_ph"), label_visibility="collapsed")
+        c2.form_submit_button(t("voice_send"), on_click=cb_voice_send)
+    if ss.voice_last:
+        st.caption(ss.voice_last)
+
+
+def lan_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("10.255.255.255", 1))          # no packet is sent; this only picks the outgoing interface
+        return s.getsockname()[0]
+    except OSError:
+        return "localhost"
+    finally:
+        s.close()
+
+
+def cb_va_open(flag):
+    st.session_state.va_open = bool(flag)
+
+
+def cb_va_mark(key):
+    ss = st.session_state
+    if ss.get(key):
+        ss.va_linked, ss.va_open = True, False
+
+
+def render_va_drawer():
+    ss = st.session_state
+    if ss.get("va_linked") and not ss.get("va_open"):
+        st.button(zt("zk_va_done"), key="va_edit_btn", on_click=cb_va_open, args=(True,))
+        return
+    if not ss.get("va_open"):
+        st.button(zt("zk_va_cfg"), key="va_cfg_btn", on_click=cb_va_open, args=(True,))
+        return
+    st.button("✕", key="va_close_btn", on_click=cb_va_open, args=(False,))
+    render_assistant_card()
+    base = app_base_url()
+    tok = _secret("AURASYNC_TOKEN")
+    unlocked = bool(tok) and bool(ss.get("auto_admin"))
+    local = "http://" + lan_ip() + ":8501"
+    for lbl, root in ((zt("zk_va_local"), local), (zt("zk_va_remote"), base or "https://YOUR-APP-URL")):
+        st.caption(lbl)
+        if unlocked:
+            st.code(root.rstrip("/") + "/?" + urllib.parse.urlencode({"mode": "reading", "token": str(tok)}), language=None)
+        else:
+            st.code(root.rstrip("/") + "/?mode=reading&token=YOUR_TOKEN", language=None)
+    if not unlocked:
+        st.caption(zt("zk_va_unlock"))
+    st.markdown("**" + zt("zk_va_google") + "**")
+    st.markdown("1. " + zt("zk_va_g1") + "\n2. " + zt("zk_va_g2") + "\n3. " + zt("zk_va_g3"))
+    mk = "va_mark_" + str(ss.get("va_rev", 0))
+    st.toggle(zt("zk_va_mark"), value=False, key=mk, on_change=cb_va_mark, args=(mk,))
+
+
+# ---- Manual Control Mode (granular dials)
+def _dev_uid(uid):
+    return next((d for d in st.session_state.fleet if d["uid"] == uid), None)
+
+
+def cb_mc(uid, what, key):
+    ss = st.session_state
+    d = _dev_uid(uid)
+    if what in ("tempd", "acp", "fanp") and d is not None:
+        v = key                                      # pill / stepper buttons pass their value directly
+    elif d is None or key not in ss:
+        return
+    else:
+        v = ss[key]
+    if what == "pwr":
+        set_dev(d, bool(v), why="Manual")
+    elif what == "lvl":
+        set_dev(d, lvl=int(v), why="Manual")
+    elif what == "col":
+        set_dev(d, color=str(v), why="Manual")
+    elif what == "temp":
+        set_dev(d, True, int(v), why="Manual")
+    elif what == "tempd":
+        set_dev(d, lvl=max(18, min(30, int(d["lvl"]) + int(v))), why="Manual")
+    elif what in ("acm", "acp"):
+        d["acmode"] = str(v)
+        d["rev"] = d.get("rev", 0) + 1
+        push(d)
+    elif what in ("fan", "fanp"):
+        d["fanmode"] = str(v)
+        set_dev(d, str(v) != "Off", FAN_LEVELS.get(str(v), 2), why="Manual")
+        d["rev"] = d.get("rev", 0) + 1
+    hold(d, 900)                                     # automation leaves manually tuned devices alone for 15 minutes
+
+
+def cb_endpoints():
+    ss, cfg = st.session_state, st.session_state.cfg
+    ip = str(ss.get("ep_wiz") or "").strip()
+    acu, fnu = str(ss.get("ep_ac") or "").strip(), str(ss.get("ep_fan") or "").strip()
+    ok_url = lambda u: (not u) or (u.startswith("http://") or u.startswith("https://"))
+    if (ip and not wiz_ip_ok(ip)) or not ok_url(acu) or not ok_url(fnu):
+        ss.ep_msg = ("bad", "zk_ep_bad")
+        return
+    cfg["wiz_ip"] = ip
+    for d in space_devs(current_room()):
+        if d["cid"] in BULBLIKE and ip:
+            d.update(proto="Philips WiZ (UDP)", addr=ip, status="connected")
+        elif d["cid"] == "ac" and acu:
+            d.update(proto="Home Assistant / REST", addr=acu, status="connected")
+        elif d["cid"] == "fan" and fnu:
+            d.update(proto="Home Assistant / REST", addr=fnu, status="connected")
+    ss.ep_msg = ("ok", "zk_ep_ok")
+
+
+def render_manual_controls():
+    ss, cfg = st.session_state, st.session_state.cfg
+    room = current_room()
+    devs = space_devs(room)
+    pick = lambda cids: next((d for d in devs if d["cid"] in cids), None)
+    bulb, ac, fan = pick(BULBLIKE), pick(("ac",)), pick(("fan",))
+    st.markdown("**" + zt("zk_manual") + "**  ·  " + html.escape(tr_room(room)))
+    st.caption(zt("zk_manual_note"))
+    c1, c2 = st.columns(2)
+    with c1, _keyed_container("gcard_bulb"):
+        st.markdown('<div class="gc-t">💡 ' + html.escape(zt("zk_bulb")) + "</div>", unsafe_allow_html=True)
+        if bulb:
+            k = "_" + str(bulb["uid"]) + "_" + str(bulb.get("rev", 0))
+            hexc = safe_hex(bulb["color"])
+            glow = (0.25 + 0.75 * max(0, min(100, bulb["lvl"])) / 100.0) if bulb["on"] else 0.12
+            st.toggle(zt("zk_power"), value=bool(bulb["on"]), key="mcp" + k, on_change=cb_mc, args=(bulb["uid"], "pwr", "mcp" + k))
+            st.markdown('<div class="gc-sw" style="background:' + hexc + ";opacity:" + ("%.2f" % glow) + ";box-shadow:0 0 " +
+                        str(int(14 + 30 * glow)) + "px " + hexc + '88"></div>', unsafe_allow_html=True)
+            st.color_picker(zt("zk_color"), value=hexc, key="mcc" + k, on_change=cb_mc, args=(bulb["uid"], "col", "mcc" + k))
+            st.slider(zt("zk_bright"), 5, 100, value=int(max(5, bulb["lvl"])), key="mcl" + k, on_change=cb_mc, args=(bulb["uid"], "lvl", "mcl" + k))
+        else:
+            st.caption(zt("zk_nodev", d=zt("zk_bulb")))
+    with c2, _keyed_container("gcard_ac"):
+        st.markdown('<div class="gc-t">❄️ ' + html.escape(zt("zk_ac")) + "</div>", unsafe_allow_html=True)
+        if ac:
+            k = "_" + str(ac["uid"]) + "_" + str(ac.get("rev", 0))
+            st.toggle(zt("zk_power"), value=bool(ac["on"]), key="map" + k, on_change=cb_mc, args=(ac["uid"], "pwr", "map" + k))
+            m, v, p = st.columns([1, 2, 1])
+            m.button("−", key="acm" + k, width='stretch', on_click=cb_mc, args=(ac["uid"], "tempd", -1))
+            v.markdown('<div class="gc-temp">' + str(int(ac["lvl"])) + "°C</div>", unsafe_allow_html=True)
+            p.button("+", key="acq" + k, width='stretch', on_click=cb_mc, args=(ac["uid"], "tempd", 1))
+            cur = ac.get("acmode") or "Cool"
+            for col, (val, lk) in zip(st.columns(3), (("Cool", "lx_cool"), ("Sleep Eco", "lx_eco"), ("Fan Only", "lx_fan"))):
+                col.button(zt(lk), key="acp" + k + val, width='stretch', type=("primary" if cur == val else "secondary"),
+                           on_click=cb_mc, args=(ac["uid"], "acp", val))
+        else:
+            st.caption(zt("zk_nodev", d=zt("zk_ac")))
+    with _keyed_container("gcard_fan"):
+        st.markdown('<div class="gc-t">🌀 ' + html.escape(zt("zk_fan")) + "</div>", unsafe_allow_html=True)
+        if fan:
+            k = "_" + str(fan["uid"]) + "_" + str(fan.get("rev", 0))
+            st.toggle(zt("zk_power"), value=bool(fan["on"]), key="mfp" + k, on_change=cb_mc, args=(fan["uid"], "pwr", "mfp" + k))
+            cur = fan.get("fanmode") if fan.get("fanmode") in FAN_LEVELS else ("Off" if not fan["on"] else next(
+                (n for n in ("Low", "Medium", "High") if FAN_LEVELS[n] >= fan["lvl"]), "High"))
+            if not fan["on"]:
+                cur = "Off"
+            for col, name in zip(st.columns(len(FAN_LEVELS)), FAN_LEVELS):
+                col.button(zt("fan_" + name), key="mfq" + k + name, width='stretch', type=("primary" if cur == name else "secondary"),
+                           on_click=cb_mc, args=(fan["uid"], "fanp", name))
+        else:
+            st.caption(zt("zk_nodev", d=zt("zk_fan")))
+    with st.expander(zt("zk_endp")):
+        with st.form("ep_form_" + room):
+            st.text_input(zt("zk_wiz"), value=str(cfg.get("wiz_ip", "")), key="ep_wiz", max_chars=45)
+            st.text_input(zt("zk_acurl"), value=str((ac or {}).get("addr", "")), key="ep_ac", max_chars=300)
+            st.text_input(zt("zk_fanurl"), value=str((fan or {}).get("addr", "")), key="ep_fan", max_chars=300)
+            st.form_submit_button(zt("zk_save"), on_click=cb_endpoints)
+        msg = ss.get("ep_msg")
+        if msg:
+            (st.success if msg[0] == "ok" else st.error)(zt(msg[1]))
+
+
+# ---- Luxury shell: header, Zen | Manual switch, pinned Biometric Simulator
+T.update({
+    "lx_zen": ("Zen Mode",), "lx_manual": ("Manual Mode",),
+    "lx_sim_h": ("🧪 Biometric Simulator",), "lx_sim_c": ("Test the auto-pilot without a watch.",),
+    "lx_sim_s": ("Heart rate (BPM)",), "lx_sim_b": ("Send reading",),
+    "lx_sim_f": ("Live feed file: aurasync_bridge.json",), "lx_sim_last": ("Last reading sent: {hr} BPM",),
+    "lx_cool": ("Cool",), "lx_eco": ("Eco",), "lx_fan": ("Fan",),
+})
+
+
+def render_lux_header():
+    c = pal()["CHAMP"]
+    st.markdown(
+        '<h1 class="lux-h1" style="letter-spacing: 0.35em; font-weight: 300; font-family: \'Cinzel\', \'Playfair Display\', serif, sans-serif; '
+        'text-align: center; color: ' + c + '; margin-bottom: 0;" aria-label="AURASYNC">'
+        '<span class="lx-w" translate="no">A U R A</span> <span class="lx-w" translate="no">S Y N C</span></h1>'
+        '<p class="lux-sub" style="letter-spacing: 0.25em; font-size: 0.72rem; text-align: center; color: #8F8570; text-transform: uppercase; '
+        'margin-top: 4px;">LUXURY AMBIENT INTELLIGENCE</p>', unsafe_allow_html=True)
+
+
+def cb_flow(key):
+    """Zen Mode = biometric auto-pilot on, Manual Mode = automatic takeover paused."""
+    ss, cfg = st.session_state, st.session_state.cfg
+    v = ss.get(key)
+    if v in ("zen", "manual"):
+        cfg["auto_mode"] = (v == "zen")
+    ss.flow_rev = ss.get("flow_rev", 0) + 1
+
+
+def render_flow_switch():
+    ss, cfg = st.session_state, st.session_state.cfg
+    cur = "zen" if cfg.get("auto_mode") else "manual"
+    key = "flowsw_" + cur + "_" + str(ss.get("flow_rev", 0))
+    box = _keyed_container("flowsw")
+    with box:
+        seg("Mode", ["zen", "manual"], key, lambda m: ("● " if m == cur else "○ ") + zt("lx_zen" if m == "zen" else "lx_manual"),
+            on_change=cb_flow, args=(key,), selected=cur, hide_label=True)
+
+
+def _keyed_container(name):
+    try:
+        return st.container(key=name)
+    except TypeError:
+        return st.container()
+
+
+def write_bridge(hr):
+    """Atomic write of the live feed file that read_bridge() watches."""
+    payload = json.dumps({"heart_rate": int(hr), "hr": int(hr), "timestamp": time.time(), "source": "simulator"})
+    for p in _bridge_paths():
+        try:
+            tmp = p + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.write(payload)
+            os.replace(tmp, p)
+            _BRIDGE_CACHE.clear()
+            return True
+        except OSError:
+            continue
+    return False
+
+
+def cb_sim_send():
+    ss = st.session_state
+    try:
+        hr = int(ss.get("sim_bpm", 75))
+    except (TypeError, ValueError):
+        hr = 75
+    hr = max(45, min(140, hr))
+    ss.hr_hist = (list(ss.get("hr_hist") or []) + [hr])[-60:]
+    if not write_bridge(hr):                              # read-only host: fall back to an in-session reading
+        ss.url_hr = {"hr": hr, "ts": time.time()}
+    ss.sim_last = hr
+    try:
+        if zen_autopilot_active() and ss.conn["mode"] == "home" and bio_autopilot(hr):
+            ss.flash = zt(AP_PRESET[ss.ap_zone]["msg"], hr=hr)
+    except Exception as e:
+        log("Simulator auto-pilot skipped: " + type(e).__name__)
+
+
+def render_bio_simulator():
+    ss = st.session_state
+    with _keyed_container("simbox"):
+        st.markdown('<div class="sim-h">' + html.escape(zt("lx_sim_h")) + "</div>", unsafe_allow_html=True)
+        st.caption(zt("lx_sim_c"))
+        st.slider(zt("lx_sim_s"), 45, 140, value=75, key="sim_bpm")
+        st.button(zt("lx_sim_b"), key="sim_send_btn", on_click=cb_sim_send, width='stretch')
+        last = ss.get("sim_last")
+        st.markdown('<div class="sim-f"><span class="pdot"></span>' + html.escape(zt("lx_sim_f")) +
+                    ((" · " + html.escape(zt("lx_sim_last", hr=last))) if last else "") + "</div>", unsafe_allow_html=True)
+
+
+# ---- Universal Wearables Hub
+def cb_wear_link(name):
+    ss = st.session_state
+    links = dict(ss.get("wear_links") or {})
+    links[name] = not links.get(name, False)
+    ss.wear_links = links
+    log(("Linked " if links[name] else "Unlinked ") + name + " (simulated cloud link)")
+
+
+def render_wearables_hub():
+    ss = st.session_state
+    st.subheader("🔗 " + zt("zk_hub"))
+    st.caption(zt("zk_hub_sub"))
+    links = ss.get("wear_links") or {}
+    for row in (WEAR_CLOUDS[:3], WEAR_CLOUDS[3:]):
+        for col, (name, icon) in zip(st.columns(3), row):
+            on = bool(links.get(name))
+            with col:
+                st.markdown("**" + icon + " " + html.escape(name) + "**")
+                st.caption(zt("zk_linked") if on else zt("zk_notlinked"))
+                st.button(zt("zk_unlink") if on else zt("zk_link"), key="wl_" + name, on_click=cb_wear_link, args=(name,),
+                          type=("secondary" if on else "primary"))
+    br = read_bridge()
+    st.caption("🟢 " + zt("zk_bridge_live", hr=br["hr"], age=br["age"]) if br else "⚪ " + zt("zk_bridge_wait"))
+    st.markdown("**" + zt("zk_ble") + "**")
+
+
 def read_biometrics():
     ss = st.session_state
     cfg = ss.cfg
     last = ss.hr_hist[-1]
+    live = multi_source_live()          # Bluetooth 0x180D, ?hr= link, bridge.py file
+    if live:
+        return live
     if cfg["source"] == "ble":
         b = ss.get("ble") or {}
         if b.get("hr") and time.time() - b.get("ts", 0) < 25:
@@ -2672,6 +3712,9 @@ def read_biometrics():
                     "asleep": asleep, "flag": any(k in d for k in ("asleep", "sleeping", "sleep_stage")), "live": True}
         except Exception:
             pass
+    sim = sim_linked_reading(last)      # wearable linked with one tap in the Wearables Hub (simulated)
+    if sim:
+        return sim
     tgt, hrv, skin, asleep = SCN[cfg["scn"]]
     hr = int(max(45, min(140, last + (tgt - last) * 0.35 + random.gauss(0, 1.5))))
     return {"hr": hr, "hrv": random.randint(hrv[0], hrv[1]), "spo2": round(random.uniform(96, 99), 1),
@@ -3088,7 +4131,6 @@ ENGINE_JS = r"""
     p.mix = mm;
     if (!p.genre) { p.genre = 'Ambient Space'; }
     A.p = p;
-    A.setArmed(p);
     if (p.tTok !== A.tTok) { A.tTok = p.tTok; A.arm(); }
     if (p.title !== A.lastTitle) { A.lastTitle = p.title; if (A.unlocked || A.playing) { A.session(); } }
     if (A.playing) { A.revive(); }
@@ -3158,7 +4200,6 @@ ENGINE_JS = r"""
     A.setStyle((A.p && A.p.genre) || 'Ambient Space');
     A.applyMix(); A.arm(); A.fadeIn();
     A.startTicker(); A.mediaOn();
-    try { A.armPill(false); } catch (e) {}
   };
   A.stop = function () {
     var n = A.nodes;
@@ -3381,69 +4422,67 @@ ENGINE_JS = r"""
   setInterval(function () {
     if (HRM.st === 'connected' && Date.now() - HRM.ts > 30000) { HRM.st = 'stale'; hrPush(true); }
   }, 5000);
-  /* ---- armed autoplay: the first tap anywhere starts the soundscape (iOS Safari keeps Web Audio suspended until a gesture) ---- */
-  var ARM_EV = ['touchstart', 'touchend', 'pointerdown', 'click'];
-  A.armed = false; A.armTok = null; A.armSeen = null; A.armAt = 0; A.armDocs = []; A.armHooks = [];
-  A.armPill = function (on) {
-    try {
-      var d = document, el = d.getElementById('aura-arm-pill');
-      if (!on) {
-        if (el) { el.style.opacity = '0'; el.style.transform = 'translate(-50%, -14px)'; setTimeout(function () { try { el.remove(); } catch (e) {} }, 650); }
-        return;
-      }
-      if (el) { return; }
-      var q = A.p || {}, acc = q.armAcc || '#D4AF37', bg = q.armBg || '#0B0B0B', fg = q.armFg || '#EDE6D3';
-      el = d.createElement('div'); el.id = 'aura-arm-pill'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
-      el.textContent = String(q.armText || 'Tap anywhere to start soundscape');
-      el.style.cssText = 'position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translate(-50%,-14px);opacity:0;' +
-        'z-index:2147483000;pointer-events:none;padding:8px 18px;border-radius:999px;font:600 13px/1.2 Inter,Arial,sans-serif;letter-spacing:.3px;' +
-        'white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;color:' + fg + ';background:' + bg + 'ee;border:1px solid ' + acc + ';' +
-        'box-shadow:0 6px 22px rgba(0,0,0,.28),0 0 14px ' + acc + '55;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);' +
-        'transition:opacity .55s ease,transform .55s ease;';
-      (d.body || d.documentElement).appendChild(el);
-      setTimeout(function () { el.style.opacity = '1'; el.style.transform = 'translate(-50%, 0)'; }, 30);
-    } catch (e) {}
+  /* ---- Sound Studio layers: 432Hz healing tone, rain on glass, gentle stream + chimes, white/pink noise ---- */
+  A.layerPeak = { hz432: 0.2, rain: 0.5, stream: 0.4, noise: 0.22 };
+  A.layersApply = function (p) {
+    var n = A.nodes, c = A.ctx;
+    if (!A.playing || !n || !c || !A.nbuf) { return; }
+    var lv = (p && p.layers) || (A.p && A.p.layers) || {};
+    if (!n.lay) {
+      var L = n.lay = {}, buf = A.nbuf;
+      var mk = function (k) { var g = c.createGain(); g.gain.value = 0; g.connect(n.master); L[k] = g; return g; };
+      var src = function (filters, dest) {
+        var s = c.createBufferSource(); s.buffer = buf; s.loop = true;
+        var last = s;
+        filters.forEach(function (f) { var b = c.createBiquadFilter(); b.type = f[0]; b.frequency.value = f[1]; if (f[2]) { b.Q.value = f[2]; } last.connect(b); last = b; });
+        last.connect(dest); s.start(); n.srcs.push(s); return last;
+      };
+      /* 432 Hz: pure tone with a soft octave below and a slow breathing swell */
+      var hg = mk('hz432'), sw = c.createGain(); sw.gain.value = 0.8; sw.connect(hg);
+      [[432, 1], [216, 0.5]].forEach(function (x) {
+        var o = c.createOscillator(); o.type = 'sine'; o.frequency.value = x[0];
+        var og = c.createGain(); og.gain.value = x[1]; o.connect(og); og.connect(sw); o.start(); n.srcs.push(o);
+      });
+      var lf = c.createOscillator(); lf.frequency.value = 0.1; var lg = c.createGain(); lg.gain.value = 0.2;
+      lf.connect(lg); lg.connect(sw.gain); lf.start(); n.srcs.push(lf);
+      /* rain on glass: bright filtered noise with a gentle patter modulation */
+      var rg = mk('rain'), rm = c.createGain(); rm.gain.value = 0.7; rm.connect(rg);
+      src([['highpass', 1800], ['lowpass', 9000]], rm);
+      var pl = c.createOscillator(); pl.frequency.value = 0.35; var pg = c.createGain(); pg.gain.value = 0.25;
+      pl.connect(pg); pg.connect(rm.gain); pl.start(); n.srcs.push(pl);
+      /* stream: band-passed noise whose centre drifts, plus random chimes */
+      var sg = mk('stream'), sb = src([['bandpass', 1100, 0.8]], sg);
+      var sl = c.createOscillator(); sl.frequency.value = 0.17; var sf = c.createGain(); sf.gain.value = 380;
+      sl.connect(sf); sf.connect(sb.frequency); sl.start(); n.srcs.push(sl);
+      /* white / pink noise: white blended with a low-passed copy */
+      var ng = mk('noise'); src([], ng); src([['lowpass', 1400]], ng);
+      var pent = [523.25, 587.33, 659.25, 783.99, 880, 1046.5];
+      L.timer = setInterval(function () {
+        if (A.nodes !== n || !A.playing) { clearInterval(L.timer); return; }
+        var lvl = Number(((A.p && A.p.layers) || {}).stream) || 0;
+        if (lvl > 5 && Math.random() < 0.7) {
+          var f = pent[Math.floor(Math.random() * pent.length)], t0 = c.currentTime + 0.05;
+          bell(f, t0, 0.05 * (lvl / 100), L.stream);
+        }
+      }, 4200);
+    }
+    var now = c.currentTime;
+    ['hz432', 'rain', 'stream', 'noise'].forEach(function (k) {
+      var v = Math.max(0, Math.min(100, Number(lv[k]) || 0)) / 100;
+      n.lay[k].gain.setTargetAtTime(v * A.layerPeak[k], now, 0.4);
+    });
   };
-  A.armOff = function () {
-    A.armHooks.forEach(function (h) { ARM_EV.forEach(function (ev) { try { h.d.removeEventListener(ev, h.fn, true); } catch (e) {} }); });
-    A.armHooks = [];
-  };
-  A.armFire = function () {
-    if (!A.armed) { return; }
-    A.armed = false; A.armSeen = A.armTok; A.armAt = Date.now();
-    A.armOff();                                        /* one-shot: later taps never toggle the audio */
-    try { A.unlock(); A.start(); } catch (e) {}
-    try { if (A.ctx && A.ctx.state === 'suspended') { A.ctx.resume(); } } catch (e) {}
-    A.armPill(false);
-  };
-  function armAttach(d) {
-    if (!A.armed || !d) { return; }
-    for (var i = 0; i < A.armHooks.length; i++) { if (A.armHooks[i].d === d) { return; } }
-    var fn = function () { A.armFire(); };
-    ARM_EV.forEach(function (ev) { try { d.addEventListener(ev, fn, { capture: true, passive: true }); } catch (e) {} });
-    A.armHooks.push({ d: d, fn: fn });
-  }
-  A.armBind = function (d) {                           /* iframes (audio dock, mic) register their own document here */
-    if (!d) { return; }
-    if (A.armDocs.indexOf(d) < 0) { A.armDocs.push(d); if (A.armDocs.length > 8) { A.armDocs.shift(); } }
-    armAttach(d);
-  };
-  A.setArmed = function (p) {
-    if (!p || !p.armed) { return; }
-    if (A.playing) { A.armSeen = p.armTok; A.armPill(false); return; }
-    if (p.armTok === A.armSeen) { return; }            /* this arming was already used */
-    A.armed = true; A.armTok = p.armTok;
-    A.armPill(true);
-    armAttach(document);
-    try { if (window.parent && window.parent.document && window.parent.document !== document) { armAttach(window.parent.document); } } catch (e) {}
-    A.armDocs.forEach(armAttach);
-  };
+  (function () {
+    var u0 = A.update, s0 = A.start;
+    A.update = function (p) { var r = u0.apply(A, arguments); try { A.layersApply(p); } catch (e) {} return r; };
+    A.start = function () { var r = s0.apply(A, arguments); try { A.layersApply(A.p); } catch (e) {} return r; };
+  })();
   A.styles = S;
   window.__aura = A;
 })();
 """
 
-ENGINE_VER = 11
+ENGINE_VER = 10.5
 
 HOST_BOOT = """
 <script id="eng" type="text/plain">__ENGINE__</script>
@@ -3463,7 +4502,7 @@ var A = P.__aura;
 AUDIO_HTML = """
 <style>
   body { margin: 0; }
-  #box { display: flex; align-items: center; gap: 12px; background: __BG__; border: 1px solid __ACC__; border-radius: 14px;
+  #box { display: flex; align-items: center; gap: 12px; background: __GLASS__; border: 1px solid __LINE__; border-radius: 18px;
          padding: 8px 12px; font-family: Inter, Arial, sans-serif; color: __ACC__; box-sizing: border-box; }
   #tg { width: 44px; height: 44px; flex: none; border-radius: 50%; background: __BTN__; color: __ACC__;
         border: 1px solid __ACC__; font-size: 18px; cursor: pointer; }
@@ -3494,7 +4533,6 @@ document.addEventListener('visibilitychange', function () { try { A.revive(); } 
 var btn = document.getElementById('tg'), ttl = document.getElementById('ttl');
 var sub = document.getElementById('sub'), box = document.getElementById('box');
 if (SEND || !A.p) { A.update(PARAMS); }
-try { A.armBind(document); } catch (e) {}   /* taps inside the audio dock also fire armed autoplay */
 function paint() {
   var p = A.p || PARAMS;
   ttl.textContent = p.title; sub.textContent = p.sub;
@@ -3502,10 +4540,7 @@ function paint() {
   btn.title = A.playing ? STOP : PLAY;
   box.className = A.playing ? 'on' : '';
 }
-btn.onclick = function () {
-  if (A.armAt && Date.now() - A.armAt < 900 && A.playing) { paint(); return; }   /* this very tap already started the sound */
-  A.unlock(); if (A.playing) { A.stop(); } else { A.start(); } paint();
-};
+btn.onclick = function () { A.unlock(); if (A.playing) { A.stop(); } else { A.start(); } paint(); };
 paint();
 setInterval(paint, 700);
 </script>
@@ -3552,12 +4587,7 @@ def synth_params(name):
     env = st.session_state.modes[name]
     p = {"genre": env.get("genre", GENRES[0]), "mix": full_mix(cfg["mix"]), "modeMix": full_mix(env.get("mix")),
          "bed": max(0, min(100, int(cfg["bed"]))), "tMin": cfg["timer"],
-         "tTok": cfg["tok"], "title": tr_mode(name), "sub": tr(env.get("genre", GENRES[0]))}
-    pl = pal()
-    p["armed"] = bool(st.session_state.get("audio_armed"))
-    p["armTok"] = str(st.session_state.get("arm_tok", ""))
-    p["armText"] = _u8(tt("arm_tap"))
-    p["armAcc"], p["armBg"], p["armFg"] = pl["ACC"], pl["SIDE"], pl["TXT"]
+         "tTok": cfg["tok"], "layers": layers_params(), "title": tr_mode(name), "sub": tr(env.get("genre", GENRES[0]))}
     if name == WIND_MODE:
         p["fade"] = 300
         p["fadeTok"] = st.session_state.fade_tok
@@ -3851,7 +4881,11 @@ def bio_panel(zen=False):
         if ev:
             ss.flash = ("🌊 " + tr_room(ss.presence["room"]) + " calm mode") if ev == "on" else ("🌤 " + tr_room(ss.presence["room"]) + " normal")
             ss.rerun_pending = True
-        if cfg["auto_mode"] and home and automation_step(res, r):
+        if zen and cfg.get("ap_on", True) and ss.ui_mode == "zen":
+            if cfg["auto_mode"] and home and bio_autopilot(r["hr"]):
+                ss.flash = zt(AP_PRESET[ss.ap_zone]["msg"], hr=r["hr"])
+                ss.rerun_pending = True
+        elif cfg["auto_mode"] and home and automation_step(res, r):
             ss.flash = "🫀 " + t("st_" + res["state"]) + " → " + tr_mode(ss.active_mode)
             ss.rerun_pending = True
     except Exception as e:
@@ -3861,6 +4895,7 @@ def bio_panel(zen=False):
     if cfg["source"] in ("wear", "ble") and not r["live"]:
         st.caption("⚠️ " + t("offline"))
     if zen:
+        zen_hr_card(r)
         st.caption(t("zen_well", s=t("st_" + res["state"])))
         flush_rerun()
         return
@@ -3951,7 +4986,7 @@ def page_dashboard_pro():
         st.fragment(run_every=cfg["poll"])(bio_panel)()
     else:
         bio_panel()
-        st.button("↻ Refresh")
+        st.button(zt("zk_refresh"))
 
 
 # ----------------------------------------------------------------------------
@@ -4050,28 +5085,41 @@ def page_dashboard_zen():
     render_rooms()
     shown = eff_mode()
     render_zen_card(current_room(), shown)
-    st.markdown("**" + t("zen_quick") + "**")
-    away = ss.conn["mode"] == "away"
-    items = (("relax", "🌿 " + t("zen_relax"), "Relax Evening"), ("focus", "💼 " + t("zen_focus"), "Focus"),
-             ("sleep", "🌙 " + t("zen_sleep"), WIND_MODE),
-             ("away", ("🏠 " + t("zen_home")) if away else ("🚗 " + t("zen_away")), None))
-    for col, (k, label, mode) in zip(st.columns(4), items):
-        col.button(label, key="zenbtn_" + k, type=("primary" if (mode and ss.active_mode == mode) else "secondary"),
-                   on_click=zen_go, args=(k,))
-    studio = st.container()
-    with studio:
-        audio_component(synth_params(shown), True)
-    cfg["auto_mode"] = st.toggle(t("zen_auto"), value=bool(cfg["auto_mode"]))
+    # 1. instant mood pills
+    render_zen_pills()
+    # Auto / Manual (Manual pauses the biometric takeover)
     if cfg["auto_mode"] and not ss.prev_auto:
         ss.last_state = None
+        ss.ap_zone = None                               # the first reading after switching Auto on counts as a transition
     ss.prev_auto = cfg["auto_mode"]
-    render_zero_ui()
-    render_family_panel()
-    st.caption(t("zen_hidden"))
+    if cfg["auto_mode"]:
+        cfg["ap_on"] = st.toggle(zt("zk_ap"), value=bool(cfg.get("ap_on", True)))
+        st.caption(zt("zk_ap_hint"))
+    # 2. live heart-rate graph + emotion badge (the panel also drives the automation each polling tick)
     if hasattr(st, "fragment"):
         st.fragment(run_every=cfg["poll"])(bio_panel_zen)()
     else:
         bio_panel(True)
+    # 3 + 4. living player dock and collapsible sound studio mixer
+    render_zen_dock(shown)
+    if not cfg["auto_mode"]:
+        render_manual_controls()
+    # 5. conversational bar
+    render_tell_bar()
+    # 6. voice assistant drawer (hidden by default)
+    render_va_drawer()
+    with st.expander(zt("zk_more")):
+        away = ss.conn["mode"] == "away"
+        items = (("relax", " " + t("zen_relax"), "Relax Evening"), ("focus", " " + t("zen_focus"), "Focus"),
+                 ("sleep", " " + t("zen_sleep"), WIND_MODE),
+                 ("away", (" " + t("zen_home")) if away else (" " + t("zen_away")), None))
+        for col, (k, label, mode) in zip(st.columns(4), items):
+            col.button(label, key="zenbtn_" + k, type=("primary" if (mode and ss.active_mode == mode) else "secondary"),
+                       on_click=zen_go, args=(k,))
+        render_watch_card()
+        render_dial()
+        render_family_panel()
+    st.caption(t("zen_hidden"))
 
 
 def page_dashboard():
@@ -5939,6 +6987,7 @@ def page_system():
     st.header(t("p5"))
     cfg["api_url"] = st.text_input(t("api"), value=cfg["api_url"])
     cfg["api_token"] = st.text_input(t("api_token"), value=cfg.get("api_token", ""), type="password", key="api_token_w")
+    render_wearables_hub()
     render_wearable()
     c1, c2, c3, c4 = st.columns(4)
     cfg["thr"] = c1.slider(t("thr"), 85, 150, int(cfg["thr"]))
@@ -6117,8 +7166,6 @@ def run_auto_mode(mid, source="app"):
     if shown and not ss.flash:
         ss.flash = icon + " " + tr_mode(shown)
     dispatch_cloud(mid, source)
-    if source == "link":
-        ss._arm_req = True                       # ?mode=... link: arm tap-anywhere autoplay (main() consumes it)
     return msg
 
 
@@ -6229,17 +7276,11 @@ def _qp_pop(*names):
     return out
 
 
-def arm_audio():
-    """Arm autoplay: the next tap anywhere starts the soundscape (a new token means a new arming)."""
-    ss = st.session_state
-    ss.audio_armed = True
-    ss.arm_tok = uuid.uuid4().hex[:8]
-
-
 def handle_query_params():
     """Apply a ?mode= link once, remove the secret from the address bar, never loop."""
     if not hasattr(st, "query_params"):
         return
+    hr_from_url()
     ss = st.session_state
     got = _qp_pop("mode", "token")
     if not got:
@@ -6384,7 +7425,7 @@ def handle_spoken(alts):
 
 def cb_voice_bridge():
     ss = st.session_state
-    raw = _u8(ss.get(MIC_BRIDGE_KEY) or "")
+    raw = str(ss.get(MIC_BRIDGE_KEY) or "")
     ss[MIC_BRIDGE_KEY] = ""
     nonce, alts = "", []
     try:
@@ -6403,189 +7444,77 @@ MIC_HTML = """
 <style>
   html, body { margin: 0; background: transparent; }
   #w { display: flex; align-items: center; gap: 14px; padding: 10px 14px; box-sizing: border-box; border-radius: 22px;
-       border: 1px solid __ACC__; background: __BG__; font-family: Inter, Arial, sans-serif; color: __ACC__; }
-  #orbw { position: relative; width: 88px; height: 88px; flex: none; }
-  #cv { position: absolute; top: 0; left: 0; width: 88px; height: 88px; pointer-events: none; }
-  #orb { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; border: 0; cursor: pointer; padding: 0;
-         background: transparent; display: flex; align-items: center; justify-content: center; color: __BTN__;
-         -webkit-tap-highlight-color: transparent; }
-  #orb svg { width: 24px; height: 24px; fill: currentColor; position: relative; z-index: 2; }
+       border: 1px solid __LINE__; background: __GLASS__; font-family: Inter, Arial, sans-serif; color: __ACC__; }
+  #orbw { position: relative; width: 70px; height: 70px; flex: none; }
+  #orb { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; border: 0; cursor: pointer; padding: 0; overflow: hidden;
+         display: flex; align-items: center; justify-content: center; color: __BTN__; -webkit-tap-highlight-color: transparent;
+         background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.8), __ACC__ 46%, __ACC__aa 100%);
+         box-shadow: 0 0 14px __ACC__66, inset 0 0 12px rgba(0,0,0,.25); }
+  #orb svg { width: 26px; height: 26px; fill: currentColor; position: relative; z-index: 2; }
   #orb.off { opacity: .45; }
-  #orb:focus-visible { outline: 2px solid __ACC__; outline-offset: 2px; }
+  #orb.idle { animation: idle 4.5s ease-in-out infinite; }
+  @keyframes idle { 0%, 100% { box-shadow: 0 0 12px __ACC__55; } 50% { box-shadow: 0 0 22px __ACC__99; } }
+  #orb.listening { animation: pulse 1.15s ease-in-out infinite; }
+  @keyframes pulse { 0% { transform: scale(.96); box-shadow: 0 0 0 0 __ACC__aa, 0 0 18px __ACC__; }
+                     70% { transform: scale(1.07); box-shadow: 0 0 0 20px __ACC__00, 0 0 30px __ACC__; }
+                     100% { transform: scale(.96); box-shadow: 0 0 0 0 __ACC__00, 0 0 18px __ACC__; } }
+  #orb.thinking::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;
+         background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.7) 50%, transparent 75%); background-size: 220% 100%;
+         animation: shimmer 1.2s linear infinite; }
+  @keyframes shimmer { 0% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
+  #orb.speaking { animation: breathe 3.4s ease-in-out infinite; }
+  @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 14px __ACC__66; } 50% { transform: scale(1.08); box-shadow: 0 0 36px __ACC__bb; } }
+  #wave { display: none; align-items: flex-end; gap: 3px; height: 14px; margin-top: 6px; }
+  #wave i { display: block; width: 3px; height: 3px; border-radius: 2px; background: __ACC__; animation: wv .9s ease-in-out infinite; }
+  #wave i:nth-child(2) { animation-delay: .12s; } #wave i:nth-child(3) { animation-delay: .24s; }
+  #wave i:nth-child(4) { animation-delay: .36s; } #wave i:nth-child(5) { animation-delay: .48s; }
+  @keyframes wv { 0%, 100% { height: 3px; } 50% { height: 14px; } }
   #tx { flex: 1; min-width: 0; }
   #t1 { font-size: 14px; font-weight: 600; line-height: 1.25; }
   #t2 { font-size: 12px; color: __SUB__; line-height: 1.35; margin-top: 2px; overflow-wrap: anywhere; }
   #w.err #t1 { color: #ff8a80; }
   .sm { flex: none; border: 1px solid __ACC__; background: transparent; color: __ACC__; border-radius: 12px; padding: 3px 9px; font-size: 11px; cursor: pointer; }
   #bt { display: flex; flex-direction: column; gap: 6px; }
+  @media (prefers-reduced-motion: reduce) { #orb, #orb::after, #wave i { animation: none !important; } }
 </style>
 <div id="w">
-  <div id="orbw"><canvas id="cv" aria-hidden="true"></canvas><button id="orb" type="button" aria-pressed="false" aria-label="Voice">
+  <div id="orbw"><button id="orb" class="idle" type="button" aria-pressed="false" aria-label="Voice">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
   </button></div>
-  <div id="tx"><div id="t1"></div><div id="t2"></div></div>
+  <div id="tx"><div id="t1"></div><div id="t2"></div><div id="wave"><i></i><i></i><i></i><i></i><i></i></div></div>
   <div id="bt"><button id="lg" class="sm" type="button"></button><button id="mt" class="sm" type="button"></button></div>
 </div>
 <script>
 (function () {
-  var CFG = __CFG__, S = CFG.s, ACC = '__ACC__', SIL_MS = CFG.sil || 1200;
+  var CFG = __CFG__, S = CFG.s;
   var P = null;
   try { P = window.parent; void P.document.body; } catch (e) { P = null; }
-  var HW = P || window;
   var MIC = (P && P.__auraMic) || (P ? (P.__auraMic = { state: 'idle', spokenId: '', thinkAt: 0, muted: false }) : { state: 'idle', spokenId: '', thinkAt: 0, muted: false });
   var SRc = window.SpeechRecognition || window.webkitSpeechRecognition || null;
   var SRp = null;
   try { SRp = (P && (P.SpeechRecognition || P.webkitSpeechRecognition)) || null; } catch (e) { SRp = null; }
   var $ = function (id) { return document.getElementById(id); };
-  var orb = $('orb'), t1 = $('t1'), t2 = $('t2'), lg = $('lg'), mt = $('mt'), w = $('w'), cv = $('cv');
-  var li = 0, rec = null, timer = null, vad = null, recOn = false, errMsg = '';
+  var orb = $('orb'), t1 = $('t1'), t2 = $('t2'), lg = $('lg'), mt = $('mt'), w = $('w'), wave = $('wave');
+  var li = 0, rec = null, timer = null, recOn = false, errMsg = '';
   function eng() { try { return (P && P.__aura) || null; } catch (e) { return null; } }
   function fit() { try { window.frameElement.style.height = (w.offsetHeight + 4) + 'px'; } catch (e) {} }
   function say(a, b, err) { t1.textContent = a || ''; t2.textContent = b || ''; w.className = err ? 'err' : ''; fit(); }
   function revive() { try { var a = eng(); if (a) { a.revive(); } } catch (e) {} }
   function tag() { return CFG.langs[li % CFG.langs.length]; }
   function chip() { lg.textContent = tag().split('-')[0].toUpperCase(); lg.title = tag(); }
-  function muteLabel() { mt.textContent = MIC.muted ? '\\uD83D\\uDD07' : '\\uD83D\\uDD0A'; mt.title = MIC.muted ? S.unmute : S.mute; }
-  /* strip lone UTF-16 surrogates so Python never meets an unencodable string */
-  function clean(s) {
-    s = String(s == null ? '' : s);
-    var o = '';
-    for (var i = 0; i < s.length; i++) {
-      var c = s.charCodeAt(i);
-      if (c >= 0xD800 && c <= 0xDBFF) { var d = s.charCodeAt(i + 1); if (d >= 0xDC00 && d <= 0xDFFF) { o += s.charAt(i) + s.charAt(i + 1); i++; } }
-      else if (c < 0xDC00 || c > 0xDFFF) { o += s.charAt(i); }
-    }
-    return o;
-  }
+  function muteLabel() { mt.textContent = MIC.muted ? '\uD83D\uDD07' : '\uD83D\uDD0A'; mt.title = MIC.muted ? S.unmute : S.mute; }
   lg.style.display = CFG.langs.length > 1 ? '' : 'none';
   lg.onclick = function (e) { e.stopPropagation(); li = (li + 1) % CFG.langs.length; chip(); };
   mt.onclick = function (e) { e.stopPropagation(); MIC.muted = !MIC.muted; if (MIC.muted) { var a = eng(); if (a) { a.stopSpeech(); } } muteLabel(); };
   chip(); muteLabel();
-  try { var a9 = eng(); if (a9 && a9.armBind) { a9.armBind(document); } } catch (e) {}   /* a tap on the mic card also fires armed autoplay */
   var canRec = !!(SRc || SRp);
   var shown = '';
-
-  /* ---------- microphone level (Web Audio AnalyserNode). The stream lives on the host page so it survives re-renders ---------- */
-  var AN = null, BUF = null, LIVE = false, lvl = 0, cen = 0.3, pulseAt = 0;
-  function attachMic() {
-    if (MIC.an && MIC.stream && MIC.stream.active) { AN = MIC.an; BUF = new Uint8Array(AN.frequencyBinCount); LIVE = true; }
-  }
-  function openMic() {
-    attachMic();
-    if (LIVE) { return; }
-    var md = null;
-    try { md = HW.navigator.mediaDevices || navigator.mediaDevices; } catch (e) { md = null; }
-    if (!md || !md.getUserMedia) { return; }
-    md.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function (stream) {
-      try {
-        var AC = HW.AudioContext || HW.webkitAudioContext;
-        var ctx = (MIC.actx && MIC.actx.state !== 'closed') ? MIC.actx : new AC();
-        MIC.actx = ctx;
-        try { ctx.resume(); } catch (e) {}
-        var src = ctx.createMediaStreamSource(stream), an = ctx.createAnalyser();
-        an.fftSize = 512; an.smoothingTimeConstant = 0.78;
-        src.connect(an);                                  /* analyser only, never to the speakers: no feedback */
-        MIC.stream = stream; MIC.src = src; MIC.an = an;
-        attachMic();
-      } catch (e) { try { stream.getTracks().forEach(function (k) { k.stop(); }); } catch (x) {} }
-    }).catch(function () { LIVE = false; });
-  }
-  function closeMic() {
-    try { if (MIC.stream) { MIC.stream.getTracks().forEach(function (k) { k.stop(); }); } } catch (e) {}
-    MIC.stream = null; MIC.an = null; MIC.src = null; AN = null; BUF = null; LIVE = false;
-  }
-  attachMic();
-  function sample() {
-    var raw = 0;
-    if (AN && BUF && MIC.stream && MIC.stream.active) {
-      try {
-        AN.getByteFrequencyData(BUF);
-        var n = Math.floor(BUF.length * 0.6), sum = 0, wsum = 0, sq = 0;
-        for (var i = 0; i < n; i++) { var x = BUF[i] / 255; sum += x; wsum += x * i; sq += x * x; }
-        raw = Math.min(1, Math.sqrt(sq / n) * 2.4);
-        if (sum > 0.05) { cen += ((wsum / sum) / n - cen) * 0.15; }      /* spectral centroid = pitch */
-      } catch (e) { raw = 0; }
-    } else if (Date.now() - pulseAt < 350) { raw = 0.45 + 0.25 * Math.sin(Date.now() / 60); }   /* no analyser: pulse on speech deltas */
-    lvl += (raw - lvl) * 0.28;
-  }
-
-  /* ---------- the living orb (canvas) ---------- */
-  var SZ = 88, C0 = 44, DPR = Math.min(2, window.devicePixelRatio || 1), g = cv.getContext('2d');
-  cv.width = SZ * DPR; cv.height = SZ * DPR;
-  var RGB = (function (h) {
-    h = String(h).replace('#', '');
-    if (h.length === 3) { h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2); }
-    var n = parseInt(h, 16); if (isNaN(n)) { n = 0xD4AF37; }
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  })(ACC);
-  function rgba(a) { return 'rgba(' + RGB[0] + ',' + RGB[1] + ',' + RGB[2] + ',' + Math.max(0, Math.min(1, a)) + ')'; }
-  var RM = false; try { RM = !!window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-  function glow(r, a) {
-    var gr = g.createRadialGradient(C0, C0, r * 0.2, C0, C0, r);
-    gr.addColorStop(0, rgba(a)); gr.addColorStop(1, rgba(0));
-    g.fillStyle = gr; g.beginPath(); g.arc(C0, C0, r, 0, 6.2832); g.fill();
-  }
-  function disc(r, a) {
-    var gr = g.createRadialGradient(C0 - r * 0.25, C0 - r * 0.3, 1, C0, C0, r);
-    gr.addColorStop(0, 'rgba(255,255,255,0.85)'); gr.addColorStop(0.45, rgba(a)); gr.addColorStop(1, rgba(a * 0.65));
-    g.fillStyle = gr; g.beginPath(); g.arc(C0, C0, r, 0, 6.2832); g.fill();
-  }
-  function ribbon(base, amp, lobes, ph, alpha, wd) {
-    g.beginPath();
-    for (var i = 0; i <= 72; i++) {
-      var th = i / 72 * 6.2832, bi = Math.floor((i <= 36 ? i : 72 - i) / 36 * 40), v = BUF && LIVE ? BUF[bi] / 255 : 0.5;
-      var r = base + amp * (0.35 * lvl + 0.65 * v * lvl + 0.1) * (0.6 * Math.sin(lobes * th + ph) + 0.4 * Math.sin((lobes + 2) * th - ph * 1.3));
-      var x = C0 + r * Math.cos(th), y = C0 + r * Math.sin(th);
-      if (i === 0) { g.moveTo(x, y); } else { g.lineTo(x, y); }
-    }
-    g.closePath(); g.strokeStyle = rgba(alpha); g.lineWidth = wd; g.stroke();
-  }
-  var T0 = Date.now();
-  function frame() {
-    try { window.requestAnimationFrame(frame); } catch (e) { return; }
-    var t = (Date.now() - T0) / 1000, s = recOn ? 'listening' : MIC.state;
-    sample();
-    g.setTransform(DPR, 0, 0, DPR, 0, 0); g.clearRect(0, 0, SZ, SZ);
-    if (s === 'listening') {
-      var lobes = 3 + Math.round(cen * 6), sp = 1.2 + cen * 3.2, am = 5 + lvl * 17;
-      glow(30 + lvl * 14, 0.22 + lvl * 0.35);
-      ribbon(26, am, lobes, t * sp, 0.85, 2.2);
-      ribbon(24, am * 0.8, lobes + 1, -t * sp * 0.8 + 1.7, 0.55, 1.8);
-      ribbon(22, am * 0.6, lobes + 2, t * sp * 0.55 + 3.1, 0.35, 1.4);
-      disc(15 + lvl * 5, 0.95);
-    } else if (s === 'thinking') {
-      glow(36, 0.2 + 0.08 * Math.sin(t * 3));
-      g.lineWidth = 1.5; g.strokeStyle = rgba(0.2); g.beginPath(); g.arc(C0, C0, 30, 0, 6.2832); g.stroke();
-      for (var k = 0; k < 3; k++) {
-        var a0 = t * 2.4 + k * 2.0944;
-        g.lineWidth = 3; g.lineCap = 'round'; g.strokeStyle = rgba(0.45 + 0.45 * Math.sin(t * 5 + k * 1.7));
-        g.beginPath(); g.arc(C0, C0, 30, a0, a0 + 0.95); g.stroke();
-        var da = -t * 1.7 + k * 2.0944;
-        g.fillStyle = rgba(0.9); g.beginPath(); g.arc(C0 + 36 * Math.cos(da), C0 + 36 * Math.sin(da), 2.2, 0, 6.2832); g.fill();
-      }
-      disc(15, 0.9);
-    } else if (s === 'speaking') {
-      var pu = 0.5 + 0.35 * Math.sin(t * 7.3) + 0.15 * Math.sin(t * 11.1);
-      for (var j = 0; j < 3; j++) {
-        var ph = ((t * 0.9) + j / 3) % 1;
-        g.lineWidth = 2; g.strokeStyle = rgba((1 - ph) * 0.55);
-        g.beginPath(); g.arc(C0, C0, 18 + ph * 24, 0, 6.2832); g.stroke();
-      }
-      glow(34 + pu * 8, 0.3 + pu * 0.2);
-      disc(16 + pu * 5, 0.95);
-    } else {
-      var b = RM ? 0.5 : 0.5 + 0.5 * Math.sin(t * 1.4);
-      glow(40, 0.2 + 0.2 * b);
-      disc(17 + 1.8 * b, 0.95);
-    }
-  }
-  frame();
-
   function paint() {
     var s = recOn ? 'listening' : MIC.state;
     if (s === 'thinking' && Date.now() - MIC.thinkAt > 25000) { MIC.state = 'idle'; s = 'idle'; }
-    orb.className = canRec ? '' : 'off';
+    orb.className = s + (canRec ? '' : ' off');
     orb.setAttribute('aria-pressed', recOn ? 'true' : 'false');
+    wave.style.display = s === 'thinking' ? 'flex' : 'none';
     if (errMsg && s === 'idle') { return; }
     if (s === 'listening') { if (!shown) { t1.textContent = S.listening; w.className = ''; } }
     else if (s === 'thinking') { t1.textContent = S.thinking; w.className = ''; }
@@ -6595,14 +7524,11 @@ MIC_HTML = """
   }
   setInterval(paint, 250);
 
-  /* release the microphone ~45 s after the last use (kept open while Aura speaks so barge-in works) */
-  setInterval(function () { if (LIVE && !recOn && MIC.state === 'idle' && Date.now() - (MIC.lastAct || 0) > 45000) { closeMic(); } }, 5000);
-
   /* a reply from the companion: show it and speak it (the speech itself lives in the page, so it survives re-renders) */
   if (CFG.say && CFG.say.id) {
-    shown = clean(CFG.say.text); t2.textContent = shown; t1.textContent = S.speaking;
+    shown = CFG.say.text; t2.textContent = CFG.say.text; t1.textContent = S.speaking;
     if (CFG.say.id !== MIC.spokenId) {
-      MIC.spokenId = CFG.say.id; MIC.speakAt = Date.now(); MIC.lastAct = Date.now();
+      MIC.spokenId = CFG.say.id;
       var a0 = eng();
       if (a0 && a0.canSpeak() && !MIC.muted) { a0.speak(CFG.say.text, CFG.say.lang); }
       else { MIC.state = 'idle'; if (a0 && !a0.canSpeak()) { t1.textContent = S.notts; errMsg = ''; } }
@@ -6626,93 +7552,60 @@ MIC_HTML = """
     return true;
   }
   function deliver(list) {
-    list = list.map(clean).filter(function (x) { return x; });
-    if (!list.length) { return; }
-    var cut = list.slice(0, 3).map(function (x) { return x.slice(0, 160); });
+    var cut = list.slice(0, 3).map(function (x) { return String(x).slice(0, 160); });
     var payload = JSON.stringify({ n: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), a: cut });
     var ok = false;
     try { ok = bridge(payload); } catch (e) { ok = false; }
-    if (ok) { MIC.state = 'thinking'; MIC.thinkAt = Date.now(); shown = String.fromCharCode(0x201c) + list[0] + String.fromCharCode(0x201d); t2.textContent = shown; errMsg = ''; }
-    else { errMsg = S.nobridge; say(S.nobridge, String.fromCharCode(0x201c) + list[0] + String.fromCharCode(0x201d), true); }
+    if (ok) { MIC.state = 'thinking'; MIC.thinkAt = Date.now(); shown = '\u201c' + list[0] + '\u201d'; t2.textContent = shown; errMsg = ''; }
+    else { errMsg = S.nobridge; say(S.nobridge, '\u201c' + list[0] + '\u201d', true); }
     paint();
   }
-  function speakingNow() {
-    try { var a = eng(); return !!(a && a.canSpeak() && HW.speechSynthesis && HW.speechSynthesis.speaking); } catch (e) { return false; }
-  }
-  /* barge-in: the user talks over Aura, so Aura stops at once and listens */
-  function bargeIn() {
-    try { var a = eng(); if (a) { a.stopSpeech(); } } catch (e) {}
-    if (MIC.state === 'speaking') { MIC.state = 'idle'; }
-  }
-  function commitNow() { clearTimeout(vad); if (rec) { try { rec.stop(); } catch (e) {} } }
-
   function start(useParent) {
     var Ctor = useParent ? SRp : SRc;
     if (!Ctor) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
-    var r, finals = [], lastAlts = [], interim = '', err = '';
-    try { r = new Ctor(); r.lang = tag(); r.interimResults = true; r.continuous = true; r.maxAlternatives = 3; }
+    var r, fin = '', alts = [], interim = '', err = '';
+    try { r = new Ctor(); r.lang = tag(); r.interimResults = true; r.continuous = false; r.maxAlternatives = 3; }
     catch (e) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
-    rec = r; errMsg = ''; shown = ''; MIC.lastAct = Date.now();
+    rec = r; errMsg = ''; shown = '';
     r.onstart = function () { recOn = true; MIC.state = 'listening'; say(S.listening, S.hint, false); paint(); };
     r.onresult = function (ev) {
       interim = '';
       for (var i = ev.resultIndex; i < ev.results.length; i++) {
         var res = ev.results[i];
         if (res.isFinal) {
-          var alts = [];
-          for (var j = 0; j < res.length && j < 3; j++) { alts.push(clean(res[j].transcript).trim()); }
-          if (alts[0]) { finals.push(alts[0]); lastAlts = alts; }
-        } else { interim = clean(res[0].transcript); }
+          alts = [];
+          for (var j = 0; j < res.length && j < 3; j++) { alts.push(String(res[j].transcript || '').trim()); }
+          fin = alts[0] || fin;
+        } else { interim = res[0].transcript; }
       }
-      pulseAt = Date.now(); MIC.lastAct = Date.now();
-      if (speakingNow()) { bargeIn(); }                  /* speech heard while Aura talks: stop her voice */
-      var s = (finals.join(' ') + ' ' + interim).trim();
-      if (s) {
-        shown = String.fromCharCode(0x201c) + s + String.fromCharCode(0x201d); t2.textContent = shown;
-        clearTimeout(vad); vad = setTimeout(commitNow, SIL_MS);    /* auto-silence: 1.2 s without a new speech delta = send */
-      }
+      var s = fin || interim;
+      if (s) { shown = '\u201c' + s + '\u201d'; t2.textContent = shown; }
     };
     r.onerror = function (ev) { err = (ev && ev.error) || 'error'; };
     r.onend = function () {
-      clearTimeout(timer); clearTimeout(vad); recOn = false; rec = null; if (MIC.state === 'listening') { MIC.state = 'idle'; } revive();
+      clearTimeout(timer); recOn = false; rec = null; if (MIC.state === 'listening') { MIC.state = 'idle'; } revive();
       var bad = function (m) { errMsg = m; shown = ''; say(m, '', true); paint(); };
-      var text = (finals.join(' ') + ' ' + interim).trim();
       if (err === 'not-allowed' || err === 'service-not-allowed') {
-        if (!useParent && SRp && SRp !== SRc && !text) { start(true); return; }
+        if (!useParent && SRp && SRp !== SRc && !fin) { start(true); return; }
         bad(S.denied); return;
       }
       if (err === 'language-not-supported') { li = (li + 1) % CFG.langs.length; chip(); bad(S.error); return; }
       if (err === 'network') { bad(S.network); return; }
       if (err === 'audio-capture') { bad(S.nomic); return; }
       if (err && err !== 'aborted' && err !== 'no-speech') { bad(S.error); return; }
+      var text = fin || String(interim || '').trim();
       if (!text) { shown = ''; errMsg = ''; say(S.nospeech, S.hint, false); paint(); return; }
-      deliver(finals.length > 1 || !lastAlts.length ? [text] : lastAlts);
+      deliver(alts.length ? alts : [text]);
     };
     try { r.start(); } catch (e) { recOn = false; errMsg = S.error; say(S.error, '', true); return; }
     clearTimeout(timer);
     timer = setTimeout(function () { try { r.stop(); } catch (e) {} }, CFG.maxMs);
   }
-
-  /* barge-in by voice level: sustained loud input while Aura is speaking (echo cancellation is on) */
-  var loudSince = 0;
-  setInterval(function () {
-    if (!LIVE || recOn || !speakingNow() || Date.now() - (MIC.speakAt || 0) < 700) { loudSince = 0; return; }
-    if (lvl > 0.3) {
-      if (!loudSince) { loudSince = Date.now(); }
-      else if (Date.now() - loudSince > 300) {
-        loudSince = 0; bargeIn();
-        if (canRec) { start(!SRc); }                     /* back to attentive listening */
-      }
-    } else { loudSince = 0; }
-  }, 80);
-
   orb.onclick = function () {
     var a = eng();
     if (a) { a.unlock(); a.unlockSpeech(); a.stopSpeech(); }        /* this tap also unlocks the soundtrack and the voice */
-    if (recOn && rec) { commitNow(); return; }
+    if (recOn && rec) { try { rec.stop(); } catch (e) {} return; }
     if (!canRec) { errMsg = S.unsupported; say(S.unsupported, '', true); return; }
-    MIC.lastAct = Date.now();
-    openMic();
     start(!SRc);
   };
   window.__auraMic = { start: start, bridge: bridge };
@@ -6735,14 +7628,6 @@ def tts_lang_for(text):
     return SR_LANGS.get(st.session_state.get("lang", "English"), "en-US")
 
 
-def _u8(s):
-    """Drop lone UTF-16 surrogates so a string can always be UTF-8 encoded."""
-    try:
-        return str(s).encode("utf-16", "surrogatepass").decode("utf-16", "ignore")
-    except Exception:
-        return str(s).encode("utf-8", "ignore").decode("utf-8", "ignore")
-
-
 def mic_html():
     ss = st.session_state
     lang = ss.get("lang", "English")
@@ -6751,19 +7636,17 @@ def mic_html():
     keys = ("title", "hint", "listening", "heard", "sent", "denied", "unsupported", "nospeech", "network", "nomic",
             "nobridge", "error", "thinking", "speaking", "notts", "mute", "unmute")
     strings = {k: tt("mic_" + k) for k in keys}
-    say = dict(ss.get("mic_say") or {})
-    if say.get("text"):
-        say["text"] = _u8(say["text"])
-    cfg = {"langs": langs, "bridge": MIC_BRIDGE_KEY, "ph": MIC_PH, "maxMs": 20000, "sil": 1200, "s": strings, "say": say}
+    cfg = {"langs": langs, "bridge": MIC_BRIDGE_KEY, "ph": MIC_PH, "maxMs": 9000, "s": strings,
+           "say": ss.get("mic_say") or {}}
     blob = json.dumps(cfg, ensure_ascii=False).replace("</", "<\\/")
-    return themed(MIC_HTML.replace("__CFG__", _u8(blob)))
+    return themed(MIC_HTML.replace("__CFG__", blob))
 
 
 def render_voice_mic():
     ss = st.session_state
     st.text_input("◈ 7731", key=MIC_BRIDGE_KEY, placeholder=MIC_PH, label_visibility="collapsed", max_chars=800,
                   on_change=cb_voice_bridge)
-    components.html(mic_html(), height=112)
+    components.html(mic_html(), height=96)
     if ss.get("mic_last"):
         st.caption(ss.mic_last)
 
@@ -6892,14 +7775,14 @@ def cb_ui_mode(key):
 
 def render_topbar():
     ss = st.session_state
-    _, c2 = st.columns([2, 3])
+    c2 = st.container()
     key = "ui_mode_w_" + str(ss.get("ui_rev", 0))
     with c2:
         seg("Mode", ["zen", "pro"], key, lambda m: t("ui_zen") if m == "zen" else t("ui_pro"), on_change=cb_ui_mode,
             args=(key,), selected=ss.ui_mode, hide_label=True)
 
 
-def main():
+def render_main_dashboard():
     init_state()
     ss = st.session_state
     install_i18n()
@@ -6910,11 +7793,9 @@ def main():
     repair_orphans()
     ss.cfg.setdefault("api_token", "")
     handle_query_params()
-    if ss.pop("_arm_req", False):
-        arm_audio()
-    ss.setdefault("audio_armed", False)
     st.markdown(build_css(), unsafe_allow_html=True)
     with st.sidebar:
+        render_bio_simulator()
         st.markdown('<div class="brand">✨ AuraSync</div>', unsafe_allow_html=True)
         st.caption(t("sub"))
         st.caption("📍 " + (tr_room(ss.presence["room"]) if ss.conn["mode"] == "home" else "Away · cloud relay"))
@@ -6929,7 +7810,9 @@ def main():
         st.radio(t("nav"), NAV_ORDER, format_func=lambda i: t("p" + str(i)), key="nav")
         st.divider()
         audio_component(synth_params(eff_mode()), ss.nav != 1)
-    render_topbar()
+        render_topbar()
+    render_lux_header()
+    render_flow_switch()
     render_hr_bridge()
     if ss.flash:
         st.toast(ss.flash)
@@ -6940,6 +7823,563 @@ def main():
     pages[ss.nav]()
     audio_bootstrap()
     _cache_save()
+
+
+
+# ============================================================================
+# 3-Step Luxury Onboarding & Authentication Gate
+# (added around the dashboard; the dashboard code above is untouched)
+# ============================================================================
+import secrets as pysecrets
+
+USERS_FILE = "aurasync_users.json"
+COOKIE_NAME = "aurasync_device"
+COOKIE_DAYS = 180
+PIN_RX = re.compile(r"^\d{4}$")
+EMAIL_RX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")
+MAX_PIN_FAILS = 5
+LOCK_SECONDS = 300
+STEP_LABELS = {
+    1: "✦ STEP 1 OF 3: CONCIERGE ACCESS",
+    2: "✦ STEP 2 OF 3: LANGUAGE PREFERENCE",
+    3: "✦ STEP 3 OF 3: CHRONO & BIORHYTHM CALIBRATION",
+}
+
+for _n, _d in (("gate_fail", {}),):
+    if not hasattr(_REG, _n):
+        setattr(_REG, _n, _d)
+if not hasattr(_REG, "users_lock"):
+    _REG.users_lock = threading.Lock()
+if not hasattr(_REG, "users_ok"):
+    _REG.users_ok = True
+
+
+# ---- local persistent store (aurasync_users.json) ---------------------------------------------
+def users_path():
+    env = os.environ.get("AURASYNC_USERS")
+    if env:
+        return env
+    try:
+        return os.path.join(os.path.dirname(os.path.abspath(__file__)), USERS_FILE)
+    except NameError:
+        return USERS_FILE
+
+
+def users_load():
+    try:
+        with open(users_path(), encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    if not isinstance(data.get("users"), dict):
+        data["users"] = {}
+    data.setdefault("version", 1)
+    return data
+
+
+def users_save(data):
+    path = users_path()
+    tmp = path + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, path)
+        try:
+            os.chmod(path, 0o600)
+        except OSError:
+            pass
+        return True
+    except OSError:
+        return False
+
+
+def users_update(fn):
+    """Read-modify-write under a lock; fn receives the users dict and may return a value."""
+    with _REG.users_lock:
+        data = users_load()
+        result = fn(data["users"])
+        _REG.users_ok = users_save(data)
+        return result
+
+
+def hash_pin(pin, salt_hex):
+    return hashlib.pbkdf2_hmac("sha256", str(pin).encode("utf-8"), bytes.fromhex(salt_hex), 120000).hex()
+
+
+def device_hash(token):
+    return hashlib.sha256(str(token).encode("utf-8")).hexdigest()
+
+
+def profile_to_json(p):
+    d = dict(p)
+    d["dob"] = p["dob"].isoformat()
+    return d
+
+
+def profile_from_json(d):
+    try:
+        p = dict(d)
+        p["dob"] = date.fromisoformat(p["dob"])
+        for k in ("name", "pob", "tob", "h", "m", "ap"):
+            if k not in p:
+                return None
+        return p
+    except Exception:
+        return None
+
+
+# ---- throttling + account operations ------------------------------------------------------------
+def gate_throttled():
+    key, now = _client_key(), time.time()
+    if len(_REG.gate_fail) > 500:
+        _REG.gate_fail.clear()
+    recent = [x for x in _REG.gate_fail.get(key, []) if now - x < LOCK_SECONDS]
+    _REG.gate_fail[key] = recent
+    return len(recent) >= 12
+
+
+def gate_note_fail():
+    _REG.gate_fail.setdefault(_client_key(), []).append(time.time())
+
+
+def create_user(email, pin):
+    lang = st.session_state.get("lang", "English")
+    salt = pysecrets.token_hex(16)
+    pin_hash = hash_pin(pin, salt)
+
+    def op(users):
+        if email in users:
+            return "exists"
+        users[email] = {"salt": salt, "pin_hash": pin_hash, "created": time.time(), "lang": lang,
+                        "profile": None, "devices": [], "fails": 0, "locked_until": 0}
+        return "ok"
+    return users_update(op)
+
+
+def verify_user(email, pin):
+    """-> 'ok' | 'bad' | 'locked'"""
+    def op(users):
+        u = users.get(email)
+        now = time.time()
+        if not u:
+            hash_pin(pin, "00" * 16)                      # same cost whether or not the account exists
+            return "bad"
+        if u.get("locked_until", 0) > now:
+            return "locked"
+        if hmac.compare_digest(hash_pin(pin, u["salt"]), str(u.get("pin_hash", ""))):
+            u["fails"], u["locked_until"] = 0, 0
+            return "ok"
+        u["fails"] = u.get("fails", 0) + 1
+        if u["fails"] >= MAX_PIN_FAILS:
+            u["fails"], u["locked_until"] = 0, now + LOCK_SECONDS
+        return "bad"
+    return users_update(op)
+
+
+def load_user_into_session(email, u):
+    ss = st.session_state
+    ss.auth_email = email
+    lang = u.get("lang")
+    if lang in LANGS:
+        ss["lang"] = lang
+        ss.gate_lang = lang
+    prof = profile_from_json(u.get("profile")) if u.get("profile") else None
+    if prof:
+        ss.profile = prof
+
+
+def issue_device_token(email):
+    ss = st.session_state
+    tok = pysecrets.token_urlsafe(32)
+    h = device_hash(tok)
+
+    def op(users):
+        u = users.get(email)
+        if u:
+            keep = [d for d in u.get("devices", []) if time.time() - d.get("ts", 0) < COOKIE_DAYS * 86400]
+            keep.append({"h": h, "ts": time.time()})
+            u["devices"] = keep[-5:]
+    users_update(op)
+    ss.device_token = tok
+    ss.pending_cookie = tok
+    ss.pending_cookie_runs = 2
+    if not _REG.users_ok:
+        ss.flash = "Could not save your profile to disk, so you may need to sign in again after a restart."
+
+
+def finish_login():
+    ss = st.session_state
+    ss.authenticated = True
+    issue_device_token(ss.auth_email)
+
+
+def gate_enter(email):
+    """After a verified sign-in / new key: resume where onboarding stopped."""
+    ss = st.session_state
+    u = users_load()["users"].get(email) or {}
+    load_user_into_session(email, u)
+    if ss.get("profile"):
+        finish_login()
+    else:
+        ss.onboarding_step = 2
+
+
+# ---- "this device" cookie ----------------------------------------------------------------------
+def cookie_token():
+    try:
+        v = st.context.cookies.get(COOKIE_NAME)
+        return v if isinstance(v, str) and re.fullmatch(r"[A-Za-z0-9_\-]{20,80}", v) else None
+    except Exception:
+        return None
+
+
+def cookie_script(token, clear=False):
+    age = 0 if clear else COOKIE_DAYS * 86400
+    val = "" if clear else token
+    return ("<script>(function(){try{var p=window.parent;var s=p.location.protocol==='https:'?'; Secure':'';"
+            "p.document.cookie='" + COOKIE_NAME + "=" + val + "; Max-Age=" + str(age) +
+            "; Path=/; SameSite=Lax'+s;}catch(e){}})();</script>")
+
+
+def try_cookie_login():
+    ss = st.session_state
+    if ss.get("authenticated") or ss.get("_cookie_tried"):
+        return
+    ss._cookie_tried = True
+    tok = cookie_token()
+    if not tok:
+        return
+    h, now = device_hash(tok), time.time()
+    for email, u in users_load()["users"].items():
+        for d in u.get("devices", []):
+            if hmac.compare_digest(str(d.get("h", "")), h) and now - d.get("ts", 0) < COOKIE_DAYS * 86400:
+                load_user_into_session(email, u)
+                if ss.get("profile"):
+                    ss.authenticated = True
+                    ss.device_token = tok
+                return
+
+
+def forget_device(email, tokens):
+    hashes = [device_hash(t_) for t_ in tokens if t_]
+    if not (email and hashes):
+        return
+
+    def op(users):
+        u = users.get(email)
+        if u:
+            u["devices"] = [d for d in u.get("devices", [])
+                            if not any(hmac.compare_digest(str(d.get("h", "")), h) for h in hashes)]
+    users_update(op)
+
+
+def do_sign_out():
+    """Switch profile: forget this device, wipe every per-user session value, return to Step 1."""
+    ss = st.session_state
+    forget_device(ss.get("auth_email"), (ss.get("device_token"), cookie_token()))
+    lang = ss.get("lang", "English")
+    for k in list(ss.keys()):
+        try:
+            del ss[k]
+        except Exception:
+            pass
+    ss["gate_lang"] = lang
+    ss["clear_cookie_runs"] = 2
+
+
+def sync_user_record():
+    """Keep aurasync_users.json in step with profile / language edits made inside the dashboard."""
+    ss = st.session_state
+    email = ss.get("auth_email")
+    if not email:
+        return
+    prof, lang = ss.get("profile"), ss.get("lang", "English")
+    ss.gate_lang = lang
+    pj = profile_to_json(prof) if prof else None
+    sig = json.dumps([pj, lang], sort_keys=True, default=str)
+    if sig == ss.get("_user_sig"):
+        return
+    ss._user_sig = sig
+
+    def op(users):
+        u = users.get(email)
+        if u:
+            u["lang"], u["profile"] = lang, pj
+    users_update(op)
+
+
+# ---- styling (obsidian glass + champagne gold) ---------------------------------------------------------
+GATE_CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500&display=swap');
+:root { color-scheme: dark; }
+html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] { background-color: #090A0E !important; }
+.stApp { background-image: radial-gradient(ellipse at 50% -5%, rgba(229,195,120,0.10), transparent 62%),
+         radial-gradient(ellipse at 100% 100%, rgba(229,195,120,0.05), transparent 55%) !important; font-family: 'Inter', sans-serif; }
+[data-testid="stHeader"], [data-testid="stBottom"] > div { background: transparent !important; }
+[data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"],
+[data-testid="stExpandSidebarButton"] { display: none !important; }
+.block-container { padding-top: 5vh !important; max-width: 1100px; }
+.stApp p, .stApp li, .stApp label, [data-testid="stWidgetLabel"] p, [data-testid="stMarkdownContainer"] p { color: #F1ECDF; }
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: #9E9A8E !important; text-align: center; }
+/* brand + progress */
+.gate-brand { text-align: center; font-family: 'Playfair Display', serif; font-size: 2.1rem; letter-spacing: .18em; color: #E5C378; text-shadow: 0 0 28px rgba(229,195,120,.35); }
+.gate-tag { text-align: center; letter-spacing: .38em; font-size: .62rem; color: #9E9A8E; margin: .3rem 0 0 0; }
+.gate-step { text-align: center; letter-spacing: .3em; font-size: .68rem; color: #E5C378; margin: 1.5rem 0 .6rem 0; }
+.gate-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 1rem; }
+.gate-dots span { width: 28px; height: 3px; border-radius: 2px; background: rgba(229,195,120,.2); }
+.gate-dots span.on { background: #E5C378; box-shadow: 0 0 10px rgba(229,195,120,.6); }
+.gate-h { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #E5C378; text-align: center; margin-bottom: .2rem; }
+.gate-sub { color: #9E9A8E; font-size: .86rem; text-align: center; margin-bottom: 1.1rem; }
+/* the glass card */
+.st-key-gate_card { background: rgba(18, 21, 28, 0.85); border: 1px solid rgba(229, 195, 120, 0.32); border-radius: 22px;
+  padding: 1.6rem 1.7rem 1.4rem 1.7rem; backdrop-filter: blur(14px);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.65), 0 0 40px rgba(229, 195, 120, 0.08); }
+[data-testid="stForm"] { border: 0 !important; padding: 0 !important; background: transparent !important; }
+[data-testid="stWidgetLabel"] p { color: #9E9A8E !important; font-size: .78rem !important; letter-spacing: .06em; text-transform: uppercase; }
+.st-key-gate_card strong { color: #E5C378; letter-spacing: .06em; font-weight: 500; }
+/* text inputs: dark container, champagne text, centred */
+[data-baseweb="input"], [data-baseweb="base-input"] { background-color: #12151C !important; border-radius: 12px !important; }
+[data-baseweb="input"] { border: 1px solid rgba(229, 195, 120, 0.28) !important; min-height: 48px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45); transition: all .3s ease; }
+[data-baseweb="input"]:hover, [data-baseweb="input"]:focus-within { border-color: rgba(229, 195, 120, 0.65) !important; box-shadow: 0 0 14px rgba(229, 195, 120, 0.2); }
+input { color: #F1ECDF !important; -webkit-text-fill-color: #F1ECDF !important; background: transparent !important; text-align: center !important;
+  font-size: .98rem !important; letter-spacing: .04em; caret-color: #E5C378; }
+input::placeholder { color: #6F6A5C !important; -webkit-text-fill-color: #6F6A5C !important; opacity: 1; }
+input[type="password"] { letter-spacing: .45em; }
+input:-webkit-autofill, input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 1000px #12151C inset !important; -webkit-text-fill-color: #F1ECDF !important; caret-color: #E5C378; }
+[data-testid="stTextInput"] button { background: transparent !important; color: #E5C378 !important; border: 0 !important; }
+[data-testid="stTextInput"] button svg { fill: #E5C378 !important; }
+/* dropdowns: same high-contrast treatment as the dashboard, no white boxes */
+[data-baseweb="select"] * { background-color: transparent !important; }
+div[data-baseweb="select"] > div { background-color: #12151C !important; border: 1px solid rgba(229, 195, 120, 0.28) !important; border-radius: 12px !important;
+  min-height: 48px !important; display: flex !important; align-items: center !important; padding: 0 14px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45) !important; transition: all .3s ease !important; }
+div[data-baseweb="select"] > div:hover, div[data-baseweb="select"] > div:focus-within { border-color: rgba(229, 195, 120, 0.65) !important; box-shadow: 0 0 14px rgba(229, 195, 120, 0.2) !important; }
+div[data-baseweb="select"] div, div[data-baseweb="select"] span, div[data-baseweb="select"] input { color: #F1ECDF !important; -webkit-text-fill-color: #F1ECDF !important;
+  font-family: 'Inter', sans-serif !important; font-size: .95rem !important; letter-spacing: .03em !important; display: flex !important; align-items: center !important; }
+div[data-baseweb="select"] > div > div:first-child { justify-content: center !important; text-align: center !important; }
+div[data-baseweb="select"] svg { fill: #E5C378 !important; width: 18px !important; height: 18px !important; opacity: .85 !important; }
+div[data-baseweb="popover"], div[data-baseweb="popover"] > div, div[data-baseweb="menu"], ul[role="listbox"] {
+  background-color: #12151C !important; border: 1px solid rgba(229, 195, 120, 0.3) !important; border-radius: 12px !important; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7) !important; }
+div[data-baseweb="popover"] *, div[data-baseweb="menu"] *, ul[role="listbox"] * { color: #F1ECDF !important; -webkit-text-fill-color: #F1ECDF !important; }
+div[data-baseweb="popover"] li, ul[role="listbox"] li, li[role="option"] { background-color: transparent !important; padding: 10px 14px !important; font-size: .92rem !important; justify-content: center; text-align: center; }
+div[data-baseweb="popover"] li:hover, ul[role="listbox"] li:hover, li[role="option"]:hover, li[aria-selected="true"] { background-color: rgba(229, 195, 120, 0.2) !important; }
+div[data-baseweb="popover"] li:hover *, li[role="option"]:hover *, li[aria-selected="true"] * { color: #E5C378 !important; -webkit-text-fill-color: #E5C378 !important; }
+/* sign-in / create switch */
+div[role="radiogroup"] { gap: .5rem; flex-wrap: wrap; justify-content: center; margin-bottom: .6rem; }
+div[role="radiogroup"] > label { border: 1px solid rgba(229, 195, 120, 0.3); border-radius: 999px; padding: .38rem 1.2rem; background: rgba(255,255,255,.03); cursor: pointer; transition: all .25s; }
+div[role="radiogroup"] > label:hover { box-shadow: 0 0 16px rgba(229, 195, 120, 0.3); }
+div[role="radiogroup"] > label > div:first-child { display: none; }
+div[role="radiogroup"] > label:has(input:checked) { background: linear-gradient(135deg, #EACB86, #C9A24A); box-shadow: 0 0 20px rgba(229, 195, 120, 0.4); }
+div[role="radiogroup"] > label:has(input:checked) * { color: #141414 !important; font-weight: 600; }
+/* buttons */
+.stButton > button, .stFormSubmitButton > button { background: transparent; color: #E5C378; border: 1px solid rgba(229, 195, 120, 0.55); border-radius: 12px; min-height: 46px; letter-spacing: .06em; transition: all .25s; }
+.stButton > button:hover, .stFormSubmitButton > button:hover { border-color: #E5C378; box-shadow: 0 0 20px rgba(229, 195, 120, 0.35); color: #F1ECDF; }
+[data-testid="stBaseButton-primary"], [data-testid="stBaseButton-primaryFormSubmit"], button[kind="primary"], button[kind="primaryFormSubmit"] {
+  background: linear-gradient(135deg, #EACB86, #C9A24A) !important; color: #141414 !important; border: 0 !important; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; }
+[data-testid="stBaseButton-primary"]:hover, [data-testid="stBaseButton-primaryFormSubmit"]:hover, button[kind="primary"]:hover, button[kind="primaryFormSubmit"]:hover { box-shadow: 0 0 26px rgba(229, 195, 120, 0.55); color: #141414 !important; }
+.stButton button p, .stFormSubmitButton button p { color: inherit !important; }
+/* messages */
+[data-testid="stAlert"] { background-color: rgba(229, 195, 120, 0.08) !important; border: 1px solid rgba(229, 195, 120, 0.4); border-radius: 12px; }
+[data-testid="stAlert"] *, [data-testid="stSpinner"] * { color: #F1ECDF !important; }
+</style>
+"""
+
+
+# ---- the three steps -----------------------------------------------------------------------------------------
+def cb_gate_lang():
+    ss = st.session_state
+    ss.gate_lang = ss.get("lang", "English")
+    email = ss.get("auth_email")
+    if email:
+        lang = ss.gate_lang
+        users_update(lambda users: users[email].update(lang=lang) if email in users else None)
+
+
+def cb_gate_next(step):
+    st.session_state.onboarding_step = step
+
+
+def cb_gate_back():
+    ss = st.session_state
+    if ss.get("onboarding_step", 1) <= 2:
+        ss.auth_email = None
+        ss.onboarding_step = 1
+    else:
+        ss.onboarding_step = 2
+
+
+def gate_step1():
+    ss = st.session_state
+    st.markdown('<div class="gate-h">Concierge Access</div>'
+                '<div class="gate-sub">Welcome. Present your key to step inside.</div>', unsafe_allow_html=True)
+    mode = st.radio("Access", ["signin", "create"], horizontal=True, key="gate_mode", label_visibility="collapsed",
+                    format_func=lambda m: "Sign In" if m == "signin" else "Create Luxury Key")
+    with st.form("gate_access"):
+        email = st.text_input("Email ID", key="gate_email")
+        pin = st.text_input("4-Digit Access PIN", type="password", max_chars=4, key="gate_pin", placeholder="••••")
+        pin2 = (st.text_input("Confirm PIN", type="password", max_chars=4, key="gate_pin2", placeholder="••••")
+                if mode == "create" else None)
+        go = st.form_submit_button("Create Luxury Key" if mode == "create" else "Sign In", type="primary",
+                                   use_container_width=True)
+    if go:
+        em = (email or "").strip().lower()
+        if gate_throttled():
+            st.error("Too many attempts. Please wait a few minutes and try again.")
+        elif not EMAIL_RX.match(em):
+            st.error("Please enter a valid email address.")
+        elif not PIN_RX.match(pin or ""):
+            st.error("The access PIN must be exactly 4 digits.")
+        elif mode == "create":
+            if pin != pin2:
+                st.error("The two PINs do not match.")
+            elif create_user(em, pin) == "exists":
+                st.error("This email already holds a Luxury Key. Please sign in instead.")
+            else:
+                ss.auth_email = em
+                ss.onboarding_step = 2
+                st.rerun()
+        else:
+            res = verify_user(em, pin)
+            if res == "ok":
+                gate_enter(em)
+                st.rerun()
+            elif res == "locked":
+                st.error("This key is temporarily locked after repeated attempts. Please try again in a few minutes.")
+            else:
+                gate_note_fail()
+                st.error("Email or PIN not recognised.")
+    st.caption("🔒 Your PIN is stored only as a salted hash.")
+
+
+def gate_step2():
+    st.markdown('<div class="gate-h">System Language</div>'
+                '<div class="gate-sub">Every screen, label and message will follow your choice. '
+                'You can change it any time from the sidebar.</div>', unsafe_allow_html=True)
+    st.selectbox("System language", LANGS, key="lang", on_change=cb_gate_lang)
+    b1, b2 = st.columns(2)
+    b1.button("← Back", key="gate_back2", on_click=cb_gate_back, use_container_width=True)
+    b2.button("Continue", key="gate_next2", type="primary", on_click=cb_gate_next, args=(3,), use_container_width=True)
+
+
+def gate_step3():
+    ss = st.session_state
+    p = ss.get("profile") or {}
+    dob0 = p.get("dob", date(1995, 1, 1))
+    st.markdown('<div class="gate-h">Chrono &amp; Biorhythm Calibration</div>'
+                '<div class="gate-sub">Your birth details power the astrological readings in Inner Voice.</div>',
+                unsafe_allow_html=True)
+    with st.form("gate_calibration"):
+        name = st.text_input("Full Name", value=p.get("name", ""), key="gate_name")
+        st.markdown("**Date of Birth**")
+        d1, d2, d3 = st.columns(3)
+        dday = d1.selectbox("Day", list(range(1, 32)), index=dob0.day - 1, key="gate_day")
+        dmon = d2.selectbox("Month", list(range(1, 13)), index=dob0.month - 1, key="gate_mon",
+                            format_func=lambda m: MONTHS[m - 1])
+        dyear = d3.selectbox("Year", list(range(1940, 2041)), index=min(max(dob0.year, 1940), 2040) - 1940, key="gate_year")
+        st.markdown("**Birth Time**")
+        t1, t2, t3 = st.columns(3)
+        hr = t1.selectbox("Hour", list(range(1, 13)), index=int(p.get("h", 6)) - 1, key="gate_h")
+        mn = t2.selectbox("Minute", list(range(0, 60)), index=int(p.get("m", 0)), key="gate_m",
+                          format_func=lambda x: str(x).zfill(2))
+        ap = t3.selectbox("AM / PM", ["AM", "PM"], index=0 if p.get("ap", "AM") == "AM" else 1, key="gate_ap")
+        pob = st.text_input("Birth Place / City", value=p.get("pob", ""), key="gate_pob")
+        go = st.form_submit_button("Initialize AuraSync", type="primary", use_container_width=True)
+    st.button("← Back", key="gate_back3", on_click=cb_gate_back, use_container_width=True)
+    if go:
+        if not name.strip() or not pob.strip():
+            st.warning(t("need_fields"))
+            return
+        dob = date(dyear, dmon, min(dday, calendar.monthrange(dyear, dmon)[1]))
+        prof = {"name": name.strip()[:80], "dob": dob, "pob": pob.strip()[:80],
+                "tob": str(hr).zfill(2) + ":" + str(mn).zfill(2) + " " + ap, "h": hr, "m": mn, "ap": ap}
+        email = ss.auth_email
+        pj = profile_to_json(prof)
+        users_update(lambda users: users[email].update(profile=pj, lang=ss.get("lang", "English")) if email in users else None)
+        ss.profile = prof                       # same shape the dashboard's own profile form writes
+        ss.editing, ss.chat, ss.chimed, ss.last_topic = False, [], False, None
+        finish_login()
+        st.rerun()
+
+
+def render_onboarding_gate():
+    ss = st.session_state
+    install_i18n()
+    st.markdown(GATE_CSS, unsafe_allow_html=True)
+    code = lang_code()
+    if code and mt_available() and not ss.get("i18n_ok_" + code):
+        with st.spinner(t("i18n_wait")):
+            ss["i18n_ok_" + code] = bool(i18n_prefetch())
+    if ss.get("clear_cookie_runs", 0) > 0:
+        components.html(cookie_script("", clear=True), height=0)
+        ss.clear_cookie_runs -= 1
+    step = ss.get("onboarding_step", 1)
+    if step not in (1, 2, 3) or (step > 1 and not ss.get("auth_email")):
+        step = ss.onboarding_step = 1
+    _, mid, _ = st.columns([1, 1.55, 1])
+    with mid:
+        st.markdown('<div class="gate-brand">✨ <span translate="no">AuraSync</span></div>'
+                    '<div class="gate-tag">LUXURY AMBIENT INTELLIGENCE</div>', unsafe_allow_html=True)
+        st.markdown('<div class="gate-step">' + STEP_LABELS[step] + '</div><div class="gate-dots">' +
+                    "".join('<span class="on"></span>' if i <= step else "<span></span>" for i in (1, 2, 3)) + "</div>",
+                    unsafe_allow_html=True)
+        try:
+            card = st.container(key="gate_card")
+        except TypeError:
+            card = st.container()
+        with card:
+            {1: gate_step1, 2: gate_step2, 3: gate_step3}[step]()
+
+
+# ---- wiring ---------------------------------------------------------------------------------------------------------
+def init_gate_state():
+    ss = st.session_state
+    if "authenticated" not in ss:
+        ss.authenticated = False
+    if "onboarding_step" not in ss:
+        ss.onboarding_step = 1
+    if "auth_email" not in ss:
+        ss.auth_email = None
+    if "lang" not in ss:                         # survives the gate even though "lang" is a sidebar widget key
+        g = ss.get("gate_lang")
+        ss["lang"] = g if g in LANGS else "English"
+
+
+def is_automation_link():
+    """?mode=...&token=... voice-automation links keep working exactly as before (the token is checked inside)."""
+    try:
+        return "mode" in st.query_params and "token" in st.query_params
+    except Exception:
+        return False
+
+
+def gate_post_dashboard():
+    ss = st.session_state
+    if not ss.get("authenticated"):
+        return
+    with st.sidebar:
+        st.divider()
+        st.markdown('<div style="font-size:.74rem;opacity:.7;letter-spacing:.04em">🔐 <span translate="no">' +
+                    html.escape(str(ss.get("auth_email") or "")) + "</span></div>", unsafe_allow_html=True)
+        st.button("Sign Out / Switch Profile", key="aura_sign_out", on_click=do_sign_out, use_container_width=True)
+    sync_user_record()
+    if ss.get("pending_cookie") and ss.get("pending_cookie_runs", 0) > 0:
+        components.html(cookie_script(ss.pending_cookie), height=0)
+        ss.pending_cookie_runs -= 1
+
+
+def main():
+    ss = st.session_state
+    init_gate_state()
+    if not ss.authenticated:
+        try_cookie_login()
+    if ss.authenticated or is_automation_link():
+        render_main_dashboard()
+        gate_post_dashboard()
+    else:
+        render_onboarding_gate()
 
 
 main()
